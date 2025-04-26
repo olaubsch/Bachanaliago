@@ -13,13 +13,22 @@ function UserPanel() {
   const handleLogin = async () => {
     try {
       await axios.post("/api/users/login", { nickname, groupCode });
+
       const res = await axios.get(`/api/groups/${groupCode.toUpperCase()}`);
       setGroupName(res.data.name);
+
       setIsLoggedIn(true);
       fetchTasks();
     } catch (err) {
       console.error(err);
-      alert("Nie udało się zalogować");
+      if (
+        err.response &&
+        err.response.data.error === "Grupa pełna (max 5 osób)"
+      ) {
+        alert("Grupa jest pełna! Max 5 osób.");
+      } else {
+        alert("Nie udało się zalogować");
+      }
     }
   };
 
