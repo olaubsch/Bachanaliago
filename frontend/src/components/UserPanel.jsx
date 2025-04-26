@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import MapElement from './MapElement';
 
 function UserPanel() {
   const [nickname, setNickname] = useState("");
@@ -88,6 +89,7 @@ function UserPanel() {
           <p>
             Grupa: {groupName} (Kod: {groupCode})
           </p>
+          <MapElement tasks={tasks} />
           <h3>Lista Tasków:</h3>
           <ul>
             {tasks.map((task) => (
