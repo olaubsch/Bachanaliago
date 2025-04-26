@@ -6,10 +6,15 @@ function UserPanel() {
   const [groupCode, setGroupCode] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [tasks, setTasks] = useState([]);
+  const [newGroupName, setNewGroupName] = useState("");
+  const [groupCreated, setGroupCreated] = useState(null);
+  const [groupName, setGroupName] = useState("");
 
   const handleLogin = async () => {
     try {
       await axios.post("/api/users/login", { nickname, groupCode });
+      const res = await axios.get(`/api/groups/${groupCode.toUpperCase()}`);
+      setGroupName(res.data.name);
       setIsLoggedIn(true);
       fetchTasks();
     } catch (err) {
@@ -24,6 +29,22 @@ function UserPanel() {
       setTasks(res.data);
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleCreateGroup = async () => {
+    console.log("Wysyłam:", { name: newGroupName });
+
+    if (!newGroupName.trim()) {
+      alert("Podaj nazwę grupy!");
+      return;
+    }
+    try {
+      const res = await axios.post("/api/groups", { name: newGroupName });
+      setGroupCreated(res.data);
+    } catch (err) {
+      console.error(err);
+      alert("Błąd tworzenia grupy");
     }
   };
 
@@ -45,16 +66,34 @@ function UserPanel() {
             onChange={(e) => setGroupCode(e.target.value)}
           />
           <button onClick={handleLogin}>Zaloguj</button>
+
+          <h3>Lub stwórz nową grupę</h3>
+          <input
+            type="text"
+            placeholder="Nazwa Grupy"
+            value={newGroupName}
+            onChange={(e) => setNewGroupName(e.target.value)}
+          />
+          <button onClick={handleCreateGroup}>Stwórz Grupę</button>
+
+          {groupCreated && (
+            <p>
+              Utworzono grupę: {groupCreated.name} (Kod: {groupCreated.code})
+            </p>
+          )}
         </div>
       ) : (
         <div>
           <h2>Witaj, {nickname}!</h2>
+          <p>
+            Grupa: {groupName} (Kod: {groupCode})
+          </p>
           <h3>Lista Tasków:</h3>
           <ul>
             {tasks.map((task) => (
               <li key={task._id}>
                 {task.name} - {task.description} ({task.location.lat},{" "}
-                {task.location.lng}) - Radius: {task.radius}m
+                {task.location.lng})
               </li>
             ))}
           </ul>
