@@ -25,16 +25,42 @@ function UserPanel() {
     "#8093f1",
   ];
 
+  const userColors = useMemo(() => {
+    const colorMap = {};
+    groupUsers.forEach((user) => {
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      colorMap[user._id] = randomColor;
+    });
+    return colorMap;
+  }, [groupUsers]);
+
+  useEffect(() => {
+    const storedNickname = localStorage.getItem('nickname');
+    const storedGroupCode = localStorage.getItem('groupCode');
+    if (storedNickname && storedGroupCode) {
+      setNickname(storedNickname);
+      setGroupCode(storedGroupCode);
+      setIsLoggedIn(true);
+      fetchTasks();
+      axios.get(`/api/groups/${storedGroupCode.toUpperCase()}`)
+        .then(res => {
+          setGroupName(res.data.name);
+          setGroupUsers(res.data.users);
+        })
+        .catch(err => console.error(err));
+    }
+  }, []);
+
   const handleLogin = async () => {
     try {
       await axios.post("/api/users/login", { nickname, groupCode });
-
       const res = await axios.get(`/api/groups/${groupCode.toUpperCase()}`);
       setGroupName(res.data.name);
-      setGroupUsers(groupUsersMock);
-
+      setGroupUsers(res.data.users);
       setIsLoggedIn(true);
       fetchTasks();
+      localStorage.setItem('nickname', nickname);
+      localStorage.setItem('groupCode', groupCode);
     } catch (err) {
       console.error(err);
       if (
@@ -48,6 +74,17 @@ function UserPanel() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('nickname');
+    localStorage.removeItem('groupCode');
+    setIsLoggedIn(false);
+    setNickname('');
+    setGroupCode('');
+    setGroupName('');
+    setGroupUsers([]);
+    setTasks([]);
+  };
+
   const fetchTasks = async () => {
     try {
       const res = await axios.get("/api/tasks");
@@ -59,7 +96,6 @@ function UserPanel() {
 
   const handleCreateGroup = async () => {
     console.log("Wysyłam:", { name: newGroupName });
-
     if (!newGroupName.trim()) {
       alert("Podaj nazwę grupy!");
       return;
@@ -72,43 +108,6 @@ function UserPanel() {
       alert("Błąd tworzenia grupy");
     }
   };
-
-  const groupUsersMock = [
-    {
-      _id: "user1",
-      nickname: "Alice",
-      role: "admin",
-    },
-    {
-      _id: "user2",
-      nickname: "Bob",
-      role: "member",
-    },
-    {
-      _id: "user3",
-      nickname: "Charlie",
-      role: "member",
-    },
-    {
-      _id: "user4",
-      nickname: "Dave",
-      role: "member",
-    },
-    {
-      _id: "user5",
-      nickname: "Eve",
-      role: "member",
-    },
-  ];
-
-  const userColors = useMemo(() => {
-    const colorMap = {};
-    groupUsers.forEach((user) => {
-      const randomColor = colors[Math.floor(Math.random() * colors.length)];
-      colorMap[user._id] = randomColor;
-    });
-    return colorMap;
-  }, [groupUsers]);
 
   const handleScanResult = (result) => {
     console.log("Otrzymano wynik skanowania w komponencie nadrzędnym:", result);
@@ -196,7 +195,6 @@ function UserPanel() {
                       Location: ({task.location.lat}, {task.location.lng})
                     </div>
 
-                    {/* MAPA W ŚRODKU SZCZEGÓŁÓW */}
                     <div className={styles.taskMap}>
                       <MapElement tasks={[task]} />
                     </div>
@@ -214,6 +212,8 @@ function UserPanel() {
               <li key={user._id}>{user.nickname}</li>
             ))}
           </ul>
+
+          <button onClick={handleLogout}>Wyloguj</button>
         </div>
       )}
     </div>
