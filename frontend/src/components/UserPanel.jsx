@@ -10,6 +10,7 @@ function UserPanel() {
   const [newGroupName, setNewGroupName] = useState("");
   const [groupCreated, setGroupCreated] = useState(null);
   const [groupName, setGroupName] = useState("");
+  const [groupUsers, setGroupUsers] = useState([]);
 
   const handleLogin = async () => {
     try {
@@ -17,6 +18,7 @@ function UserPanel() {
 
       const res = await axios.get(`/api/groups/${groupCode.toUpperCase()}`);
       setGroupName(res.data.name);
+      setGroupUsers(res.data.users);
 
       setIsLoggedIn(true);
       fetchTasks();
@@ -106,6 +108,12 @@ function UserPanel() {
                 {task.name} - {task.description} ({task.location.lat},{" "}
                 {task.location.lng})
               </li>
+            ))}
+          </ul>
+          <h3>Członkowie grupy:</h3>
+          <ul>
+            {groupUsers.map((user) => (
+              <li key={user._id}>{user.nickname}</li>
             ))}
           </ul>
         </div>
