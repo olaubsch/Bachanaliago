@@ -3,6 +3,7 @@ import axios from "axios";
 import MapElement from "./MapElement";
 import styles from "./modules/UserPanel.module.css";
 import { motion } from "framer-motion";
+import QrScanner from "./QrScanner.jsx";
 
 function UserPanel() {
   const [nickname, setNickname] = useState("");
@@ -12,6 +13,8 @@ function UserPanel() {
   const [newGroupName, setNewGroupName] = useState("");
   const [groupCreated, setGroupCreated] = useState(null);
   const [groupName, setGroupName] = useState("");
+  const [groupUsers, setGroupUsers] = useState([]);
+  const [expandedTaskId, setExpandedTaskId] = useState(null);
 
   const handleLogin = async () => {
     try {
@@ -19,6 +22,7 @@ function UserPanel() {
 
       const res = await axios.get(`/api/groups/${groupCode.toUpperCase()}`);
       setGroupName(res.data.name);
+      setGroupUsers(res.data.users);
 
       setIsLoggedIn(true);
       fetchTasks();
@@ -59,6 +63,16 @@ function UserPanel() {
       alert("Błąd tworzenia grupy");
     }
   };
+
+  const handleScanResult = (result) => {
+    console.log("Otrzymano wynik skanowania w komponencie nadrzędnym:", result);
+    alert(`Zeskanowano: ${result}`);
+  };
+
+  const toggleTask = (taskId) => {
+    setExpandedTaskId((prevId) => (prevId === taskId ? null : taskId));
+  };
+
 
   return (
     <div className={styles.loginContainer}>
@@ -102,12 +116,30 @@ function UserPanel() {
           </p>
           <MapElement tasks={tasks} />
           <h3>Lista Tasków:</h3>
+            <div className="task-list">
+              {tasks.map((task) => (
+                  <div key={task._id} className="task-list-element">
+                    <div
+                        onClick={() => toggleTask(task._id)}
+                        style={{cursor: 'pointer', fontWeight: 'bold', padding: '8px', borderBottom: '1px solid #ccc'}}
+                    >
+                      {task.name}
+                    </div>
+
+                    {expandedTaskId === task._id && (
+                        <div style={{padding: '8px', backgroundColor: '#f9f9f9'}}>
+                          <div>{task.description}</div>
+                          <div>Location: ({task.location.lat}, {task.location.lng})</div>
+                          <QrScanner onScanSuccess={handleScanResult}/>
+                        </div>
+                    )}
+                  </div>
+              ))}
+            </div>
+          <h3>Członkowie grupy:</h3>
           <ul>
-            {tasks.map((task) => (
-              <li key={task._id}>
-                {task.name} - {task.description} ({task.location.lat},{" "}
-                {task.location.lng})
-              </li>
+            {groupUsers.map((user) => (
+              <li key={user._id}>{user.nickname}</li>
             ))}
           </ul>
         </div>

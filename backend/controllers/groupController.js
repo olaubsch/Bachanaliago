@@ -28,7 +28,7 @@ exports.createGroup = async (req, res) => {
 exports.getGroupByCode = async (req, res) => {
   const { code } = req.params;
   try {
-    const group = await Group.findOne({ code });
+    const group = await Group.findOne({ code }).populate('users');;
     if (!group) {
       return res.status(404).json({ error: "Grupa nie znaleziona" });
     }
