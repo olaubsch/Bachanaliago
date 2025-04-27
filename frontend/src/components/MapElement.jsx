@@ -1,9 +1,17 @@
 import { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Custom icon for user marker
+// Custom icon for task markers
+const taskIcon = new L.Icon({
+  iconUrl: 'https://cdn-icons-png.flaticon.com/512/1182/1182720.png', // Example task icon
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+});
+
+// Custom icon for user marker (to make it distinct)
 const userIcon = new L.Icon({
   iconUrl: 'https://cdn-icons-png.flaticon.com/512/1673/1673223.png', // Example user icon
   iconSize: [25, 41],
@@ -63,16 +71,15 @@ function MapElement({ tasks }) {
       <Marker position={position} icon={userIcon}>
         <Popup>Your location</Popup>
       </Marker>
-      {/* Task circles */}
+      {/* Task markers */}
       {tasks.map((task) => (
-        <Circle
+        <Marker
           key={task._id}
-          center={[task.location.lat, task.location.lng]}
-          radius={100} // 100 meters
-          pathOptions={{ color: 'blue', fillColor: 'blue', fillOpacity: 0.5 }}
+          position={[task.location.lat, task.location.lng]}
+          icon={taskIcon}
         >
           <Popup>{task.name}</Popup>
-        </Circle>
+        </Marker>
       ))}
     </MapContainer>
   );
