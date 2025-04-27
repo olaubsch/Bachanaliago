@@ -37,3 +37,22 @@ exports.getGroupByCode = async (req, res) => {
     res.status(500).json({ error: "Błąd pobierania grupy" });
   }
 };
+
+exports.getLeaderboard = async (req, res) => {
+  try {
+    const groups = await Group.find()
+      .sort({ tasksCompleted: -1 })
+      .select("name code tasksCompleted");
+
+    console.log("Pobrane grupy:", groups); // <-- TO DODAJ
+
+    res.json(groups);
+  } catch (err) {
+    console.error("Błąd pobierania leaderboarda:", err);
+    res.status(500).json({ error: "Błąd pobierania leaderboarda" });
+  }
+};
+
+
+
+

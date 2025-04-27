@@ -5,6 +5,7 @@ import styles from "./modules/UserPanel.module.css";
 import { motion } from "framer-motion";
 import QrScanner from "./QrScanner.jsx";
 import "./UserPanel.css";
+import Leaderboard from "./LeaderBoard";
 
 function UserPanel() {
   const [nickname, setNickname] = useState("");
@@ -94,6 +95,8 @@ function UserPanel() {
     }
   };
 
+  
+
   const handleCreateGroup = async () => {
     console.log("Wysyłam:", { name: newGroupName });
     if (!newGroupName.trim()) {
@@ -170,6 +173,8 @@ function UserPanel() {
             ))}
           </div>
 
+          
+          <MapElement tasks={tasks} />
           <h3>Lista Tasków:</h3>
           <div className={styles.taskList}>
             {tasks.map((task) => (
@@ -214,6 +219,7 @@ function UserPanel() {
           </ul>
 
           <button onClick={handleLogout}>Wyloguj</button>
+          <Leaderboard />
         </div>
       )}
     </div>
