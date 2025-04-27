@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import TaskMapPicker from "./TaskMapPicker";
 
 function TaskForm({ onTaskAdded }) {
   const [name, setName] = useState("");
@@ -9,6 +10,10 @@ function TaskForm({ onTaskAdded }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!lat || !lng) {
+      alert("Please select a location on the map");
+      return;
+    }
     try {
       await axios.post("/api/tasks", {
         name,
@@ -16,10 +21,10 @@ function TaskForm({ onTaskAdded }) {
         location: { lat: parseFloat(lat), lng: parseFloat(lng) },
       });
       alert("Task dodany");
-      setName();
-      setDescription();
-      setLat();
-      setLng();
+      setName("");
+      setDescription("");
+      setLat("");
+      setLng("");
       onTaskAdded();
     } catch (err) {
       console.error(err);
@@ -44,20 +49,11 @@ function TaskForm({ onTaskAdded }) {
         onChange={(e) => setDescription(e.target.value)}
         required
       />
-      <input
-        type="number"
-        placeholder="Lat"
-        value={lat}
-        onChange={(e) => setLat(e.target.value)}
-        required
-      />
-      <input
-        type="number"
-        placeholder="Lng"
-        value={lng}
-        onChange={(e) => setLng(e.target.value)}
-        required
-      />
+      <TaskMapPicker setLat={setLat} setLng={setLng} />
+      <div>
+        Selected Coordinates: {lat ? lat.toFixed(4) : "Not selected"},{" "}
+        {lng ? lng.toFixed(4) : "Not selected"}
+      </div>
       <button type="submit">Dodaj Taska</button>
     </form>
   );
