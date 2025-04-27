@@ -93,3 +93,47 @@ html {
   transform: scale(1.05);
   box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
 }
+
+.taskList {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  gap: 15px;
+  max-height: 400px;
+  padding: 10px;
+}
+
+.taskCard {
+  flex: 0 0 auto;
+  width: 250px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  color: white;
+  scroll-snap-align: start;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.taskCard:hover {
+  transform: scale(1.05);
+}
+
+.taskHeader {
+  padding: 12px;
+  font-weight: bold;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+}
+
+.taskDetails {
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.taskMap {
+  height: 200px;
+  margin: 10px 0;
+  border-radius: 8px;
+  overflow: hidden;
+}

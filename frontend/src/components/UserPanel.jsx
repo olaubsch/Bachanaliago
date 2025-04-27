@@ -73,7 +73,6 @@ function UserPanel() {
     setExpandedTaskId((prevId) => (prevId === taskId ? null : taskId));
   };
 
-
   return (
     <div className={styles.loginContainer}>
       {!isLoggedIn ? (
@@ -114,28 +113,43 @@ function UserPanel() {
           <p>
             Grupa: {groupName} (Kod: {groupCode})
           </p>
-          <MapElement tasks={tasks} />
           <h3>Lista Tasków:</h3>
-            <div className="task-list">
-              {tasks.map((task) => (
-                  <div key={task._id} className="task-list-element">
-                    <div
-                        onClick={() => toggleTask(task._id)}
-                        style={{cursor: 'pointer', fontWeight: 'bold', padding: '8px', borderBottom: '1px solid #ccc'}}
-                    >
-                      {task.name}
+          <div className={styles.taskList}>
+            {tasks.map((task) => (
+              <motion.div
+                key={task._id}
+                className={styles.taskCard}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4 }}
+              >
+                <div
+                  onClick={() => toggleTask(task._id)}
+                  className={styles.taskHeader}
+                >
+                  {task.name}
+                </div>
+
+                {expandedTaskId === task._id && (
+                  <div className={styles.taskDetails}>
+                    <div>{task.description}</div>
+                    <div>
+                      Location: ({task.location.lat}, {task.location.lng})
                     </div>
 
-                    {expandedTaskId === task._id && (
-                        <div style={{padding: '8px', backgroundColor: '#f9f9f9'}}>
-                          <div>{task.description}</div>
-                          <div>Location: ({task.location.lat}, {task.location.lng})</div>
-                          <QrScanner onScanSuccess={handleScanResult}/>
-                        </div>
-                    )}
+                    {/* MAPA W ŚRODKU SZCZEGÓŁÓW */}
+                    <div className={styles.taskMap}>
+                      <MapElement tasks={[task]} />
+                    </div>
+
+                    <QrScanner onScanSuccess={handleScanResult} />
                   </div>
-              ))}
-            </div>
+                )}
+              </motion.div>
+            ))}
+          </div>
+
           <h3>Członkowie grupy:</h3>
           <ul>
             {groupUsers.map((user) => (
