@@ -1,0 +1,95 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body,
+html {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.loginContainer {
+  background-image: url("src/assets/login-background.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+}
+
+.loginForm {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(5.6px);
+  -webkit-backdrop-filter: blur(5.6px);
+  border: 1px solid rgba(255, 255, 255, 0.31);
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: clamp(300px, 30%, 500px);
+  text-align: center;
+}
+
+.loginForm h2,
+.loginForm h3,
+.loginForm p {
+  color: white;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.2), 0 0 10px rgba(63, 94, 251, 0.1),
+    0 0 15px rgba(252, 70, 107, 0.4);
+}
+.loginForm h3 {
+  margin: 50px 0 0 0;
+}
+
+.loginForm p {
+  margin-top: 30px;
+}
+
+.loginForm input {
+  width: 80%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 5px;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+}
+
+.loginForm input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.loginForm input:focus,
+.loginForm input:active {
+  outline: none;
+  border: 1px solid rgba(252, 70, 107, 0.8);
+  box-shadow: 0 0 8px rgba(252, 70, 107, 0.5);
+  background-color: rgba(255, 255, 255, 0.15);
+  transition: box-shadow 0.3s ease, border 0.3s ease, background-color 0.3s ease;
+}
+
+.loginForm button {
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.loginForm button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+}

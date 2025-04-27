@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import MapElement from './MapElement';
+import MapElement from "./MapElement";
+import styles from "./modules/UserPanel.module.css";
+import { motion } from "framer-motion";
 
 function UserPanel() {
   const [nickname, setNickname] = useState("");
@@ -59,9 +61,9 @@ function UserPanel() {
   };
 
   return (
-    <div>
+    <div className={styles.loginContainer}>
       {!isLoggedIn ? (
-        <div>
+        <div className={styles.loginForm}>
           <h2>Logowanie Gracza</h2>
           <input
             type="text"
