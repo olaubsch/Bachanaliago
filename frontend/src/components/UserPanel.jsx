@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import MapElement from "./MapElement";
 import styles from "./modules/UserPanel.module.css";
 import { motion } from "framer-motion";
 import QrScanner from "./QrScanner.jsx";
+import "./UserPanel.css";
 
 function UserPanel() {
   const [nickname, setNickname] = useState("");
@@ -13,8 +14,16 @@ function UserPanel() {
   const [newGroupName, setNewGroupName] = useState("");
   const [groupCreated, setGroupCreated] = useState(null);
   const [groupName, setGroupName] = useState("");
-  const [groupUsers, setGroupUsers] = useState([]);
   const [expandedTaskId, setExpandedTaskId] = useState(null);
+  const [groupUsers, setGroupUsers] = useState([]);
+  const colors = [
+    "#ee6055",
+    "#60d394",
+    "#aaf683",
+    "#ffd97d",
+    "#ff9b85",
+    "#8093f1",
+  ];
 
   const handleLogin = async () => {
     try {
@@ -22,7 +31,7 @@ function UserPanel() {
 
       const res = await axios.get(`/api/groups/${groupCode.toUpperCase()}`);
       setGroupName(res.data.name);
-      setGroupUsers(res.data.users);
+      setGroupUsers(groupUsersMock);
 
       setIsLoggedIn(true);
       fetchTasks();
@@ -63,6 +72,43 @@ function UserPanel() {
       alert("Błąd tworzenia grupy");
     }
   };
+
+  const groupUsersMock = [
+    {
+      _id: "user1",
+      nickname: "Alice",
+      role: "admin",
+    },
+    {
+      _id: "user2",
+      nickname: "Bob",
+      role: "member",
+    },
+    {
+      _id: "user3",
+      nickname: "Charlie",
+      role: "member",
+    },
+    {
+      _id: "user4",
+      nickname: "Dave",
+      role: "member",
+    },
+    {
+      _id: "user5",
+      nickname: "Eve",
+      role: "member",
+    },
+  ];
+
+  const userColors = useMemo(() => {
+    const colorMap = {};
+    groupUsers.forEach((user) => {
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      colorMap[user._id] = randomColor;
+    });
+    return colorMap;
+  }, [groupUsers]);
 
   const handleScanResult = (result) => {
     console.log("Otrzymano wynik skanowania w komponencie nadrzędnym:", result);
@@ -113,6 +159,18 @@ function UserPanel() {
           <p>
             Grupa: {groupName} (Kod: {groupCode})
           </p>
+          <div className="user-list">
+            {groupUsers.map((user) => (
+              <div
+                className="user-icon"
+                key={user._id}
+                style={{ backgroundColor: userColors[user._id] }}
+              >
+                {user.nickname.slice(0, 2).toUpperCase()}
+              </div>
+            ))}
+          </div>
+
           <h3>Lista Tasków:</h3>
           <div className={styles.taskList}>
             {tasks.map((task) => (
