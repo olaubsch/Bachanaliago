@@ -5,4 +5,6 @@ const userSchema = new mongoose.Schema({
   groupCode: String,
 });
 
+userSchema.index({ nickname: 1, groupCode: 1 }, { unique: true });
+
 module.exports = mongoose.model("User", userSchema);

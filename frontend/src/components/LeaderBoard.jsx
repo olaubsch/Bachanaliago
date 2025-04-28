@@ -42,7 +42,7 @@ const Leaderboard = () => {
             {groups.map((group) => (
               <tr key={group._id}>
                 <td>{group.name}</td>
-                <td>{group.tasksCompleted ?? 0}</td> {/* Jeśli nie ma - pokaż 0 */}
+                <td>{group.tasksCompleted ?? 0}</td>
               </tr>
             ))}
           </tbody>
