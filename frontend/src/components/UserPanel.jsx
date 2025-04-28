@@ -4,7 +4,7 @@ import MapElement from "./MapElement";
 import styles from "./modules/UserPanel.module.css";
 import { motion } from "framer-motion";
 import QrScanner from "./QrScanner.jsx";
-import "./UserPanel.css";
+//import "./UserPanel.css";
 import Leaderboard from "./LeaderBoard";
 
 function UserPanel() {
@@ -21,14 +21,15 @@ function UserPanel() {
   const [currentUser, setCurrentUser] = useState(null);
   const [isOwner, setIsOwner] = useState(false);
   const [groupScore, setGroupScore] = useState(0);
+  const [showPopup, setShowPopup] = useState(false);
 
   const colors = [
     "#ee6055",
-    "#60d394",
+    "#acd8aa",
     "#aaf683",
     "#ffd97d",
     "#ff9b85",
-    "#8093f1",
+    "#f48498",
   ];
 
   const userColors = useMemo(() => {
@@ -239,6 +240,8 @@ function UserPanel() {
     setExpandedTaskId((prevId) => (prevId === taskId ? null : taskId));
   };
 
+  const otherUsers = groupUsers.filter(user => user.nickname !== nickname);
+
   return (
     <div className={styles.loginContainer}>
       {!isLoggedIn ? (
@@ -281,64 +284,112 @@ function UserPanel() {
         </div>
       ) : (
         <div>
-          <h2>Witaj, {nickname}!</h2>
-          <p>
-            Grupa: {groupName} - {} (Kod: {groupCode})
-          </p>
-          <div className="user-list">
-            {groupUsers.map((user) => (
-              <div
-                className="user-icon"
-                key={user._id}
-                style={{ backgroundColor: userColors[user._id] }}
-              >
-                {user.nickname.slice(0, 2).toUpperCase()}
+          <div className={styles.header_color}>
+            <div className={styles.header}>
+              <h2 className={styles.group_name}>
+                {groupName} - {groupCode}
+              </h2>
+              <div className={styles.user_list}>
+                {/* FRIENDS section */}
+                <div
+                    style={{display: "flex", cursor: "pointer"}}
+                    onClick={() => setShowPopup(true)}
+                >
+                  {otherUsers.map((user) => (
+                      <div
+                          className={styles.user_icon}
+                          key={user._id}
+                          style={{backgroundColor: userColors[user._id]}}
+                      >
+                        {user.nickname.slice(0, 2).toUpperCase()}
+                      </div>
+                  ))}
+                  <div className={styles.user_icon_add}><p className={styles.add}>+</p></div>
+                </div>
+
+                {/* Main user */}
+                <div className={styles.user_icon_main}>
+                  {nickname.slice(0, 2).toUpperCase()}
+                </div>
+
+                {/* Pop-up */}
+                {showPopup && (
+                    <div className={styles.popup_overlay} onClick={() => setShowPopup(false)}>
+                      <div className={styles.popup_content} onClick={(e) => e.stopPropagation()}>
+                        <div>
+                          <h2>Członkowie grupy</h2>
+                          {otherUsers.length === 0 ? (
+                              <p>Brak znajomych</p>
+                          ) : (
+                              <ul>
+                                {groupUsers
+                                    .filter(user => user && user._id && user.nickname) // Ensure user is valid
+                                    .map((user) => (
+                                        <li key={user._id}>
+                                          {user.nickname}
+                                          {isOwner && user._id !== currentUser?._id && (
+                                              <>
+                                                <button className={styles.button} onClick={() => handleRemoveUser(user._id)}>Remove</button>
+                                                <button onClick={() => handleTransferOwnership(user._id)}>Transfer
+                                                  Ownership
+                                                </button>
+                                              </>
+                                          )}
+                                        </li>
+                                    ))}
+                              </ul>
+                          )}
+                        </div>
+                        <button onClick={() => setShowPopup(false)}>Zamknij</button>
+                      </div>
+                    </div>
+                )}
               </div>
-            ))}
+            </div>
+
+            <MapElement tasks={tasks} className={styles.MapElement}/>
           </div>
 
-
-          <MapElement tasks={tasks} />
           <h3>Lista Tasków:</h3>
           <div className={styles.taskList}>
             {tasks.map((task) => (
-              <motion.div
-                key={task._id}
-                className={styles.taskCard}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4 }}
-              >
-                <div
-                  onClick={() => toggleTask(task._id)}
-                  className={styles.taskHeader}
+                <motion.div
+                    key={task._id}
+                    className={styles.taskCard}
+                    initial={{opacity: 0, y: 50}}
+                    whileInView={{opacity: 1, y: 0}}
+                    viewport={{once: true}}
+                    transition={{duration: 0.4}}
                 >
-                  {task.name}
-                </div>
-
-                {expandedTaskId === task._id && (
-                  <div className={styles.taskDetails}>
-                    <div>{task.description}</div>
-                    <div>
-                      Location: ({task.location.lat}, {task.location.lng})
-                    </div>
-
-                    <div className={styles.taskMap}>
-                      <MapElement tasks={[task]} />
-                    </div>
-
-                    <QrScanner taskId={task.qrcode} onScanSuccess={handleScanResult} />
+                  <div
+                      onClick={() => toggleTask(task._id)}
+                      className={styles.taskHeader}
+                  >
+                    {task.name}
                   </div>
-                )}
-              </motion.div>
+
+                  {expandedTaskId === task._id && (
+                      <div className={styles.taskDetails}>
+                        <div>{task.description}</div>
+                        <div>
+                          Location: ({task.location.lat}, {task.location.lng})
+                        </div>
+
+                        <div className={styles.taskMap}>
+                          <MapElement tasks={[task]}/>
+                        </div>
+
+                        <QrScanner taskId={task.qrcode} onScanSuccess={handleScanResult}/>
+                      </div>
+                  )}
+                </motion.div>
             ))}
           </div>
 
           <h3>Członkowie grupy:</h3>
           <ul>
             {groupUsers
-              .filter(user => user && user._id && user.nickname) // Ensure user is valid
+                .filter(user => user && user._id && user.nickname) // Ensure user is valid
               .map((user) => (
                 <li key={user._id}>
                   {user.nickname}

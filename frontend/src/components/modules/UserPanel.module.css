@@ -1,139 +1,113 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.header {
+  padding: 1rem 1rem 11px 1rem;
 }
 
-body,
-html {
-  height: 100%;
+.header_color {
+  background: #60d394;
+  border-radius: 0 0 2rem 2rem;
+}
+
+.popup_overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  overflow: hidden;
-}
-
-.loginContainer {
-  background-image: url("src/assets/login-background.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  z-index: 1000;
+}
+
+.popup_content {
+  background: white;
+  padding: 2rem;
+  margin: 1rem;
+  border-radius: 2rem;
+  max-width: 400px;
+  min-height: 50vh;
   width: 100%;
-}
-
-.loginForm {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(5.6px);
-  -webkit-backdrop-filter: blur(5.6px);
-  border: 1px solid rgba(255, 255, 255, 0.31);
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  width: clamp(300px, 30%, 500px);
-  text-align: center;
-}
-
-.loginForm h2,
-.loginForm h3,
-.loginForm p {
-  color: white;
-  text-shadow: 0 0 5px rgba(255, 255, 255, 0.2), 0 0 10px rgba(63, 94, 251, 0.1),
-    0 0 15px rgba(252, 70, 107, 0.4);
-}
-.loginForm h3 {
-  margin: 50px 0 0 0;
-}
-
-.loginForm p {
-  margin-top: 30px;
-}
-
-.loginForm input {
-  width: 80%;
-  padding: 10px;
-  margin: 10px 0;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 5px;
-  color: white;
-  background-color: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(4px);
-}
-
-.loginForm input::placeholder {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.loginForm input:focus,
-.loginForm input:active {
-  outline: none;
-  border: 1px solid rgba(252, 70, 107, 0.8);
-  box-shadow: 0 0 8px rgba(252, 70, 107, 0.5);
-  background-color: rgba(255, 255, 255, 0.15);
-  transition: box-shadow 0.3s ease, border 0.3s ease, background-color 0.3s ease;
-}
-
-.loginForm button {
-  padding: 12px 24px;
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 8px;
-  cursor: pointer;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-}
-
-.loginForm button:hover {
-  background: rgba(255, 255, 255, 0.25);
-  transform: scale(1.05);
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
-}
-
-.taskList {
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  gap: 15px;
-  max-height: 400px;
-  padding: 10px;
+  justify-content: space-between;
 }
 
-.taskCard {
-  flex: 0 0 auto;
-  width: 250px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  color: white;
-  scroll-snap-align: start;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  transition: transform 0.2s ease;
+.popup_content ul {
+  list-style: none;
+  padding: 0;
 }
 
-.taskCard:hover {
-  transform: scale(1.05);
+.popup_content li {
+  margin-bottom: 10px;
 }
 
-.taskHeader {
-  padding: 12px;
+.user_list {
+  display: flex;
+  justify-content: space-between;
+}
+
+.user_icon {
+  height: 3rem;
+  width: 3rem;
+  border-radius: 2rem;
+  background-color: #535bf2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
   font-weight: bold;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  margin-left: -10px;
+  border: solid 5px #60d394;
+}
+
+.user_icon_main {
+  height: 3rem;
+  width: 3rem;
+  border-radius: 2rem;
+  background-color: #acd8aa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border: solid 5px #60d394;
+}
+
+.user_icon_add {
+  height: 3rem;
+  width: 3rem;
+  border-radius: 2rem;
+  background-color: #535bf2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-left: -10px;
+  border: solid 5px #60d394;
+}
+
+.add {
+  position: relative;
+  top: -0.15rem;
+}
+
+.user_icon:first-child {
+  margin-left: 0;
+}
+
+.group_name {
+  font-size: 3rem;
+  line-height: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.button {
+  background: #60d394;
+  color: white;
+  border: none;
   cursor: pointer;
-}
-
-.taskDetails {
-  padding: 10px;
-  background: rgba(255, 255, 255, 0.1);
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.taskMap {
-  height: 200px;
-  margin: 10px 0;
-  border-radius: 8px;
-  overflow: hidden;
+  border-radius: 2rem;
+  padding: 1rem 2rem;
 }
