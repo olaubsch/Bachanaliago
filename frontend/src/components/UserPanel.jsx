@@ -46,6 +46,8 @@ function UserPanel() {
       setGroupCode(storedGroupCode);
       setIsLoggedIn(true);
       fetchTasks();
+  
+      // Fetch group data
       axios.get(`/api/groups/${storedGroupCode.toUpperCase()}`)
         .then(res => {
           setGroupName(res.data.name);
@@ -53,6 +55,16 @@ function UserPanel() {
           setIsOwner(res.data.owner.nickname === storedNickname);
         })
         .catch(err => console.error(err));
+  
+      // Fetch current user data
+      axios.post("/api/users/login", { nickname: storedNickname, groupCode: storedGroupCode })
+        .then(res => {
+          setCurrentUser(res.data); // Restore currentUser
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Failed to restore user session");
+        });
     }
   }, []);
 
