@@ -18,7 +18,7 @@ exports.createGroup = async (req, res) => {
 
   try {
     const owner = await User.create({ nickname: ownerNickname, groupCode: code });
-    const group = await Group.create({ name, code, owner: owner._id, users: [owner._id] });
+    const group = await Group.create({ name, code, owner: owner._id, users: [owner._id], score: 0 });
     res.status(201).json({ group, user: owner });
   } catch (err) {
     console.error("Błąd Mongo:", err);
@@ -48,6 +48,56 @@ exports.getGroupByCode = async (req, res) => {
   }
 };
 
+exports.addScoreToGroup = async (req, res) => {
+  const { code } = req.params;
+  const { points, taskId } = req.body; // ile punktów chcemy dodać
+
+  if (typeof points !== 'number') {
+    return res.status(400).json({ error: "Nieprawidłowa wartość punktów" });
+  }
+
+  try {
+    const group = await Group.findOne({ code });
+
+    if (!group) {
+      return res.status(404).json({ error: "Grupa nie znaleziona" });
+    }
+
+    if (group.completedTasks.some(id => id.toString() === taskId)) {
+      return res.status(400).json({ error: "Zadanie już zostało wykonane przez tę grupę" });
+    }
+
+    group.completedTasks.push(taskId);
+    group.score += points;
+    await group.save();
+
+
+    res.json({ message: "Dodano punkty", newScore: group.score });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Błąd aktualizacji punktów" });
+  }
+};
+
+exports.getScore = async (req, res) => {
+  const { code } = req.params;
+  try {
+    // Znajdujemy grupę po kodzie
+    const group = await Group.findOne({ code });
+
+    if (!group) {
+      return res.status(404).json({ error: "Grupa nie znaleziona" });
+    }
+
+    // Zwracamy tylko wynik grupy
+    res.json({ score: group.score });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Błąd pobierania wyniku grupy" });
+  }
+};
+
+
 exports.getLeaderboard = async (req, res) => {
   try {
     const groups = await Group.find()
@@ -62,9 +112,6 @@ exports.getLeaderboard = async (req, res) => {
     res.status(500).json({ error: "Błąd pobierania leaderboarda" });
   }
 };
-
-
-
 
 exports.removeUserFromGroup = async (req, res) => {
   const { groupCode, requesterNickname, userIdToRemove } = req.body;

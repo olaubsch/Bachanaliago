@@ -7,6 +7,8 @@ function TaskForm({ onTaskAdded }) {
   const [description, setDescription] = useState("");
   const [lat, setLat] = useState("");
   const [lng, setLng] = useState("");
+  const [score, setScore] = useState(0);
+  const [qrcode, setQrcode] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,6 +21,8 @@ function TaskForm({ onTaskAdded }) {
         name,
         description,
         location: { lat: parseFloat(lat), lng: parseFloat(lng) },
+        score: parseInt(score),
+        qrcode: qrcode.trim() || generateRandomQrCode(),
       });
       alert("Task dodany");
       setName();
@@ -29,6 +33,8 @@ function TaskForm({ onTaskAdded }) {
       setDescription("");
       setLat("");
       setLng("");
+      setScore(0);
+      setQrcode("");
       onTaskAdded();
     } catch (err) {
       console.error(err);
@@ -36,44 +42,62 @@ function TaskForm({ onTaskAdded }) {
     }
   };
 
+  const generateRandomQrCode = () => {
+      return Math.random().toString(36).substring(2, 10).toUpperCase();
+  };
+
   return (
-    <form onSubmit={handleSubmit}>
-      <h3>Dodaj Taska</h3>
-      <input
-        type="text"
-        placeholder="Nazwa"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        required
-      />
-      <input
-        type="text"
-        placeholder="Opis"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        required
-      />
-      <input
-        type="number"
-        placeholder="Lat"
-        value={lat}
-        onChange={(e) => setLat(e.target.value)}
-        required
-      />
-      <input
-        type="number"
-        placeholder="Lng"
-        value={lng}
-        onChange={(e) => setLng(e.target.value)}
-        required
-      />
-      <TaskMapPicker setLat={setLat} setLng={setLng} />
-      <div>
-        Selected Coordinates: {lat ? lat.toFixed(4) : "Not selected"},{" "}
-        {lng ? lng.toFixed(4) : "Not selected"}
-      </div>
-      <button type="submit">Dodaj Taska</button>
-    </form>
+      <form onSubmit={handleSubmit}>
+          <h3>Dodaj Taska</h3>
+          <input
+              type="text"
+              placeholder="Nazwa"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+          />
+          <input
+              type="text"
+              placeholder="Opis"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+          />
+          <input
+              type="number"
+              placeholder="Lat"
+              value={lat}
+              onChange={(e) => setLat(e.target.value)}
+              required
+          />
+          <input
+              type="number"
+              placeholder="Lng"
+              value={lng}
+              onChange={(e) => setLng(e.target.value)}
+              required
+          />
+          <input
+              type="number"
+              placeholder="Punkty za zadanie"
+              value={score}
+              onChange={(e) => setScore(e.target.value)}
+              required
+          />
+          <input
+              type="text"
+              placeholder="QR Kod (lub zostaw puste)"
+              value={qrcode}
+              onChange={(e) => setQrcode(e.target.value)}
+          />
+          <TaskMapPicker setLat={setLat} setLng={setLng}/>
+          <div>
+              Selected Coordinates: {lat ? lat.toFixed(4) : "Not selected"},{" "}
+              {lng ? lng.toFixed(4) : "Not selected"}
+          </div>
+
+          <button type="submit">Dodaj Taska</button>
+      </form>
   );
 }
 

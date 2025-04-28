@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import styles from "./modules/QrScanner.module.css";
 import {Html5QrcodeScanner, Html5QrcodeScanType} from 'html5-qrcode';
 
-function QrScanner({ onScanSuccess }) {
+function QrScanner({ taskId, onScanSuccess }) {
     const [isScanning, setIsScanning] = useState(false);
     const [scanResult, setScanResult] = useState(null); // Opcjonalnie: do wyświetlenia ostatniego wyniku
 
@@ -11,13 +12,11 @@ function QrScanner({ onScanSuccess }) {
         let html5QrcodeScanner;
 
         if (isScanning) {
-            // Inicjalizacja skanera tylko gdy isScanning === true
             html5QrcodeScanner = new Html5QrcodeScanner(
                 qrScannerId,
                 {
                     fps: 10, // Klatki na sekundę
                     qrbox: { width: 250, height: 250 }, // Rozmiar ramki skanowania (opcjonalnie)
-                    // Pamiętaj, aby żądanie uprawnień do kamery odbyło się w bezpiecznym kontekście (HTTPS lub localhost)
                     rememberLastUsedCamera: true, // Spróbuj użyć ostatnio używanej kamery
                     supportedScanTypes: [
                         Html5QrcodeScanType.SCAN_TYPE_CAMERA
@@ -31,12 +30,10 @@ function QrScanner({ onScanSuccess }) {
                 setScanResult(decodedText); // Zapisz lokalnie wynik (opcjonalne)
                 setIsScanning(false);      // Zatrzymaj stan skanowania w UI
 
-                // Wywołaj funkcję zwrotną przekazaną przez rodzica
                 if (onScanSuccess) {
-                    onScanSuccess(decodedText);
+                    onScanSuccess(decodedText, taskId);
                 }
 
-                // Ważne: Wyczyszczenie skanera PO sukcesie
                 if (html5QrcodeScanner && html5QrcodeScanner.getState() === 2 /* SCANNING */) {
                     html5QrcodeScanner.clear().catch(error => {
                         console.error("Błąd podczas czyszczenia skanera po sukcesie:", error);
@@ -45,16 +42,13 @@ function QrScanner({ onScanSuccess }) {
             };
 
             const handleError = (errorMessage) => {
-                // Możesz tu obsłużyć błędy, np. brak kamery, brak uprawnień
-                // console.warn(`QR error = ${errorMessage}`); // Odkomentuj dla debugowania
+                console.error("Błąd skanowania QR:", errorMessage);
+                // Opcjonalnie: możesz wyświetlić jakiś komunikat użytkownikowi
             };
 
-            // Rozpocznij renderowanie i skanowanie
             html5QrcodeScanner.render(handleSuccess, handleError);
-
         }
 
-        // Funkcja czyszcząca useEffect - wywoływana gdy isScanning zmienia się na false lub komponent jest odmontowywany
         return () => {
             if (html5QrcodeScanner && html5QrcodeScanner.getState() === 2 /* SCANNING */) {
                 html5QrcodeScanner.clear().catch(error => {
@@ -71,7 +65,6 @@ function QrScanner({ onScanSuccess }) {
 
     const handleStopScan = () => {
         setIsScanning(false);
-        // Funkcja czyszcząca w useEffect zajmie się zatrzymaniem kamery
     };
 
 

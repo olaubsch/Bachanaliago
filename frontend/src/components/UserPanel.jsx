@@ -20,6 +20,8 @@ function UserPanel() {
   const [groupUsers, setGroupUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [isOwner, setIsOwner] = useState(false);
+  const [groupScore, setGroupScore] = useState(0);
+
   const colors = [
     "#ee6055",
     "#60d394",
@@ -46,7 +48,7 @@ function UserPanel() {
       setGroupCode(storedGroupCode);
       setIsLoggedIn(true);
       fetchTasks();
-  
+
       // Fetch group data
       axios.get(`/api/groups/${storedGroupCode.toUpperCase()}`)
         .then(res => {
@@ -55,7 +57,7 @@ function UserPanel() {
           setIsOwner(res.data.owner.nickname === storedNickname);
         })
         .catch(err => console.error(err));
-  
+
       // Fetch current user data
       axios.post("/api/users/login", { nickname: storedNickname, groupCode: storedGroupCode })
         .then(res => {
@@ -126,8 +128,6 @@ function UserPanel() {
     }
   };
 
-  
-
   const handleCreateGroup = async () => {
     if (!newGroupName.trim() || !ownerNickname.trim()) {
       alert("Podaj nazwę grupy i swój nick!");
@@ -194,9 +194,45 @@ function UserPanel() {
     }
   };
 
-  const handleScanResult = (result) => {
-    console.log("Otrzymano wynik skanowania w komponencie nadrzędnym:", result);
-    alert(`Zeskanowano: ${result}`);
+  const handleScanResult = async (result, expectedTaskId) => {
+    console.log("Otrzymano wynik skanowania:", result," : ", expectedTaskId);
+
+    if (result !== expectedTaskId) {
+      alert("Ten kod QR nie pasuje do tego zadania!");
+      return;
+    }
+
+    try {
+      // Pobierz zadanie
+      const taskRes = await axios.get(`/api/tasks/${result}`);
+      const task = taskRes.data;
+
+      console.log("Znaleziono zadanie:", task);
+
+      console.log("Wysyłam do grupy:", groupCode, "taskId:", task.id, "punkty:", task.score);
+
+      const groupRes = await axios.get(`/api/groups/${groupCode}`);
+      const group = groupRes.data;
+
+      console.log("Znaleziono grupę:", group);
+
+      // Dodaj punkty do grupy
+      await axios.post(`/api/groups/${groupCode}/score`, {
+        points: task.score,
+        taskId: task.id,
+      });
+
+      alert(`Dodano ${task.score} punktów za zadanie: ${task.name}`);
+    } catch (err) {
+      console.error(err);
+      if (err.response && err.response.status === 404) {
+        alert("Kod QR nie jest powiązany z żadnym zadaniem!");
+      } else if (err.response && err.response.status === 400) {
+        alert("To zadanie zostało już wykonane!");
+      } else {
+        alert("Błąd przy przetwarzaniu kodu QR");
+      }
+    }
   };
 
   const toggleTask = (taskId) => {
@@ -247,7 +283,7 @@ function UserPanel() {
         <div>
           <h2>Witaj, {nickname}!</h2>
           <p>
-            Grupa: {groupName} (Kod: {groupCode})
+            Grupa: {groupName} - {} (Kod: {groupCode})
           </p>
           <div className="user-list">
             {groupUsers.map((user) => (
@@ -261,7 +297,7 @@ function UserPanel() {
             ))}
           </div>
 
-          
+
           <MapElement tasks={tasks} />
           <h3>Lista Tasków:</h3>
           <div className={styles.taskList}>
@@ -292,7 +328,7 @@ function UserPanel() {
                       <MapElement tasks={[task]} />
                     </div>
 
-                    <QrScanner onScanSuccess={handleScanResult} />
+                    <QrScanner taskId={task.qrcode} onScanSuccess={handleScanResult} />
                   </div>
                 )}
               </motion.div>

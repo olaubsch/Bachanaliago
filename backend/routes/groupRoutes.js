@@ -7,12 +7,16 @@ const {
   transferOwnership,
   deleteGroup,
   getLeaderboard,
-  incrementTasksCompleted
+  incrementTasksCompleted,
+  addScoreToGroup,
+  getScore
 } = require("../controllers/groupController");
 
 router.post("/", createGroup);
 router.get("/leaderboard", getLeaderboard);
 router.get("/:code", getGroupByCode);
+router.post('/:code/score', addScoreToGroup);
+router.get('/:code/score', getScore);
 router.post("/removeUser", removeUserFromGroup);
 router.post("/transferOwnership", transferOwnership);
 router.post("/deleteGroup", deleteGroup);

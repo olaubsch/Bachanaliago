@@ -56,7 +56,7 @@ function AdminPanel() {
             {tasks.map((task) => (
               <li key={task._id}>
                 {task.name} - {task.description} ({task.location.lat},{" "}
-                {task.location.lng})
+                {task.location.lng}) {task.score} - {task.qrcode}
                 <button onClick={() => handleDelete(task._id)}>Usuń</button>
               </li>
             ))}
