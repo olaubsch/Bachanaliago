@@ -2,14 +2,8 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import axios from "axios";
 import MapElement from "./MapElement";
 import styles from "./modules/UserPanel.module.css";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  AnimatePresence,
-} from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import QrScanner from "./QrScanner.jsx";
-//import "./UserPanel.css";
 import DeleteIcon from "../assets/trash-svgrepo-com.svg";
 import CrownIcon from "../assets/crown-svgrepo-com.svg";
 import PlusIcon from "../assets/plus-svgrepo-com.svg";
@@ -60,8 +54,6 @@ function UserPanel() {
       setGroupCode(storedGroupCode);
       setIsLoggedIn(true);
       fetchTasks();
-
-      // Fetch group data
       axios
         .get(`/api/groups/${storedGroupCode.toUpperCase()}`)
         .then((res) => {
@@ -70,15 +62,13 @@ function UserPanel() {
           setIsOwner(res.data.owner.nickname === storedNickname);
         })
         .catch((err) => console.error(err));
-
-      // Fetch current user data
       axios
         .post("/api/users/login", {
           nickname: storedNickname,
           groupCode: storedGroupCode,
         })
         .then((res) => {
-          setCurrentUser(res.data); // Restore currentUser
+          setCurrentUser(res.data);
         })
         .catch((err) => {
           console.error(err);
@@ -251,19 +241,14 @@ function UserPanel() {
 
   const handleScanResult = async (result, expectedTaskId) => {
     console.log("Otrzymano wynik skanowania:", result, " : ", expectedTaskId);
-
     if (result !== expectedTaskId) {
       alert("Ten kod QR nie pasuje do tego zadania!");
       return;
     }
-
     try {
-      // Pobierz zadanie
       const taskRes = await axios.get(`/api/tasks/${result}`);
       const task = taskRes.data;
-
       console.log("Znaleziono zadanie:", task);
-
       console.log(
         "Wysyłam do grupy:",
         groupCode,
@@ -272,18 +257,13 @@ function UserPanel() {
         "punkty:",
         task.score
       );
-
       const groupRes = await axios.get(`/api/groups/${groupCode}`);
       const group = groupRes.data;
-
       console.log("Znaleziono grupę:", group);
-
-      // Dodaj punkty do grupy
       await axios.post(`/api/groups/${groupCode}/score`, {
         points: task.score,
         taskId: task.id,
       });
-
       alert(`Dodano ${task.score} punktów za zadanie: ${task.name}`);
     } catch (err) {
       console.error(err);
@@ -307,18 +287,17 @@ function UserPanel() {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: 'Group Code',
+          title: "Group Code",
           text: `Join my group with this code: ${groupCode}`,
         });
       } else {
         await navigator.clipboard.writeText(groupCode);
-        alert('Group code copied to clipboard!');
+        alert("Group code copied to clipboard!");
       }
     } catch (error) {
-      console.error('Error sharing:', error);
+      console.error("Error sharing:", error);
     }
   };
-
 
   return (
     <div className={styles.loginContainer}>
@@ -338,7 +317,6 @@ function UserPanel() {
             onChange={(e) => setGroupCode(e.target.value)}
           />
           <button onClick={handleLogin}>Zaloguj</button>
-
           <h3>Lub stwórz nową grupę</h3>
           <input
             type="text"
@@ -353,7 +331,6 @@ function UserPanel() {
             onChange={(e) => setOwnerNickname(e.target.value)}
           />
           <button onClick={handleCreateGroup}>Stwórz Grupę</button>
-
           {groupCreated && (
             <p>
               Utworzono grupę: {groupCreated.name} (Kod: {groupCreated.code})
@@ -364,11 +341,8 @@ function UserPanel() {
         <div>
           <div className={styles.header_color}>
             <div className={styles.header}>
-              <h2 className={styles.group_name}>
-                {groupName}
-              </h2>
+              <h2 className={styles.group_name}>{groupName}</h2>
               <div className={styles.user_list}>
-                {/* FRIENDS section */}
                 <div
                   style={{ display: "flex", cursor: "pointer" }}
                   onClick={() => setShowPopup(true)}
@@ -383,109 +357,148 @@ function UserPanel() {
                     </div>
                   ))}
                   <div className={styles.user_icon_add}>
-                    <img src={PlusIcon} alt="Add User" className={styles.icon}/>
+                    <img src={PlusIcon} alt="Add User" className={styles.icon} />
                   </div>
                 </div>
-
-                {/* Main user */}
                 <div
-                    className={styles.user_icon_main}
-                    onClick={() => setShowMainUserPopup(true)}>
+                  className={styles.user_icon_main}
+                  onClick={() => setShowMainUserPopup(true)}
+                >
                   {nickname.slice(0, 2).toUpperCase()}
                 </div>
-
-                {/* Pop-up */}
                 {showPopup && (
-                    <div className={styles.popup_overlay} onClick={() => setShowPopup(false)}>
-                      <div className={styles.popup_content} onClick={(e) => e.stopPropagation()}>
-                        <div>
-                          <h1>Członkowie grupy</h1>
-                          {otherUsers.length === 0 ? (
-                              <p>Brak znajomych</p>
-                          ) : (
-                              <div className={styles.userList}>
-                                {groupUsers
-                                    .filter(user => user && user._id && user.nickname) // Ensure user is valid
-                                    .map((user) => (
-                                        <div key={user._id} className={styles.userCard}>
-                                          <h2>{user.nickname}</h2>
-                                          {isOwner && user._id !== currentUser?._id && (
-                                              <div className={styles.actions}>
-                                                <button
-                                                    className={styles.ownerButton}
-                                                    onClick={() => handleTransferOwnership(user._id)}
-                                                >
-                                                  <img src={CrownIcon} alt="Remove User" className={styles.icon}/>
-                                                </button>
-                                                <button className={styles.delButton}
-                                                        onClick={() => handleRemoveUser(user._id)}>
-                                                  <img src={DeleteIcon} alt="Remove User" className={styles.icon}/>
-                                                </button>
-                                              </div>
-                                          )}
-                                        </div>
-                                    ))}
-                              </div>
-
-                          )}
-                        </div>
-                        <div style={{ display: "flex", flexDirection: "column", textAlign: "center", gap: "1rem" }}>
-                          <button
-                              className={styles.codeButton}
-                              onClick={handleShareGroupCode}
-                          >
-                            {groupCode}
-                          </button>
-
-                          <button className={styles.button} onClick={() => setShowPopup(false)}>Zamknij</button>
-                        </div>
+                  <div
+                    className={styles.popup_overlay}
+                    onClick={() => setShowPopup(false)}
+                  >
+                    <div
+                      className={styles.popup_content}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div>
+                        <h1>Członkowie grupy</h1>
+                        {otherUsers.length === 0 ? (
+                          <p>Brak znajomych</p>
+                        ) : (
+                          <div className={styles.userList}>
+                            {groupUsers
+                              .filter((user) => user && user._id && user.nickname)
+                              .map((user) => (
+                                <div key={user._id} className={styles.userCard}>
+                                  <h2>{user.nickname}</h2>
+                                  {isOwner && user._id !== currentUser?._id && (
+                                    <div className={styles.actions}>
+                                      <button
+                                        className={styles.ownerButton}
+                                        onClick={() =>
+                                          handleTransferOwnership(user._id)
+                                        }
+                                      >
+                                        <img
+                                          src={CrownIcon}
+                                          alt="Transfer Ownership"
+                                          className={styles.icon}
+                                        />
+                                      </button>
+                                      <button
+                                        className={styles.delButton}
+                                        onClick={() => handleRemoveUser(user._id)}
+                                      >
+                                        <img
+                                          src={DeleteIcon}
+                                          alt="Remove User"
+                                          className={styles.icon}
+                                        />
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                          </div>
+                        )}
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          textAlign: "center",
+                          gap: "1rem",
+                        }}
+                      >
+                        <button
+                          className={styles.codeButton}
+                          onClick={handleShareGroupCode}
+                        >
+                          {groupCode}
+                        </button>
+                        <button
+                          className={styles.button}
+                          onClick={() => setShowPopup(false)}
+                        >
+                          Zamknij
+                        </button>
                       </div>
                     </div>
+                  </div>
                 )}
-
                 {showMainUserPopup && (
-                    <div className={styles.popup_overlay} onClick={() => setShowMainUserPopup(false)}>
-                      <div className={styles.popup_content} onClick={(e) => e.stopPropagation()}>
-                        <div>
-                          <h1>Twoje informacje</h1>
-                          <p><strong>Nick:</strong> {nickname}</p>
-                          <p><strong>Kod grupy:</strong> {groupCode}</p>
-                          <p><strong>Właściciel:</strong> {isOwner ? "Tak" : "Nie"}</p>
-                        </div>
-
-                        <div className={styles.actions_user}>
-                          <div className={styles.actions_user} style={{marginBottom: '1rem'}}>
-                            <button className={styles.button} onClick={handleLogout}>Wyloguj</button>
-                            <button
-                                className={styles.button}
-                                style={{ background: '#ee6055' }}
-                                onClick={handleQuitGroup}>
-                              Quit Group
-                            </button>
-                            {isOwner && (
-                                <button
-                                    className={styles.button}
-                                    style={{ background: '#ee6055' }}
-                                    onClick={handleDeleteGroup}>
-                                  Delete Group
-                                </button>
-                            )}
-                          </div>
-
-                          <button className={styles.button} onClick={() => setShowMainUserPopup(false)}>
-                            Zamknij
-                          </button>
-                        </div>
+                  <div
+                    className={styles.popup_overlay}
+                    onClick={() => setShowMainUserPopup(false)}
+                  >
+                    <div
+                      className={styles.popup_content}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div>
+                        <h1>Twoje informacje</h1>
+                        <p>
+                          <strong>Nick:</strong> {nickname}
+                        </p>
+                        <p>
+                          <strong>Kod grupy:</strong> {groupCode}
+                        </p>
+                        <p>
+                          <strong>Właściciel:</strong> {isOwner ? "Tak" : "Nie"}
+                        </p>
                       </div>
-                      <button onClick={() => setShowPopup(false)}>
-                        Zamknij
-                      </button>
+                      <div className={styles.actions_user}>
+                        <div style={{ marginBottom: "1rem" }}>
+                          <button
+                            className={styles.button}
+                            onClick={handleLogout}
+                          >
+                            Wyloguj
+                          </button>
+                          <button
+                            className={styles.button}
+                            style={{ background: "#ee6055" }}
+                            onClick={handleQuitGroup}
+                          >
+                            Quit Group
+                          </button>
+                          {isOwner && (
+                            <button
+                              className={styles.button}
+                              style={{ background: "#ee6055" }}
+                              onClick={handleDeleteGroup}
+                            >
+                              Delete Group
+                            </button>
+                          )}
+                        </div>
+                        <button
+                          className={styles.button}
+                          onClick={() => setShowMainUserPopup(false)}
+                        >
+                          Zamknij
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
               </div>
             </div>
-
             <MapElement tasks={tasks} className={styles.MapElement} />
           </div>
           <div className={styles.taskList} ref={taskListRef}>
@@ -501,11 +514,10 @@ function UserPanel() {
               />
             ))}
           </div>
-
           <h3>Członkowie grupy:</h3>
           <ul>
             {groupUsers
-              .filter((user) => user && user._id && user.nickname) // Ensure user is valid
+              .filter((user) => user && user._id && user.nickname)
               .map((user) => (
                 <li key={user._id}>
                   {user.nickname}
