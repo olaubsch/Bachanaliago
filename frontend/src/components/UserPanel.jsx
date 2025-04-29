@@ -1,11 +1,17 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import axios from "axios";
 import MapElement from "./MapElement";
 import styles from "./modules/UserPanel.module.css";
-import { motion } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  AnimatePresence,
+} from "framer-motion";
 import QrScanner from "./QrScanner.jsx";
 //import "./UserPanel.css";
 import Leaderboard from "./LeaderBoard";
+import TaskCard from "./TaskCard";
 
 function UserPanel() {
   const [nickname, setNickname] = useState("");
@@ -22,6 +28,8 @@ function UserPanel() {
   const [isOwner, setIsOwner] = useState(false);
   const [groupScore, setGroupScore] = useState(0);
   const [showPopup, setShowPopup] = useState(false);
+  const taskListRef = useRef();
+  const { scrollY } = useScroll({ container: taskListRef });
 
   const colors = [
     "#ee6055",
@@ -31,7 +39,6 @@ function UserPanel() {
     "#ff9b85",
     "#f48498",
   ];
-
   const userColors = useMemo(() => {
     const colorMap = {};
     groupUsers.forEach((user) => {
@@ -42,8 +49,8 @@ function UserPanel() {
   }, [groupUsers]);
 
   useEffect(() => {
-    const storedNickname = localStorage.getItem('nickname');
-    const storedGroupCode = localStorage.getItem('groupCode');
+    const storedNickname = localStorage.getItem("nickname");
+    const storedGroupCode = localStorage.getItem("groupCode");
     if (storedNickname && storedGroupCode) {
       setNickname(storedNickname);
       setGroupCode(storedGroupCode);
@@ -51,20 +58,25 @@ function UserPanel() {
       fetchTasks();
 
       // Fetch group data
-      axios.get(`/api/groups/${storedGroupCode.toUpperCase()}`)
-        .then(res => {
+      axios
+        .get(`/api/groups/${storedGroupCode.toUpperCase()}`)
+        .then((res) => {
           setGroupName(res.data.name);
           setGroupUsers(res.data.users);
           setIsOwner(res.data.owner.nickname === storedNickname);
         })
-        .catch(err => console.error(err));
+        .catch((err) => console.error(err));
 
       // Fetch current user data
-      axios.post("/api/users/login", { nickname: storedNickname, groupCode: storedGroupCode })
-        .then(res => {
+      axios
+        .post("/api/users/login", {
+          nickname: storedNickname,
+          groupCode: storedGroupCode,
+        })
+        .then((res) => {
           setCurrentUser(res.data); // Restore currentUser
         })
-        .catch(err => {
+        .catch((err) => {
           console.error(err);
           alert("Failed to restore user session");
         });
@@ -75,19 +87,27 @@ function UserPanel() {
     try {
       const res = await axios.post("/api/users/login", { nickname, groupCode });
       setCurrentUser(res.data);
-      const groupRes = await axios.get(`/api/groups/${groupCode.toUpperCase()}`);
+      const groupRes = await axios.get(
+        `/api/groups/${groupCode.toUpperCase()}`
+      );
       setGroupName(groupRes.data.name);
       setGroupUsers(groupRes.data.users);
       setIsOwner(groupRes.data.owner._id === res.data._id);
       setIsLoggedIn(true);
       fetchTasks();
-      localStorage.setItem('nickname', nickname);
-      localStorage.setItem('groupCode', groupCode);
+      localStorage.setItem("nickname", nickname);
+      localStorage.setItem("groupCode", groupCode);
     } catch (err) {
       console.error(err);
-      if (err.response && err.response.data.error === "Grupa pełna (max 5 osób)") {
+      if (
+        err.response &&
+        err.response.data.error === "Grupa pełna (max 5 osób)"
+      ) {
         alert("Grupa jest pełna! Max 5 osób.");
-      } else if (err.response && err.response.data.error === "Nick already taken in this group") {
+      } else if (
+        err.response &&
+        err.response.data.error === "Nick already taken in this group"
+      ) {
         alert("Ten nick jest już zajęty w tej grupie!");
       } else {
         alert("Nie udało się zalogować");
@@ -96,12 +116,12 @@ function UserPanel() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('nickname');
-    localStorage.removeItem('groupCode');
+    localStorage.removeItem("nickname");
+    localStorage.removeItem("groupCode");
     setIsLoggedIn(false);
-    setNickname('');
-    setGroupCode('');
-    setGroupName('');
+    setNickname("");
+    setGroupCode("");
+    setGroupName("");
     setGroupUsers([]);
     setTasks([]);
     setCurrentUser(null);
@@ -109,9 +129,15 @@ function UserPanel() {
   };
 
   const handleQuitGroup = async () => {
-    if (window.confirm("Are you sure you want to quit the group? This action cannot be undone.")) {
+    if (
+      window.confirm(
+        "Are you sure you want to quit the group? This action cannot be undone."
+      )
+    ) {
       try {
-        await axios.delete("/api/users/quit", { data: { nickname, groupCode } });
+        await axios.delete("/api/users/quit", {
+          data: { nickname, groupCode },
+        });
         handleLogout();
       } catch (err) {
         console.error(err);
@@ -135,7 +161,10 @@ function UserPanel() {
       return;
     }
     try {
-      const res = await axios.post("/api/groups", { name: newGroupName, ownerNickname });
+      const res = await axios.post("/api/groups", {
+        name: newGroupName,
+        ownerNickname,
+      });
       const { group, user } = res.data;
       setGroupCreated(group);
       setNickname(ownerNickname);
@@ -144,17 +173,23 @@ function UserPanel() {
       setCurrentUser(user);
       setIsOwner(true);
       setIsLoggedIn(true);
-      localStorage.setItem('nickname', ownerNickname);
-      localStorage.setItem('groupCode', group.code);
+      localStorage.setItem("nickname", ownerNickname);
+      localStorage.setItem("groupCode", group.code);
       fetchTasks();
       const groupRes = await axios.get(`/api/groups/${group.code}`);
       setGroupUsers(groupRes.data.users);
     } catch (err) {
       console.error(err);
-      if (err.response && err.response.data.error === "Nick already taken in this group") {
+      if (
+        err.response &&
+        err.response.data.error === "Nick already taken in this group"
+      ) {
         alert("Ten nick jest już zajęty w tej grupie!");
       } else {
-        alert("Błąd tworzenia grupy: " + (err.response?.data?.error || "Nieznany błąd"));
+        alert(
+          "Błąd tworzenia grupy: " +
+            (err.response?.data?.error || "Nieznany błąd")
+        );
       }
     }
   };
@@ -162,8 +197,12 @@ function UserPanel() {
   const handleRemoveUser = async (userId) => {
     if (window.confirm("Are you sure you want to remove this user?")) {
       try {
-        await axios.post("/api/groups/removeUser", { groupCode, requesterNickname: nickname, userIdToRemove: userId });
-        setGroupUsers(groupUsers.filter(user => user._id !== userId));
+        await axios.post("/api/groups/removeUser", {
+          groupCode,
+          requesterNickname: nickname,
+          userIdToRemove: userId,
+        });
+        setGroupUsers(groupUsers.filter((user) => user._id !== userId));
       } catch (err) {
         console.error(err);
         alert("Error removing user");
@@ -174,7 +213,11 @@ function UserPanel() {
   const handleTransferOwnership = async (newOwnerId) => {
     if (window.confirm("Are you sure you want to transfer ownership?")) {
       try {
-        await axios.post("/api/groups/transferOwnership", { groupCode, requesterNickname: nickname, newOwnerId });
+        await axios.post("/api/groups/transferOwnership", {
+          groupCode,
+          requesterNickname: nickname,
+          newOwnerId,
+        });
         setIsOwner(false);
       } catch (err) {
         console.error(err);
@@ -184,9 +227,16 @@ function UserPanel() {
   };
 
   const handleDeleteGroup = async () => {
-    if (window.confirm("Are you sure you want to delete the group? This action cannot be undone.")) {
+    if (
+      window.confirm(
+        "Are you sure you want to delete the group? This action cannot be undone."
+      )
+    ) {
       try {
-        await axios.post("/api/groups/deleteGroup", { groupCode, requesterNickname: nickname });
+        await axios.post("/api/groups/deleteGroup", {
+          groupCode,
+          requesterNickname: nickname,
+        });
         handleLogout();
       } catch (err) {
         console.error(err);
@@ -196,7 +246,7 @@ function UserPanel() {
   };
 
   const handleScanResult = async (result, expectedTaskId) => {
-    console.log("Otrzymano wynik skanowania:", result," : ", expectedTaskId);
+    console.log("Otrzymano wynik skanowania:", result, " : ", expectedTaskId);
 
     if (result !== expectedTaskId) {
       alert("Ten kod QR nie pasuje do tego zadania!");
@@ -210,7 +260,14 @@ function UserPanel() {
 
       console.log("Znaleziono zadanie:", task);
 
-      console.log("Wysyłam do grupy:", groupCode, "taskId:", task.id, "punkty:", task.score);
+      console.log(
+        "Wysyłam do grupy:",
+        groupCode,
+        "taskId:",
+        task.id,
+        "punkty:",
+        task.score
+      );
 
       const groupRes = await axios.get(`/api/groups/${groupCode}`);
       const group = groupRes.data;
@@ -240,7 +297,7 @@ function UserPanel() {
     setExpandedTaskId((prevId) => (prevId === taskId ? null : taskId));
   };
 
-  const otherUsers = groupUsers.filter(user => user.nickname !== nickname);
+  const otherUsers = groupUsers.filter((user) => user.nickname !== nickname);
 
   return (
     <div className={styles.loginContainer}>
@@ -292,19 +349,21 @@ function UserPanel() {
               <div className={styles.user_list}>
                 {/* FRIENDS section */}
                 <div
-                    style={{display: "flex", cursor: "pointer"}}
-                    onClick={() => setShowPopup(true)}
+                  style={{ display: "flex", cursor: "pointer" }}
+                  onClick={() => setShowPopup(true)}
                 >
                   {otherUsers.map((user) => (
-                      <div
-                          className={styles.user_icon}
-                          key={user._id}
-                          style={{backgroundColor: userColors[user._id]}}
-                      >
-                        {user.nickname.slice(0, 2).toUpperCase()}
-                      </div>
+                    <div
+                      className={styles.user_icon}
+                      key={user._id}
+                      style={{ backgroundColor: userColors[user._id] }}
+                    >
+                      {user.nickname.slice(0, 2).toUpperCase()}
+                    </div>
                   ))}
-                  <div className={styles.user_icon_add}><p className={styles.add}>+</p></div>
+                  <div className={styles.user_icon_add}>
+                    <p className={styles.add}>+</p>
+                  </div>
                 </div>
 
                 {/* Main user */}
@@ -314,89 +373,91 @@ function UserPanel() {
 
                 {/* Pop-up */}
                 {showPopup && (
-                    <div className={styles.popup_overlay} onClick={() => setShowPopup(false)}>
-                      <div className={styles.popup_content} onClick={(e) => e.stopPropagation()}>
-                        <div>
-                          <h2>Członkowie grupy</h2>
-                          {otherUsers.length === 0 ? (
-                              <p>Brak znajomych</p>
-                          ) : (
-                              <ul>
-                                {groupUsers
-                                    .filter(user => user && user._id && user.nickname) // Ensure user is valid
-                                    .map((user) => (
-                                        <li key={user._id}>
-                                          {user.nickname}
-                                          {isOwner && user._id !== currentUser?._id && (
-                                              <>
-                                                <button className={styles.button} onClick={() => handleRemoveUser(user._id)}>Remove</button>
-                                                <button onClick={() => handleTransferOwnership(user._id)}>Transfer
-                                                  Ownership
-                                                </button>
-                                              </>
-                                          )}
-                                        </li>
-                                    ))}
-                              </ul>
-                          )}
-                        </div>
-                        <button onClick={() => setShowPopup(false)}>Zamknij</button>
+                  <div
+                    className={styles.popup_overlay}
+                    onClick={() => setShowPopup(false)}
+                  >
+                    <div
+                      className={styles.popup_content}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div>
+                        <h2>Członkowie grupy</h2>
+                        {otherUsers.length === 0 ? (
+                          <p>Brak znajomych</p>
+                        ) : (
+                          <ul>
+                            {groupUsers
+                              .filter(
+                                (user) => user && user._id && user.nickname
+                              ) // Ensure user is valid
+                              .map((user) => (
+                                <li key={user._id}>
+                                  {user.nickname}
+                                  {isOwner && user._id !== currentUser?._id && (
+                                    <>
+                                      <button
+                                        className={styles.button}
+                                        onClick={() =>
+                                          handleRemoveUser(user._id)
+                                        }
+                                      >
+                                        Remove
+                                      </button>
+                                      <button
+                                        onClick={() =>
+                                          handleTransferOwnership(user._id)
+                                        }
+                                      >
+                                        Transfer Ownership
+                                      </button>
+                                    </>
+                                  )}
+                                </li>
+                              ))}
+                          </ul>
+                        )}
                       </div>
+                      <button onClick={() => setShowPopup(false)}>
+                        Zamknij
+                      </button>
                     </div>
+                  </div>
                 )}
               </div>
             </div>
 
-            <MapElement tasks={tasks} className={styles.MapElement}/>
+            <MapElement tasks={tasks} className={styles.MapElement} />
           </div>
-
-          <h3>Lista Tasków:</h3>
-          <div className={styles.taskList}>
-            {tasks.map((task) => (
-                <motion.div
-                    key={task._id}
-                    className={styles.taskCard}
-                    initial={{opacity: 0, y: 50}}
-                    whileInView={{opacity: 1, y: 0}}
-                    viewport={{once: true}}
-                    transition={{duration: 0.4}}
-                >
-                  <div
-                      onClick={() => toggleTask(task._id)}
-                      className={styles.taskHeader}
-                  >
-                    {task.name}
-                  </div>
-
-                  {expandedTaskId === task._id && (
-                      <div className={styles.taskDetails}>
-                        <div>{task.description}</div>
-                        <div>
-                          Location: ({task.location.lat}, {task.location.lng})
-                        </div>
-
-                        <div className={styles.taskMap}>
-                          <MapElement tasks={[task]}/>
-                        </div>
-
-                        <QrScanner taskId={task.qrcode} onScanSuccess={handleScanResult}/>
-                      </div>
-                  )}
-                </motion.div>
+          <div className={styles.taskList} ref={taskListRef}>
+            {tasks.map((task, index) => (
+              <TaskCard
+                key={task._id}
+                task={task}
+                index={index}
+                containerRef={taskListRef}
+                expandedTaskId={expandedTaskId}
+                toggleTask={toggleTask}
+                handleScanResult={handleScanResult}
+              />
             ))}
           </div>
 
           <h3>Członkowie grupy:</h3>
           <ul>
             {groupUsers
-                .filter(user => user && user._id && user.nickname) // Ensure user is valid
+              .filter((user) => user && user._id && user.nickname) // Ensure user is valid
               .map((user) => (
                 <li key={user._id}>
                   {user.nickname}
                   {isOwner && user._id !== currentUser?._id && (
                     <>
-                      <button onClick={() => handleRemoveUser(user._id)}>Remove</button>
-                      <button onClick={() => handleTransferOwnership(user._id)}>Transfer Ownership</button>
+                      <button onClick={() => handleRemoveUser(user._id)}>
+                        Remove
+                      </button>
+                      <button onClick={() => handleTransferOwnership(user._id)}>
+                        Transfer Ownership
+                      </button>
                     </>
                   )}
                 </li>
@@ -405,11 +466,8 @@ function UserPanel() {
 
           <button onClick={handleLogout}>Wyloguj</button>
           <button onClick={handleQuitGroup}>Quit Group</button>
-          {isOwner && (
-            <button onClick={handleDeleteGroup}>Delete Group</button>
-          )}
+          {isOwner && <button onClick={handleDeleteGroup}>Delete Group</button>}
           <Leaderboard />
-
         </div>
       )}
     </div>
