@@ -7,7 +7,7 @@
        T 100,250
        T 100,330"
             fill="none"
-            stroke="#C4BACE"
+            stroke="#e9ff70"
             stroke-width="32"
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -25,20 +25,20 @@
 
         @keyframes draw-erase {
         0% {
-        stroke-dashoffset: 1000;
-        -webkit-stroke-dashoffset: 1000;
+        stroke-dashoffset: 3000;
+        -webkit-stroke-dashoffset: 3000;
         }
         40% {
-        stroke-dashoffset: 0;
-        -webkit-stroke-dashoffset: 0;
+        stroke-dashoffset: 2000;
+        -webkit-stroke-dashoffset: 2000;
         }
         60% {
-        stroke-dashoffset: 0;
-        -webkit-stroke-dashoffset: 0;
+        stroke-dashoffset: 2000;
+        -webkit-stroke-dashoffset: 2000;
         }
         100% {
-        stroke-dashoffset: -1000;
-        -webkit-stroke-dashoffset: -1000;
+        stroke-dashoffset: 1000;
+        -webkit-stroke-dashoffset: 1000;
         }
         }
     </style>
