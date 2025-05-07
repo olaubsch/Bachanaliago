@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import L from 'leaflet';
+import styles from "./modules/MapElement.module.css";
 import 'leaflet/dist/leaflet.css';
 
 // Custom icon for user marker
@@ -48,33 +49,37 @@ function MapElement({ tasks }) {
     return <div>Error: {error}</div>;
   }
 
-  if (!position) {
-    return <div>Loading location...</div>;
-  }
-
   return (
-    <MapContainer center={position} scrollWheelZoom={false} tap={false} zoomControl={false} zoom={13} style={{ height: '400px', width: '100%', borderRadius: '2rem' }}>
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      />
-      <SetViewOnPosition position={position} />
-      {/* User's location marker */}
-      <Marker position={position} icon={userIcon}>
-        <Popup>Your location</Popup>
-      </Marker>
-      {/* Task circles */}
-      {tasks.map((task) => (
-        <Circle
-          key={task._id}
-          center={[task.location.lat, task.location.lng]}
-          radius={100} // 100 meters
-          pathOptions={{ color: 'blue', fillColor: 'blue', fillOpacity: 0.5 }}
-        >
-          <Popup>{task.name}</Popup>
-        </Circle>
-      ))}
-    </MapContainer>
+    <div className={`${styles.map_wrapper} ${position ? styles.map_visible : ''}`}>
+      {!position ? (
+          <div className={styles.load_wrapper}>
+            <div className={styles.wave_loader} />
+          </div>
+      ) : (
+          <MapContainer center={position} scrollWheelZoom={false} tap={false} zoomControl={false} zoom={13} style={{ height: '250px', width: '100%', borderRadius: '2rem' }}>
+        <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+        <SetViewOnPosition position={position} />
+        {/* User's location marker */}
+        <Marker position={position} icon={userIcon}>
+          <Popup>Your location</Popup>
+        </Marker>
+        {/* Task circles */}
+        {tasks.map((task) => (
+            <Circle
+                key={task._id}
+                center={[task.location.lat, task.location.lng]}
+                radius={100} // 100 meters
+                pathOptions={{ color: 'blue', fillColor: 'blue', fillOpacity: 0.5 }}
+            >
+              <Popup>{task.name}</Popup>
+            </Circle>
+        ))}
+      </MapContainer>
+      )}
+    </div>
   );
 }
 

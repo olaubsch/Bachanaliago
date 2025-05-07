@@ -1,104 +1,60 @@
-.header {
-  padding: 1rem 1rem 11px 1rem;
-}
-
-.header_color {
-  background: #60d394;
-  border-radius: 0 0 2rem 2rem;
-}
-
-.popup_overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
+.UserPanelContainer {
+  overflow: hidden;
+  height: 100vh;
   width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.25);
+  touch-action: none;
+}
+
+.loginContainer {
+  margin: 2rem;
   display: flex;
   justify-content: center;
-  align-items: center;
-  z-index: 2000;
+
+  height: 100vh;
 }
 
-.popup_content {
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  padding: 1.5rem;
-  margin: 1rem;
-  border-radius: 2rem;
-  max-width: 400px;
+.loginForm {
+  display: flex;
+  gap: 2rem;
+  flex-direction: column;
   min-height: 60vh;
   width: 100%;
+}
+
+.personLoginForm {
   display: flex;
+  gap: 1rem;
   flex-direction: column;
-  justify-content: space-between;
 }
 
-.user_list {
+.groupLoginForm {
   display: flex;
-  justify-content: space-between;
+  gap: 1rem;
+  flex-direction: column;
 }
 
-.user_icon {
-  height: 3rem;
-  width: 3rem;
-  border-radius: 2rem;
-  background-color: #535bf2;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.5rem;
+.input {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background-color: transparent;
+  color: #333333;
+  border: 1px solid #333333;
+  cursor: pointer;
+  font-size: 1rem;
   font-weight: bold;
-  margin-left: -20px;
-  border: solid 2px #60d394;
+  border-radius: 0.5rem;
+  padding: 1rem 2rem;
 }
 
-.user_icon_main {
-  height: 3rem;
-  width: 3rem;
-  border-radius: 2rem;
-  background-color: #acd8aa;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1.5rem;
-  font-weight: bold;
-  border: solid 2px #60d394;
-}
-
-.user_icon_add {
-  height: 3rem;
-  width: 3rem;
-  border-radius: 2rem;
-  background-color: #535bf2;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 2.5rem;
-  font-weight: bold;
-  margin-left: -20px;
-  border: solid 2px #60d394;
-}
-
-.add {
-  position: relative;
-  top: -0.15rem;
-}
-
-.user_icon:first-child {
-  margin-left: 0;
-}
-
-.group_name {
-  font-size: 3rem;
-  line-height: 2rem;
-  margin-bottom: 1.5rem;
-  text-align: center;
+.input::placeholder {
+  color: #333333;
+  opacity: 0.5;
 }
 
 .button {
-  background: #60d394;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  background: #4B5358;
   color: white;
   border: none;
   cursor: pointer;
@@ -163,68 +119,82 @@
     transform: translateY(0);
   }
 }
-.userCard {
+
+.backgroundText {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 150vw;
+
+  opacity: 1;
+  text-transform: uppercase;
+  color: #AF929D;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 0; /* behind all content */
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding: 12px 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
-.userInfo {
-  display: flex;
-  justify-content: space-between;
-  gap: 8px;
+.textStack {
+  position: relative;
+  display: inline-block;
 }
 
-.nickname {
-  font-weight: 600;
-  font-size: 16px;
+.zigzagContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-image: url('../../assets/zigzag.svg');
+  z-index: 0;
+  transition: height 1s ease;
 }
 
-.actions {
-  display: flex;
-  gap: 0.5rem;
+.textFill {
+  color: #333333;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1; /* behind stroke */
 }
 
-.actions_user {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+.textStroke {
+  color: transparent;
+  -webkit-text-stroke: 1px #333333;
+  text-stroke: 1px #333333;
+  position: relative;
+  z-index: 1; /* above backgroundText */
 }
 
-.delButton {
-  background-color: transparent;
-  color: white;
-  border: none;
-  padding: 0.5rem;
-  border-radius: 2rem;
-  cursor: pointer;
+@media only screen and (min-device-width: 768px) {
+  .loginContainer {
+    border: solid 1px red;
+    margin: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vh;
+  }
+
+  .loginForm {
+    border: solid 1px blue;
+    display: flex;
+    gap: 1rem;
+    flex-direction: row;
+    min-height: 60vh;
+    width: 100%;
+  }
 }
 
-.ownerButton {
-  background-color: transparent;
-  color: white;
-  border: none;
-  padding: 0.5rem;
-  border-radius: 2rem;
-  cursor: pointer;
-}
-
-.icon {
-  width: 2rem;
-  height: 2rem;
-}
-
-.codeButton {
-  background: none;
-  border: none;
-  font-size: 2rem; /* jak <h1> */
-  font-weight: bold;
-  cursor: pointer;
-  color: inherit;
-  padding: 0;
-}
-.codeButton:hover {
-  text-decoration: underline;
-}

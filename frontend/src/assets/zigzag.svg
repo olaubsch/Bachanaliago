@@ -1,0 +1,45 @@
+<svg width="200" height="300" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+    <path
+            id="zigzag"
+            d="M100,-10
+       Q 0,50 100,90
+       T 100,170
+       T 100,250
+       T 100,330"
+            fill="none"
+            stroke="#C4BACE"
+            stroke-width="32"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+    />
+    <style>
+        #zigzag {
+        stroke-dasharray: 1000;
+        stroke-dashoffset: 1000;
+        will-change: stroke-dashoffset;
+        -webkit-animation: draw-erase 10s linear infinite;
+        animation: draw-erase 10s linear infinite;
+        -webkit-transform: translateZ(0);
+        backface-visibility: hidden;
+        }
+
+        @keyframes draw-erase {
+        0% {
+        stroke-dashoffset: 1000;
+        -webkit-stroke-dashoffset: 1000;
+        }
+        40% {
+        stroke-dashoffset: 0;
+        -webkit-stroke-dashoffset: 0;
+        }
+        60% {
+        stroke-dashoffset: 0;
+        -webkit-stroke-dashoffset: 0;
+        }
+        100% {
+        stroke-dashoffset: -1000;
+        -webkit-stroke-dashoffset: -1000;
+        }
+        }
+    </style>
+</svg>

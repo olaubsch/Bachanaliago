@@ -2,13 +2,11 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import axios from "axios";
 import MapElement from "./MapElement";
 import styles from "./modules/UserPanel.module.css";
+import zigzag from "../assets/zigzag.svg"
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import QrScanner from "./QrScanner.jsx";
-import DeleteIcon from "../assets/trash-svgrepo-com.svg";
-import CrownIcon from "../assets/crown-svgrepo-com.svg";
-import PlusIcon from "../assets/plus-svgrepo-com.svg";
-import Leaderboard from "./LeaderBoard";
 import TaskCard from "./TaskCard";
+import Header from "./Header.jsx"
+import useAuth from "../utils/useLogout.jsx";
 
 function UserPanel() {
   const [nickname, setNickname] = useState("");
@@ -17,34 +15,28 @@ function UserPanel() {
   const [tasks, setTasks] = useState([]);
   const [newGroupName, setNewGroupName] = useState("");
   const [ownerNickname, setOwnerNickname] = useState("");
+  const [ownerId, setOwnerId] = useState("");
   const [groupCreated, setGroupCreated] = useState(null);
   const [groupName, setGroupName] = useState("");
   const [expandedTaskId, setExpandedTaskId] = useState(null);
   const [groupUsers, setGroupUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [isOwner, setIsOwner] = useState(false);
+  const [backgroundText, setBackgroundText] = useState("");
   const [groupScore, setGroupScore] = useState(0);
-  const [showPopup, setShowPopup] = useState(false);
   const taskListRef = useRef();
   const { scrollY } = useScroll({ container: taskListRef });
-  const [showMainUserPopup, setShowMainUserPopup] = useState(false);
 
-  const colors = [
-    "#ee6055",
-    "#acd8aa",
-    "#aaf683",
-    "#ffd97d",
-    "#ff9b85",
-    "#f48498",
-  ];
-  const userColors = useMemo(() => {
-    const colorMap = {};
-    groupUsers.forEach((user) => {
-      const randomColor = colors[Math.floor(Math.random() * colors.length)];
-      colorMap[user._id] = randomColor;
-    });
-    return colorMap;
-  }, [groupUsers]);
+  const { logout } = useAuth({
+    setIsLoggedIn,
+    setNickname,
+    setGroupCode,
+    setGroupName,
+    setGroupUsers,
+    setTasks,
+    setCurrentUser,
+    setIsOwner,
+  });
 
   useEffect(() => {
     const storedNickname = localStorage.getItem("nickname");
@@ -60,6 +52,7 @@ function UserPanel() {
           setGroupName(res.data.name);
           setGroupUsers(res.data.users);
           setIsOwner(res.data.owner.nickname === storedNickname);
+          setOwnerId(res.data.owner._id);
         })
         .catch((err) => console.error(err));
       axios
@@ -105,37 +98,6 @@ function UserPanel() {
         alert("Ten nick jest już zajęty w tej grupie!");
       } else {
         alert("Nie udało się zalogować");
-      }
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("nickname");
-    localStorage.removeItem("groupCode");
-    setIsLoggedIn(false);
-    setNickname("");
-    setGroupCode("");
-    setGroupName("");
-    setGroupUsers([]);
-    setTasks([]);
-    setCurrentUser(null);
-    setIsOwner(false);
-  };
-
-  const handleQuitGroup = async () => {
-    if (
-      window.confirm(
-        "Are you sure you want to quit the group? This action cannot be undone."
-      )
-    ) {
-      try {
-        await axios.delete("/api/users/quit", {
-          data: { nickname, groupCode },
-        });
-        handleLogout();
-      } catch (err) {
-        console.error(err);
-        alert("Error quitting from group");
       }
     }
   };
@@ -188,57 +150,6 @@ function UserPanel() {
     }
   };
 
-  const handleRemoveUser = async (userId) => {
-    if (window.confirm("Are you sure you want to remove this user?")) {
-      try {
-        await axios.post("/api/groups/removeUser", {
-          groupCode,
-          requesterNickname: nickname,
-          userIdToRemove: userId,
-        });
-        setGroupUsers(groupUsers.filter((user) => user._id !== userId));
-      } catch (err) {
-        console.error(err);
-        alert("Error removing user");
-      }
-    }
-  };
-
-  const handleTransferOwnership = async (newOwnerId) => {
-    if (window.confirm("Are you sure you want to transfer ownership?")) {
-      try {
-        await axios.post("/api/groups/transferOwnership", {
-          groupCode,
-          requesterNickname: nickname,
-          newOwnerId,
-        });
-        setIsOwner(false);
-      } catch (err) {
-        console.error(err);
-        alert("Error transferring ownership");
-      }
-    }
-  };
-
-  const handleDeleteGroup = async () => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete the group? This action cannot be undone."
-      )
-    ) {
-      try {
-        await axios.post("/api/groups/deleteGroup", {
-          groupCode,
-          requesterNickname: nickname,
-        });
-        handleLogout();
-      } catch (err) {
-        console.error(err);
-        alert("Error deleting group");
-      }
-    }
-  };
-
   const handleScanResult = async (result, expectedTaskId) => {
     console.log("Otrzymano wynik skanowania:", result, " : ", expectedTaskId);
     if (result !== expectedTaskId) {
@@ -281,261 +192,96 @@ function UserPanel() {
     setExpandedTaskId((prevId) => (prevId === taskId ? null : taskId));
   };
 
-  const otherUsers = groupUsers.filter((user) => user.nickname !== nickname);
-
-  const handleShareGroupCode = async () => {
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: "Group Code",
-          text: `Join my group with this code: ${groupCode}`,
-        });
-      } else {
-        await navigator.clipboard.writeText(groupCode);
-        alert("Group code copied to clipboard!");
-      }
-    } catch (error) {
-      console.error("Error sharing:", error);
-    }
-  };
-
   return (
-    <div className={styles.loginContainer}>
+    <div className={styles.UserPanelContainer}>
       {!isLoggedIn ? (
-        <div className={styles.loginForm}>
-          <h2>Logowanie Gracza</h2>
-          <input
-            type="text"
-            placeholder="Nick"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Kod Grupy"
-            value={groupCode}
-            onChange={(e) => setGroupCode(e.target.value)}
-          />
-          <button onClick={handleLogin}>Zaloguj</button>
-          <h3>Lub stwórz nową grupę</h3>
-          <input
-            type="text"
-            placeholder="Nazwa Grupy"
-            value={newGroupName}
-            onChange={(e) => setNewGroupName(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Twój Nick"
-            value={ownerNickname}
-            onChange={(e) => setOwnerNickname(e.target.value)}
-          />
-          <button onClick={handleCreateGroup}>Stwórz Grupę</button>
-          {groupCreated && (
-            <p>
-              Utworzono grupę: {groupCreated.name} (Kod: {groupCreated.code})
-            </p>
-          )}
-        </div>
-      ) : (
-        <div>
-          <div className={styles.header_color}>
-            <div className={styles.header}>
-              <h2 className={styles.group_name}>{groupName}</h2>
-              <div className={styles.user_list}>
-                <div
-                  style={{ display: "flex", cursor: "pointer" }}
-                  onClick={() => setShowPopup(true)}
-                >
-                  {otherUsers.map((user) => (
-                    <div
-                      className={styles.user_icon}
-                      key={user._id}
-                      style={{ backgroundColor: userColors[user._id] }}
-                    >
-                      {user.nickname.slice(0, 2).toUpperCase()}
-                    </div>
-                  ))}
-                  <div className={styles.user_icon_add}>
-                    <img src={PlusIcon} alt="Add User" className={styles.icon} />
-                  </div>
+          <div className={styles.loginContainer}>
+            <div className={styles.zigzagContainer}></div>
+            <div className={styles.loginForm}>
+              <div className={styles.personLoginForm}>
+                <div className={styles.textStack}>
+                  <h1 className={styles.textStroke}>Dołącz do Gry</h1>
+                  <h1 className={styles.textFill}>Dołącz do Gry</h1>
                 </div>
-                <div
-                  className={styles.user_icon_main}
-                  onClick={() => setShowMainUserPopup(true)}
-                >
-                  {nickname.slice(0, 2).toUpperCase()}
+                <input
+                    className={styles.input}
+                    type="text"
+                    placeholder="Kod Grupy"
+                    value={groupCode}
+                    onChange={(e) => setGroupCode(e.target.value)}
+                />
+                <input
+                    className={styles.input}
+                    type="text"
+                    placeholder="Twój Nick"
+                    value={nickname}
+                    onChange={(e) => setNickname(e.target.value)}
+                />
+                <button className={styles.button}
+                        onClick={handleLogin}>
+                  Dołącz
+                </button>
+              </div>
+              <div className={styles.groupLoginForm}>
+                <div className={styles.textStack}>
+                  <h1 className={styles.textStroke}>Lub stwórz nową grupę</h1>
+                  <h1 className={styles.textFill}>Lub stwórz nową grupę</h1>
                 </div>
-                {showPopup && (
-                  <div
-                    className={styles.popup_overlay}
-                    onClick={() => setShowPopup(false)}
-                  >
-                    <div
-                      className={styles.popup_content}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div>
-                        <h1>Członkowie grupy</h1>
-                        {otherUsers.length === 0 ? (
-                          <p>Brak znajomych</p>
-                        ) : (
-                          <div className={styles.userList}>
-                            {groupUsers
-                              .filter((user) => user && user._id && user.nickname)
-                              .map((user) => (
-                                <div key={user._id} className={styles.userCard}>
-                                  <h2>{user.nickname}</h2>
-                                  {isOwner && user._id !== currentUser?._id && (
-                                    <div className={styles.actions}>
-                                      <button
-                                        className={styles.ownerButton}
-                                        onClick={() =>
-                                          handleTransferOwnership(user._id)
-                                        }
-                                      >
-                                        <img
-                                          src={CrownIcon}
-                                          alt="Transfer Ownership"
-                                          className={styles.icon}
-                                        />
-                                      </button>
-                                      <button
-                                        className={styles.delButton}
-                                        onClick={() => handleRemoveUser(user._id)}
-                                      >
-                                        <img
-                                          src={DeleteIcon}
-                                          alt="Remove User"
-                                          className={styles.icon}
-                                        />
-                                      </button>
-                                    </div>
-                                  )}
-                                </div>
-                              ))}
-                          </div>
-                        )}
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          textAlign: "center",
-                          gap: "1rem",
-                        }}
-                      >
-                        <button
-                          className={styles.codeButton}
-                          onClick={handleShareGroupCode}
-                        >
-                          {groupCode}
-                        </button>
-                        <button
-                          className={styles.button}
-                          onClick={() => setShowPopup(false)}
-                        >
-                          Zamknij
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {showMainUserPopup && (
-                  <div
-                    className={styles.popup_overlay}
-                    onClick={() => setShowMainUserPopup(false)}
-                  >
-                    <div
-                      className={styles.popup_content}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div>
-                        <h1>Twoje informacje</h1>
-                        <p>
-                          <strong>Nick:</strong> {nickname}
-                        </p>
-                        <p>
-                          <strong>Kod grupy:</strong> {groupCode}
-                        </p>
-                        <p>
-                          <strong>Właściciel:</strong> {isOwner ? "Tak" : "Nie"}
-                        </p>
-                      </div>
-                      <div className={styles.actions_user}>
-                        <div style={{ marginBottom: "1rem" }}>
-                          <button
-                            className={styles.button}
-                            onClick={handleLogout}
-                          >
-                            Wyloguj
-                          </button>
-                          <button
-                            className={styles.button}
-                            style={{ background: "#ee6055" }}
-                            onClick={handleQuitGroup}
-                          >
-                            Quit Group
-                          </button>
-                          {isOwner && (
-                            <button
-                              className={styles.button}
-                              style={{ background: "#ee6055" }}
-                              onClick={handleDeleteGroup}
-                            >
-                              Delete Group
-                            </button>
-                          )}
-                        </div>
-                        <button
-                          className={styles.button}
-                          onClick={() => setShowMainUserPopup(false)}
-                        >
-                          Zamknij
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                <input
+                    className={styles.input}
+                    type="text"
+                    placeholder="Nazwa Grupy"
+                    value={newGroupName}
+                    onChange={(e) => setNewGroupName(e.target.value)}
+                />
+                <input
+                    className={styles.input}
+                    type="text"
+                    placeholder="Twój Nick (Lider)"
+                    value={ownerNickname}
+                    onChange={(e) => setOwnerNickname(e.target.value)}
+                />
+                <button className={styles.button}
+                        onClick={handleCreateGroup}>
+                  Stwórz Grupę
+                </button>
               </div>
             </div>
-            <MapElement tasks={tasks} className={styles.MapElement} />
+            {groupCreated && (
+                <p>
+                  Utworzono grupę: {groupCreated.name} (Kod: {groupCreated.code})
+                </p>
+            )}
           </div>
-          <div className={styles.taskList} ref={taskListRef}>
-            {tasks.map((task, index) => (
-              <TaskCard
-                key={task._id}
-                task={task}
-                index={index}
-                containerRef={taskListRef}
-                expandedTaskId={expandedTaskId}
-                toggleTask={toggleTask}
-                handleScanResult={handleScanResult}
-              />
-            ))}
-          </div>
-          <h3>Członkowie grupy:</h3>
-          <ul>
-            {groupUsers
-              .filter((user) => user && user._id && user.nickname)
-              .map((user) => (
-                <li key={user._id}>
-                  {user.nickname}
-                  {isOwner && user._id !== currentUser?._id && (
-                    <>
-                      <button onClick={() => handleRemoveUser(user._id)}>
-                        Remove
-                      </button>
-                      <button onClick={() => handleTransferOwnership(user._id)}>
-                        Transfer Ownership
-                      </button>
-                    </>
-                  )}
-                </li>
+      ) : (
+          <div>
+            <Header
+                groupUsers={groupUsers}
+                currentUser={currentUser}
+                isOwner={isOwner}
+                ownerId={ownerId}
+                nickname={nickname}
+                groupName={groupName}
+                groupCode={groupCode}
+                logout={logout}
+            />
+
+            <MapElement tasks={tasks}/>
+
+            <div className={styles.taskList} ref={taskListRef}>
+              {tasks.map((task, index) => (
+                  <TaskCard
+                      key={task._id}
+                      task={task}
+                      index={index}
+                      containerRef={taskListRef}
+                      expandedTaskId={expandedTaskId}
+                      toggleTask={toggleTask}
+                      handleScanResult={handleScanResult}
+                  />
               ))}
-          </ul>
-          <Leaderboard />
-        </div>
+            </div>
+          </div>
       )}
     </div>
   );
