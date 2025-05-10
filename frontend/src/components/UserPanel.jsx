@@ -1,13 +1,11 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import MapElement from "./MapElement";
 import styles from "./modules/UserPanel.module.css";
-import zigzag from "../assets/zigzag.svg"
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import TaskCard from "./TaskCard";
-import Header from "./Header.jsx"
+import Header from "./Header.jsx";
 import useAuth from "../utils/useLogout.jsx";
-import {useLocation} from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import ThemeToggle from "../utils/ThemeToggle.jsx";
 
 function UserPanel() {
@@ -15,6 +13,8 @@ function UserPanel() {
   const [groupCode, setGroupCode] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [tasks, setTasks] = useState([]);
+  const [submissions, setSubmissions] = useState([]);
+  const [isLoading, setIsLoading] = useState(true); // Added loading state
   const [newGroupName, setNewGroupName] = useState("");
   const [ownerNickname, setOwnerNickname] = useState("");
   const [ownerId, setOwnerId] = useState("");
@@ -24,10 +24,7 @@ function UserPanel() {
   const [groupUsers, setGroupUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [isOwner, setIsOwner] = useState(false);
-  const [backgroundText, setBackgroundText] = useState("");
-  const [groupScore, setGroupScore] = useState(0);
   const taskListRef = useRef();
-  const { scrollY } = useScroll({ container: taskListRef });
 
   const { logout } = useAuth({
     setIsLoggedIn,
@@ -56,60 +53,26 @@ function UserPanel() {
       setNickname(storedNickname);
       setGroupCode(storedGroupCode);
       setIsLoggedIn(true);
-      fetchTasks();
-      axios
-        .get(`/api/groups/${storedGroupCode.toUpperCase()}`)
-        .then((res) => {
-          setGroupName(res.data.name);
-          setGroupUsers(res.data.users);
-          setIsOwner(res.data.owner.nickname === storedNickname);
-          setOwnerId(res.data.owner._id);
-        })
-        .catch((err) => console.error(err));
-      axios
-        .post("/api/users/login", {
-          nickname: storedNickname,
-          groupCode: storedGroupCode,
-        })
-        .then((res) => {
-          setCurrentUser(res.data);
-        })
-        .catch((err) => {
-          console.error(err);
-          alert("Failed to restore user session");
-        });
+      fetchData(storedGroupCode);
+    } else {
+      setIsLoading(false); // No stored data, stop loading
     }
   }, [inviteCode]);
 
-  const handleLogin = async () => {
+  const fetchData = async (code) => {
+    setIsLoading(true); // Start loading
     try {
-      const res = await axios.post("/api/users/login", { nickname, groupCode });
-      setCurrentUser(res.data);
-      const groupRes = await axios.get(
-        `/api/groups/${groupCode.toUpperCase()}`
-      );
+      await Promise.all([fetchTasks(), fetchSubmissions(code)]);
+      const groupRes = await axios.get(`/api/groups/${code.toUpperCase()}`);
       setGroupName(groupRes.data.name);
       setGroupUsers(groupRes.data.users);
-      setIsOwner(groupRes.data.owner._id === res.data._id);
-      setIsLoggedIn(true);
-      fetchTasks();
-      localStorage.setItem("nickname", nickname);
-      localStorage.setItem("groupCode", groupCode);
+      setIsOwner(groupRes.data.owner.nickname === nickname);
+      setOwnerId(groupRes.data.owner._id);
     } catch (err) {
       console.error(err);
-      if (
-        err.response &&
-        err.response.data.error === "Grupa pełna (max 5 osób)"
-      ) {
-        alert("Grupa jest pełna! Max 5 osób.");
-      } else if (
-        err.response &&
-        err.response.data.error === "Nick already taken in this group"
-      ) {
-        alert("Ten nick jest już zajęty w tej grupie!");
-      } else {
-        alert("Nie udało się zalogować");
-      }
+      alert("Failed to fetch data");
+    } finally {
+      setIsLoading(false); // Stop loading
     }
   };
 
@@ -119,6 +82,39 @@ function UserPanel() {
       setTasks(res.data);
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const fetchSubmissions = async (code) => {
+    try {
+      const res = await axios.get(`/api/submissions/group/${code}`);
+      setSubmissions(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleLogin = async () => {
+    try {
+      const res = await axios.post("/api/users/login", { nickname, groupCode });
+      setCurrentUser(res.data);
+      const groupRes = await axios.get(`/api/groups/${groupCode.toUpperCase()}`);
+      setGroupName(groupRes.data.name);
+      setGroupUsers(groupRes.data.users);
+      setIsOwner(groupRes.data.owner._id === res.data._id);
+      setIsLoggedIn(true);
+      fetchData(groupCode);
+      localStorage.setItem("nickname", nickname);
+      localStorage.setItem("groupCode", groupCode);
+    } catch (err) {
+      console.error(err);
+      if (err.response && err.response.data.error === "Grupa pełna (max 5 osób)") {
+        alert("Grupa jest pełna! Max 5 osób.");
+      } else if (err.response && err.response.data.error === "Nick already taken in this group") {
+        alert("Ten nick jest już zajęty w tej grupie!");
+      } else {
+        alert("Nie udało się zalogować");
+      }
     }
   };
 
@@ -142,57 +138,31 @@ function UserPanel() {
       setIsLoggedIn(true);
       localStorage.setItem("nickname", ownerNickname);
       localStorage.setItem("groupCode", group.code);
-      fetchTasks();
+      fetchData(group.code);
       const groupRes = await axios.get(`/api/groups/${group.code}`);
       setGroupUsers(groupRes.data.users);
     } catch (err) {
       console.error(err);
-      if (
-        err.response &&
-        err.response.data.error === "Nick already taken in this group"
-      ) {
+      if (err.response && err.response.data.error === "Nick already taken in this group") {
         alert("Ten nick jest już zajęty w tej grupie!");
       } else {
-        alert(
-          "Błąd tworzenia grupy: " +
-            (err.response?.data?.error || "Nieznany błąd")
-        );
+        alert("Błąd tworzenia grupy: " + (err.response?.data?.error || "Nieznany błąd"));
       }
     }
   };
 
-  const handleScanResult = async (result, expectedTaskId) => {
-    console.log("Otrzymano wynik skanowania:", result, " : ", expectedTaskId);
-    if (result !== expectedTaskId) {
-      alert("Ten kod QR nie pasuje do tego zadania!");
-      return;
-    }
+  const handleScanResult = async (scannedCode, taskId) => {
     try {
-      const taskRes = await axios.get(`/api/tasks/${result}`);
-      const task = taskRes.data;
-      console.log("Znaleziono zadanie:", task);
-      console.log(
-        "Wysyłam do grupy:",
+      const res = await axios.post(`/api/submissions/${taskId}/submit`, {
         groupCode,
-        "taskId:",
-        task.id,
-        "punkty:",
-        task.score
-      );
-      const groupRes = await axios.get(`/api/groups/${groupCode}`);
-      const group = groupRes.data;
-      console.log("Znaleziono grupę:", group);
-      await axios.post(`/api/groups/${groupCode}/score`, {
-        points: task.score,
-        taskId: task.id,
+        submissionData: scannedCode,
       });
-      alert(`Dodano ${task.score} punktów za zadanie: ${task.name}`);
+      alert(res.data.message);
+      fetchSubmissions(groupCode);
     } catch (err) {
       console.error(err);
-      if (err.response && err.response.status === 404) {
-        alert("Kod QR nie jest powiązany z żadnym zadaniem!");
-      } else if (err.response && err.response.status === 400) {
-        alert("To zadanie zostało już wykonane!");
+      if (err.response) {
+        alert(err.response.data.error);
       } else {
         alert("Błąd przy przetwarzaniu kodu QR");
       }
@@ -206,99 +176,70 @@ function UserPanel() {
   return (
     <div className={styles.UserPanelContainer}>
       {!isLoggedIn ? (
-          <div className={styles.loginContainer}>
-            <div className={styles.themeAndLanguage}>
-              🇵🇱
-              <ThemeToggle variant="emoji" />
-            </div>
-            <div className={styles.zigzagContainer}></div>
-            <div className={styles.loginForm}>
-              <div className={styles.personLoginForm}>
-                <div className={styles.textStack}>
-                  <h1 className={styles.textStroke}>Dołącz do Gry</h1>
-                  <h1 className={styles.textFill}>Dołącz do Gry</h1>
-                </div>
-                <input
-                    className={styles.input}
-                    type="text"
-                    placeholder="Kod Grupy"
-                    value={groupCode || ""}
-                    onChange={(e) => setGroupCode(e.target.value)}
-                />
-                <input
-                    className={styles.input}
-                    type="text"
-                    placeholder="Twój Nick"
-                    value={nickname}
-                    onChange={(e) => setNickname(e.target.value)}
-                />
-                <button className={styles.button}
-                        onClick={handleLogin}>
-                  Dołącz
-                </button>
-              </div>
-              {!inviteCode && (
-                  <div className={styles.groupLoginForm}>
-                    <div className={styles.textStack}>
-                      <h1 className={styles.textStroke}>Lub stwórz nową grupę</h1>
-                      <h1 className={styles.textFill}>Lub stwórz nową grupę</h1>
-                    </div>
-                    <input
-                        className={styles.input}
-                        type="text"
-                        placeholder="Nazwa Grupy"
-                        value={newGroupName}
-                        onChange={(e) => setNewGroupName(e.target.value)}
-                    />
-                    <input
-                        className={styles.input}
-                        type="text"
-                        placeholder="Twój Nick (Lider)"
-                        value={ownerNickname}
-                        onChange={(e) => setOwnerNickname(e.target.value)}
-                    />
-                    <button className={styles.button}
-                            onClick={handleCreateGroup}>
-                      Stwórz Grupę
-                    </button>
-                  </div>
-              )}
-            </div>
-            {groupCreated && (
-                <p>
-                  Utworzono grupę: {groupCreated.name} (Kod: {groupCreated.code})
-                </p>
-            )}
-          </div>
+        <div className={styles.loginContainer}>
+          <h2>Login</h2>
+          <input
+            type="text"
+            placeholder="Nickname"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Group Code"
+            value={groupCode}
+            onChange={(e) => setGroupCode(e.target.value)}
+          />
+          <button onClick={handleLogin}>Login</button>
+          <h2>Create Group</h2>
+          <input
+            type="text"
+            placeholder="Group Name"
+            value={newGroupName}
+            onChange={(e) => setNewGroupName(e.target.value)}
+          />
+          <input
+            type="text"
+            placeholder="Your Nickname"
+            value={ownerNickname}
+            onChange={(e) => setOwnerNickname(e.target.value)}
+          />
+          <button onClick={handleCreateGroup}>Create Group</button>
+        </div>
       ) : (
-          <div className={styles.appContainer}>
-            <Header
-                groupUsers={groupUsers}
-                currentUser={currentUser}
-                isOwner={isOwner}
-                ownerId={ownerId}
-                nickname={nickname}
-                groupName={groupName}
-                groupCode={groupCode}
-                logout={logout}
-            />
-
-            <MapElement tasks={tasks}/>
-
+        <div className={styles.appContainer}>
+          <Header
+            groupUsers={groupUsers}
+            currentUser={currentUser}
+            isOwner={isOwner}
+            ownerId={ownerId}
+            nickname={nickname}
+            groupName={groupName}
+            groupCode={groupCode}
+            logout={logout}
+          />
+          <MapElement tasks={tasks} />
+          {isLoading ? (
+            <div>Loading tasks...</div>
+          ) : (
             <div className={styles.taskList} ref={taskListRef}>
               {tasks.map((task, index) => (
-                  <TaskCard
-                      key={task._id}
-                      task={task}
-                      index={index}
-                      containerRef={taskListRef}
-                      expandedTaskId={expandedTaskId}
-                      toggleTask={toggleTask}
-                      handleScanResult={handleScanResult}
-                  />
+                <TaskCard
+                  key={task._id}
+                  task={task}
+                  index={index}
+                  containerRef={taskListRef}
+                  expandedTaskId={expandedTaskId}
+                  toggleTask={toggleTask}
+                  handleScanResult={handleScanResult}
+                  submission={submissions.find((sub) => sub.task._id === task._id)}
+                  groupCode={groupCode}
+                  fetchSubmissions={() => fetchSubmissions(groupCode)}
+                />
               ))}
             </div>
-          </div>
+          )}
+        </div>
       )}
     </div>
   );

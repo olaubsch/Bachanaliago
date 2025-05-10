@@ -72,7 +72,8 @@ function AdminPanel() {
                         {task.location.lat}, {task.location.lng}
                       </p>
                       <p>Punkty: {task.score}</p>
-                      <p>QR: {task.qrcode}</p>
+                      <p>Typ: {task.type}</p>
+                      {task.type === "qr" && <p>QR ID: {task._id}</p>}
                       <button
                         className={styles.button}
                         onClick={() => handleDelete(task._id)}

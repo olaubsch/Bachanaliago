@@ -1,17 +1,19 @@
-import { useState } from "react";
-import TaskForm from "./TaskForm";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import styles from "./modules/AdminPanel.module.css";
+
+// Define the backend URL based on the environment
+const BACKEND_URL = "http://localhost:5000";
 
 function VerificationView() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [password, setPassword] = useState("");
-  const [tasks, setTasks] = useState([]);
+  const [submissions, setSubmissions] = useState([]);
 
-  const fetchTasks = async () => {
+  const fetchPendingSubmissions = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/tasks");
-      setTasks(res.data);
+      const res = await axios.get("/api/submissions/pending");
+      setSubmissions(res.data);
     } catch (err) {
       console.error(err);
     }
@@ -20,18 +22,19 @@ function VerificationView() {
   const handleLogin = () => {
     if (password === "admin123") {
       setIsLoggedIn(true);
-      fetchTasks();
+      fetchPendingSubmissions();
     } else {
       alert("Złe hasło");
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleVerify = async (submissionId, status) => {
     try {
-      await axios.delete(`http://localhost:5000/api/tasks/${id}`);
-      setTasks(tasks.filter((task) => task._id !== id));
+      await axios.post(`/api/submissions/${submissionId}/verify`, { status });
+      fetchPendingSubmissions();
     } catch (err) {
       console.error(err);
+      alert("Error verifying submission");
     }
   };
 
@@ -53,37 +56,50 @@ function VerificationView() {
         </div>
       ) : (
         <div className={styles.adminForm}>
-          <h2 className={styles.taskHeader}>Panel Admina</h2>
-          <div className={styles.columnsWrapper}>
-            <div className={styles.leftColumn}>
-              <TaskForm onTaskAdded={fetchTasks} />
-            </div>
-            <div className={styles.rightColumn}>
-              <h3 className={styles.taskHeader}>Lista Tasków</h3>
-              <div className={styles.adminTaskList}>
-                {tasks.map((task) => (
-                  <div key={task._id} className={styles.adminTaskCard}>
-                    <div className={styles.taskHeader}>
-                      <strong>{task.name}</strong>
-                    </div>
-                    <div className={styles.taskDetails}>
-                      <p>{task.description}</p>
-                      <p>
-                        {task.location.lat}, {task.location.lng}
-                      </p>
-                      <p>Punkty: {task.score}</p>
-                      <p>QR: {task.qrcode}</p>
-                      <button
-                        className={styles.button}
-                        onClick={() => handleDelete(task._id)}
-                      >
-                        Usuń
-                      </button>
-                    </div>
+          <h2 className={styles.taskHeader}>Verification Panel</h2>
+          <div className={styles.rightColumn}>
+            <h3 className={styles.taskHeader}>Pending Submissions</h3>
+            {submissions.length === 0 ? (
+              <p>No pending submissions</p>
+            ) : (
+              submissions.map((sub) => (
+                <div key={sub._id} className={styles.adminTaskCard}>
+                  <div className={styles.taskHeader}>
+                    <strong>{sub.task.name} - {sub.group.name}</strong>
                   </div>
-                ))}
-              </div>
-            </div>
+                  <div className={styles.taskDetails}>
+                    <p>Type: {sub.type}</p>
+                    {sub.type === "text" && <p>Submission: {sub.submissionData}</p>}
+                    {sub.type === "photo" && (
+                      <img
+                        src={`${BACKEND_URL}/${sub.submissionData}`}
+                        alt="Submission"
+                        style={{ maxWidth: "200px" }}
+                      />
+                    )}
+                    {sub.type === "video" && (
+                      <video
+                        src={`${BACKEND_URL}/${sub.submissionData}`}
+                        controls
+                        style={{ maxWidth: "200px" }}
+                      />
+                    )}
+                    <button
+                      className={styles.button}
+                      onClick={() => handleVerify(sub._id, "approved")}
+                    >
+                      Approve
+                    </button>
+                    <button
+                      className={styles.button}
+                      onClick={() => handleVerify(sub._id, "rejected")}
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}

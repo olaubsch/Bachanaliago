@@ -9,7 +9,7 @@ function TaskForm({ onTaskAdded }) {
   const [lat, setLat] = useState("");
   const [lng, setLng] = useState("");
   const [score, setScore] = useState(0);
-  const [qrcode, setQrcode] = useState("");
+  const [type, setType] = useState("qr");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,7 +23,7 @@ function TaskForm({ onTaskAdded }) {
         description,
         location: { lat: parseFloat(lat), lng: parseFloat(lng) },
         score: parseInt(score),
-        qrcode: qrcode.trim() || generateRandomQrCode(),
+        type,
       });
       alert("Task dodany");
       setName("");
@@ -31,7 +31,7 @@ function TaskForm({ onTaskAdded }) {
       setLat("");
       setLng("");
       setScore(0);
-      setQrcode("");
+      setType("qr");
       onTaskAdded();
     } catch (err) {
       console.error(err);
@@ -39,12 +39,8 @@ function TaskForm({ onTaskAdded }) {
     }
   };
 
-  const generateRandomQrCode = () => {
-    return Math.random().toString(36).substring(2, 10).toUpperCase();
-  };
-
   return (
-    <form onSubmit={handleSubmit} className={styles.formContainer}>
+    <div className={styles.formContainer}>
       <h3>Dodaj Taska</h3>
       <input
         type="text"
@@ -70,13 +66,16 @@ function TaskForm({ onTaskAdded }) {
         required
         className={styles.input}
       />
-      <input
-        type="text"
-        placeholder="QR Kod (lub zostaw puste)"
-        value={qrcode}
-        onChange={(e) => setQrcode(e.target.value)}
+      <select
+        value={type}
+        onChange={(e) => setType(e.target.value)}
         className={styles.input}
-      />
+      >
+        <option value="qr">QR Code</option>
+        <option value="text">Text Input</option>
+        <option value="photo">Photo Upload</option>
+        <option value="video">Video Upload</option>
+      </select>
       <div className={styles.mapWrapper}>
         <TaskMapPicker setLat={setLat} setLng={setLng} />
       </div>
@@ -84,10 +83,10 @@ function TaskForm({ onTaskAdded }) {
         Wybrane koordynaty: {lat ? lat.toFixed(4) : "Brak"},{" "}
         {lng ? lng.toFixed(4) : "Brak"}
       </div>
-      <button type="submit" className={styles.button}>
+      <button onClick={handleSubmit} className={styles.button}>
         Dodaj Taska
       </button>
-    </form>
+    </div>
   );
 }
 
