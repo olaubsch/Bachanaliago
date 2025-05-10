@@ -59,7 +59,7 @@ function AdminPanel() {
               <TaskForm onTaskAdded={fetchTasks} />
             </div>
             <div className={styles.rightColumn}>
-              <h3 className={styles.taskHeader}>Lista Tasków</h3>
+              <div className={styles.stickyHeader}>Lista Tasków</div>
               <div className={styles.adminTaskList}>
                 {tasks.map((task) => (
                   <div key={task._id} className={styles.adminTaskCard}>
