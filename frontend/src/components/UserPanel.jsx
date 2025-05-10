@@ -7,6 +7,8 @@ import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import TaskCard from "./TaskCard";
 import Header from "./Header.jsx"
 import useAuth from "../utils/useLogout.jsx";
+import {useLocation} from "react-router-dom";
+import ThemeToggle from "../utils/ThemeToggle.jsx";
 
 function UserPanel() {
   const [nickname, setNickname] = useState("");
@@ -38,9 +40,18 @@ function UserPanel() {
     setIsOwner,
   });
 
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const inviteCode = params.get("code");
+
   useEffect(() => {
     const storedNickname = localStorage.getItem("nickname");
     const storedGroupCode = localStorage.getItem("groupCode");
+
+    if (inviteCode) {
+      setGroupCode(inviteCode);
+    }
+
     if (storedNickname && storedGroupCode) {
       setNickname(storedNickname);
       setGroupCode(storedGroupCode);
@@ -68,7 +79,7 @@ function UserPanel() {
           alert("Failed to restore user session");
         });
     }
-  }, []);
+  }, [inviteCode]);
 
   const handleLogin = async () => {
     try {
@@ -196,6 +207,10 @@ function UserPanel() {
     <div className={styles.UserPanelContainer}>
       {!isLoggedIn ? (
           <div className={styles.loginContainer}>
+            <div className={styles.themeAndLanguage}>
+              🇵🇱
+              <ThemeToggle variant="emoji" />
+            </div>
             <div className={styles.zigzagContainer}></div>
             <div className={styles.loginForm}>
               <div className={styles.personLoginForm}>
@@ -207,7 +222,7 @@ function UserPanel() {
                     className={styles.input}
                     type="text"
                     placeholder="Kod Grupy"
-                    value={groupCode}
+                    value={groupCode || ""}
                     onChange={(e) => setGroupCode(e.target.value)}
                 />
                 <input
@@ -222,30 +237,32 @@ function UserPanel() {
                   Dołącz
                 </button>
               </div>
-              <div className={styles.groupLoginForm}>
-                <div className={styles.textStack}>
-                  <h1 className={styles.textStroke}>Lub stwórz nową grupę</h1>
-                  <h1 className={styles.textFill}>Lub stwórz nową grupę</h1>
-                </div>
-                <input
-                    className={styles.input}
-                    type="text"
-                    placeholder="Nazwa Grupy"
-                    value={newGroupName}
-                    onChange={(e) => setNewGroupName(e.target.value)}
-                />
-                <input
-                    className={styles.input}
-                    type="text"
-                    placeholder="Twój Nick (Lider)"
-                    value={ownerNickname}
-                    onChange={(e) => setOwnerNickname(e.target.value)}
-                />
-                <button className={styles.button}
-                        onClick={handleCreateGroup}>
-                  Stwórz Grupę
-                </button>
-              </div>
+              {!inviteCode && (
+                  <div className={styles.groupLoginForm}>
+                    <div className={styles.textStack}>
+                      <h1 className={styles.textStroke}>Lub stwórz nową grupę</h1>
+                      <h1 className={styles.textFill}>Lub stwórz nową grupę</h1>
+                    </div>
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder="Nazwa Grupy"
+                        value={newGroupName}
+                        onChange={(e) => setNewGroupName(e.target.value)}
+                    />
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder="Twój Nick (Lider)"
+                        value={ownerNickname}
+                        onChange={(e) => setOwnerNickname(e.target.value)}
+                    />
+                    <button className={styles.button}
+                            onClick={handleCreateGroup}>
+                      Stwórz Grupę
+                    </button>
+                  </div>
+              )}
             </div>
             {groupCreated && (
                 <p>
@@ -254,7 +271,7 @@ function UserPanel() {
             )}
           </div>
       ) : (
-          <div>
+          <div className={styles.appContainer}>
             <Header
                 groupUsers={groupUsers}
                 currentUser={currentUser}

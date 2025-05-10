@@ -37,17 +37,13 @@ const Leaderboard = () => {
 
   return (
       <div>
-        <h1>🏆 Tabela wyników</h1>
+        <h1>Tabela wyników</h1>
         {groups.length > 0 ? (
             <div>
-              <table style={{width: "100%"}}>
-                <thead>
-                <tr>
-                  <th><h2>Grupa</h2></th>
-                  <th><h2>Punkty</h2></th>
-                </tr>
-                </thead>
-              </table>
+              <div style={{ display: "flex", justifyContent: "space-between", padding: "0.25rem 0.75rem" }}>
+                <h2>Grupa</h2>
+                <h2>Punkty</h2>
+              </div>
               <div style={{maxHeight: "45vh", overflowY: "auto"}}>
                 {mockGroups
                     .slice()

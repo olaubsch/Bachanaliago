@@ -6,6 +6,7 @@ import DeleteIcon from "../assets/trash-svgrepo-com.svg";
 import {useMemo, useState} from "react";
 import axios from "axios";
 import Leaderboard from "./LeaderBoard.jsx";
+import ThemeToggle from "../utils/ThemeToggle.jsx";
 
 function Header({
                     groupUsers,
@@ -91,15 +92,17 @@ function Header({
     };
 
     const handleShareGroupCode = async () => {
+        const shareableLink = `${window.location.origin}/?code=${groupCode}`;
         try {
             if (navigator.share) {
                 await navigator.share({
-                    title: "Group Code",
-                    text: `Join my group with this code: ${groupCode}`,
+                    title: "Dołącz do mojej grupy",
+                    text: `Kliknij, aby dołączyć do mojej grupy:`,
+                    url: shareableLink,
                 });
             } else {
-                await navigator.clipboard.writeText(groupCode);
-                alert("Group code copied to clipboard!");
+                await navigator.clipboard.writeText(shareableLink);
+                alert("Link do grupy skopiowany do schowka!");
             }
         } catch (error) {
             console.error("Error sharing:", error);
@@ -126,12 +129,18 @@ function Header({
         }
     };
 
+    const PlusIcon = ({ stroke = "currentColor", ...props }) => (
+        <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 12H18M12 6V18" stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+    );
+
     const otherUsers = groupUsers.filter((user) => user.nickname !== nickname);
 
     return (
-    <div className={styles.header}>
-        {/* Friends */}
-        <div
+        <div className={styles.header}>
+            {/* Friends */}
+            <div
             style={{display: "flex", cursor: "pointer"}}
             onClick={() => setShowPopup(true)}
         >
@@ -150,7 +159,7 @@ function Header({
                     className={styles.user_icon_add}
                     style={otherUsers.length === 0 ? {marginLeft: "unset"} : {}}
                 >
-                    <img src={PlusIcon} alt="Add User" className={styles.icon}/>
+                    <PlusIcon stroke={"var(--text-header-color)"}/>
                 </div>
             )}
         </div>
@@ -176,7 +185,7 @@ function Header({
             <div className={styles.popup_overlay} onClick={() => setShowPopup(false)}>
                 <div className={styles.popup_content} onClick={(e) => e.stopPropagation()}>
                     <div>
-                        <h1>Członkowie grupy</h1>
+                        <h1>Członkowie</h1>
                         {otherUsers.length === 0 ? (
                             <p>Brak znajomych</p>
                         ) : (
@@ -185,7 +194,10 @@ function Header({
                                     .filter(user => user && user._id && user.nickname) // Ensure user is valid
                                     .map((user) => (
                                         <div key={user._id} className={styles.userCard}>
-                                            <h2>{user.nickname}</h2>
+                                            <h2>{user.nickname}
+                                                { user._id === ownerId && (
+                                                    <span style={{ marginLeft: "0.5rem"}}>👑</span>
+                                                )}</h2>
                                             {isOwner && user._id !== currentUser?._id && (
                                                 <div className={styles.actions}>
                                                     <button
@@ -200,11 +212,6 @@ function Header({
                                                     </button>
                                                 </div>
                                             )}
-                                            { user._id === ownerId && (
-                                                <div className={styles.actions}>
-                                                    <h1>👑</h1>
-                                                </div>
-                                            )}
                                         </div>
                                     ))}
                             </div>
@@ -212,12 +219,22 @@ function Header({
                         )}
                     </div>
                     <div style={{display: "flex", flexDirection: "column", textAlign: "center", gap: "1rem"}}>
-                        <button
-                            className={styles.codeButton}
+                        <div
                             onClick={handleShareGroupCode}
-                        >
-                            🔗 {groupCode} 📤
-                        </button>
+                            style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            gap: "0.5rem"
+                        }}>
+                            <span style={{fontSize: "2rem"}}>📤</span>
+                            <button
+                                className={styles.codeButton}
+                            >
+                                {groupCode}
+                            </button>
+                        </div>
 
                         <button className={styles.button} onClick={() => setShowPopup(false)}>Zamknij</button>
                     </div>
@@ -243,19 +260,35 @@ function Header({
             <div className={styles.popup_overlay} onClick={() => setShowMainUserPopup(false)}>
                 <div className={styles.popup_content} onClick={(e) => e.stopPropagation()}>
                     <div className={styles.actions_user}>
+                        <h1>Ustawienia</h1>
+                        <div style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            gap: "0.5rem"
+                        }}>
+                            <div style={{flex: 1}}>
+                                <ThemeToggle variant="button"/>
+                            </div>
+                            <div style={{flex: 1}}>
+                                <button className={styles.button} style={{flex: 1}}>
+                                    🇵🇱 language
+                                </button>
+                            </div>
+                        </div>
                         <button className={styles.button} onClick={handleLogout}>Wyloguj</button>
                         <button
                             className={styles.button}
                             style={{background: '#ee6055'}}
                             onClick={handleQuitGroup}>
-                            Quit Group
+                            🚪 Quit Group
                         </button>
                         {isOwner && (
                             <button
                                 className={styles.button}
                                 style={{background: '#ee6055'}}
                                 onClick={handleDeleteGroup}>
-                                Delete Group
+                                🗑 Delete Group
                             </button>
                         )}
                     </div>
@@ -265,7 +298,7 @@ function Header({
                 </div>
             </div>
         )}
-    </div>
+        </div>
     )
 }
 

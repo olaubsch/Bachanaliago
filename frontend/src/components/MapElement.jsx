@@ -46,7 +46,7 @@ function MapElement({ tasks }) {
   }, []);
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return <div className={styles.load_wrapper}>Error: {error}</div>;
   }
 
   return (
@@ -56,7 +56,7 @@ function MapElement({ tasks }) {
             <div className={styles.wave_loader} />
           </div>
       ) : (
-          <MapContainer center={position} scrollWheelZoom={false} tap={false} zoomControl={false} zoom={13} style={{ height: '250px', width: '100%', borderRadius: '2rem' }}>
+          <MapContainer center={position} scrollWheelZoom={false} tap={false} zoomControl={false} zoom={13} style={{ height: '250px', width: '100%', borderRadius: '1.5rem' }}>
         <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

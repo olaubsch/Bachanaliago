@@ -1,16 +1,25 @@
 .UserPanelContainer {
-  overflow: hidden;
-  height: 100vh;
-  width: 100%;
-  touch-action: none;
+
+}
+
+.themeAndLanguage {
+  position: fixed;
+  display: flex;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+
+  font-size: 2rem;
+  column-gap: 1rem;
 }
 
 .loginContainer {
-  margin: 2rem;
   display: flex;
   justify-content: center;
-
-  height: 100vh;
+  align-items: center;
+  height: 100%;
+  padding: 2rem;
+  box-sizing: border-box;
 }
 
 .loginForm {
@@ -34,32 +43,39 @@
 }
 
 .input {
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(50px);
+  -webkit-backdrop-filter: blur(50px);
   background-color: transparent;
-  color: #333333;
-  border: 1px solid #333333;
+  color: var(--text-color);
+  border: 1px solid var(--text-color);
   cursor: pointer;
   font-size: 1rem;
-  font-weight: bold;
+  font-family: "Tauri", sans-serif;
+  font-weight: 400;
+  font-style: normal;
   border-radius: 0.5rem;
-  padding: 1rem 2rem;
+  padding: 1rem 1rem;
 }
 
 .input::placeholder {
-  color: #333333;
+  color: var(--text-color);
   opacity: 0.5;
+}
+
+.input:focus {
+  outline: solid 2px var(--text-color) !important;
 }
 
 .button {
   backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(5px);
-  background: #4B5358;
-  color: white;
+  background: var(--text-color);
+  color: var(--bg-color);
   border: none;
   cursor: pointer;
   font-size: 1rem;
-  font-weight: bold;
+  font-family: "Prompt", sans-serif;
+  font-weight: 600;
   border-radius: 0.5rem;
   padding: 1rem 2rem;
 }
@@ -131,7 +147,7 @@
 
   opacity: 1;
   text-transform: uppercase;
-  color: #AF929D;
+  color: var(--text-color);
   white-space: nowrap;
   pointer-events: none;
   z-index: 0; /* behind all content */
@@ -162,19 +178,27 @@
 }
 
 .textFill {
-  color: #333333;
+  color: var(--text-color);
   position: absolute;
   top: 0;
   left: 0;
-  z-index: -1; /* behind stroke */
+  z-index: -1;
+  font-family: "Prompt", sans-serif;
+  font-weight: 600;
+  line-height: 2rem;
+  font-style: normal;
 }
 
 .textStroke {
   color: transparent;
-  -webkit-text-stroke: 1px #333333;
-  text-stroke: 1px #333333;
+  -webkit-text-stroke: 1px var(--text-color);
+  text-stroke: 1px var(--text-color);
   position: relative;
-  z-index: 1; /* above backgroundText */
+  z-index: 1;
+  font-family: "Prompt", sans-serif;
+  font-weight: 600;
+  line-height: 2rem;
+  font-style: normal;
 }
 
 @media only screen and (min-device-width: 768px) {

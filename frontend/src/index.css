@@ -3,15 +3,33 @@
   padding: 0;
 }
 
+:root {
+  --bg-color: #ede6d5;
+  --bg-rgb: 237, 230, 213;
+  --text-header-color: #ede6d5;
+  --text-color: #796e65;
+  --button-bg: #796e65;
+  --accent: #acd8aa;
+}
+
+[data-theme="dark"] {
+  --bg-color: #2f3a39;
+  --bg-rgb: 47, 58, 57;
+  --text-header-color: #2f3a39;
+  --text-color: #ede6d5;
+  --button-bg: #ede6d5;
+  --accent: #acd8aa;
+}
+
 body {
-  background-color: #D2D6EF;
+  background-color: var(--bg-color);
+  color: var(--text-color);
 
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
   'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
   sans-serif;
   font-size: 16px;
   line-height: 1.6;
-  color: #333;
 
   box-sizing: border-box;
 
@@ -19,7 +37,39 @@ body {
   -moz-osx-font-smoothing: grayscale;
 
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+}
+
+::view-transition-group(root) {
+  animation-timing-function: var(--expo-out);
+}
+
+::view-transition-new(root) {
+  mask: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><defs><filter id="blur"><feGaussianBlur stdDeviation="2"/></filter></defs><circle cx="40" cy="0" r="18" fill="white" filter="url(%23blur)"/></svg>') top right / 0 no-repeat;
+  mask-origin: content-box;
+  animation: scale 1s;
+  transform-origin: top right;
+}
+
+::view-transition-old(root),
+[data-theme="dark"] ::view-transition-old(root) {
+  animation: scale 1s;
+  transform-origin: top right;
+  z-index: -1;
+}
+
+::view-transition-old(button),
+::view-transition-new(button) {
+  animation: fade 1s ease-in-out;
+}
+
+@keyframes scale {
+  to {
+    mask-size: 350vmax;
+  }
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
