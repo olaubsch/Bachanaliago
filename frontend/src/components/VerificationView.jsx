@@ -3,7 +3,7 @@ import TaskForm from "./TaskForm";
 import axios from "axios";
 import styles from "./modules/AdminPanel.module.css";
 
-function AdminPanel() {
+function VerificationView() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [password, setPassword] = useState("");
   const [tasks, setTasks] = useState([]);
@@ -91,4 +91,4 @@ function AdminPanel() {
   );
 }
 
-export default AdminPanel;
+export default VerificationView;
