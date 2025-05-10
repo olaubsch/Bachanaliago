@@ -17,34 +17,90 @@
 }
 
 .columnsWrapper {
-  display: grid;
-  grid-template-columns: 1fr 0.5fr; /* 2:1 proporcja */
+  display: flex;
   gap: 4rem;
   width: 100%;
-  align-items: flex-start;
+  align-items: stretch;
+  height: 80vh; /* narzucamy kolumnom jednakową wysokość */
 }
 
-.leftColumn {
-  display: column;
-  justify-content: center;
+/* OBIE KOLUMNY */
+.leftColumn,
+.rightColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   background: rgba(255, 255, 255, 0.85);
   border-radius: 1rem;
   padding: 2rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
   height: 100%;
+  min-height: 0; /* ⬅️ kluczowe przy flexboxie */
+  overflow: hidden;
 }
 
-.rightColumn {
-  max-height: 80vh;
+/* Lewa kolumna scrolluje się cała */
+.leftColumn {
   overflow-y: auto;
+}
+
+/* Prawa kolumna: nagłówek + scrollowana lista */
+.rightColumn {
+  overflow: hidden;
+}
+
+/* Sticky nagłówek */
+.stickyHeader {
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: rgba(255, 255, 255, 0.85);
+  padding: 1rem 2rem;
+  font-weight: 600;
+  font-size: 1.25rem;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Lista tasków – musi mieć flex-grow i 100% wysokości */
+.adminTaskList {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0; /* ⬅️ kluczowe */
+  padding: 1.5rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
+/* Karta taska */
+.adminTaskCard {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.adminTaskCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+}
+
+.taskHeader {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.taskDetails {
+  font-size: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Inputy i przycisk */
 .input {
   backdrop-filter: blur(50px);
   background-color: transparent;
@@ -78,36 +134,4 @@
   padding: 1rem 2rem;
   cursor: pointer;
   width: fit-content;
-}
-
-.taskHeader {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-}
-
-.adminTaskList {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.adminTaskCard {
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
-  transition: all 0.3s ease;
-}
-
-.adminTaskCard:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
-}
-
-.taskDetails {
-  font-size: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
 }
