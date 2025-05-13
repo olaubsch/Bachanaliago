@@ -76,7 +76,7 @@ const TaskForm = forwardRef(function TaskForm({ onTaskAdded }, ref) {
       <select
         value={type}
         onChange={(e) => setType(e.target.value)}
-        className={styles.input}
+        className={styles.inputSelect}
       >
         <option value="qr">QR Code</option>
         <option value="text">Text Input</option>

@@ -1,0 +1,15 @@
+<svg width="200" height="300" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+    <path
+            id="zigzag"
+            d="M100,-10
+       Q 0,50 100,90
+       T 100,170
+       T 100,250
+       T 100,330"
+            fill="none"
+            stroke="#acd8aa"
+            stroke-width="32"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+    />
+</svg>

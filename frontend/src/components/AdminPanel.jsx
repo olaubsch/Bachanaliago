@@ -13,7 +13,7 @@ function AdminPanel() {
 
   const fetchTasks = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/tasks");
+      const res = await axios.get("/api/tasks");
       setTasks(res.data);
     } catch (err) {
       console.error(err);
@@ -31,7 +31,7 @@ function AdminPanel() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/tasks/${id}`);
+      await axios.delete(`/api/tasks/${id}`);
       setTasks(tasks.filter((task) => task._id !== id));
     } catch (err) {
       console.error(err);
@@ -66,12 +66,12 @@ function AdminPanel() {
       ) : (
           <div className={styles.adminForm}>
             <h2 className={styles.taskHeader}>Panel Admina</h2>
-
+            <div className={styles.zigzagContainer}></div>
             <div className={styles.contentContainer}>
               <div className={styles.headerControls}>
                 <h2>{showForm ? "Dodaj Taska" : "Lista Tasków"}</h2>
-                <div style={{ display: "flex", gap: "0.5rem" }}>
-                  <CustomButton variant={showForm ? "warning" : "default"} onClick={() => setShowForm((prev) => !prev)}>
+                <div style={{display: "flex", gap: "0.5rem"}}>
+                  <CustomButton variant={showForm ? "outline" : "default"} onClick={() => setShowForm((prev) => !prev)}>
                     {showForm ? "Anuluj" : "Dodaj"}
                   </CustomButton>
                   {showForm && (
@@ -102,12 +102,13 @@ function AdminPanel() {
                             <p>Punkty: {task.score}</p>
                             <p>Typ: {task.type}</p>
                             {task.type === "qr" && <p>QR ID: {task._id}</p>}
-                            <button
+                            <CustomButton
+                                width={"fit-content"}
                                 className={styles.button}
                                 onClick={() => handleDelete(task._id)}
                             >
                               Usuń
-                            </button>
+                            </CustomButton>
                           </div>
                         </div>
                     ))}

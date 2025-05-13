@@ -11,19 +11,21 @@
 
 .default {
     background: var(--text-color);
-    color: var(--bg-color);
+    color: var(--text-header-color);
     border: none;
 }
 
 .outline {
     background-color: transparent;
-    border: 1px solid var(--text-color);
+    outline: 1px solid var(--text-color);
+    outline-offset: -1px;
     color: var(--text-color);
+    border: none;
 }
 
 .warning {
     background-color: var(--red);
-    color: var(--bg-color);
+    color: var(--text-header-color);
     border: none;
 }
 
