@@ -39,7 +39,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 
   min-height: 100vh;
-  overflow: hidden;
 }
 
 ::view-transition-group(root) {
