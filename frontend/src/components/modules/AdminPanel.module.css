@@ -3,6 +3,8 @@
   justify-content: center;
   align-items: flex-start;
   min-height: 100vh;
+  max-width: 70%;
+  margin: 0 auto;
   padding: 4rem 6rem;
   box-sizing: border-box;
   background-color: var(--bg-color);
@@ -11,9 +13,9 @@
 .adminForm {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
   width: 100%;
   max-width: 1600px;
+  height: 90vh;
 }
 
 .columnsWrapper {
@@ -39,6 +41,28 @@
   overflow: hidden;
 }
 
+.contentContainer {
+  width: 100%;
+  height: 80vh;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Nagłówek z przełącznikiem */
+.headerControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #ddd;
+}
+
+
 /* Lewa kolumna scrolluje się cała */
 .leftColumn {
   overflow-y: auto;
@@ -53,6 +77,8 @@
 .stickyHeader {
   flex-shrink: 0;
   position: sticky;
+  display: flex;
+  justify-content: space-between;
   top: 0;
   z-index: 2;
   background-color: rgba(255, 255, 255, 0.85);
@@ -72,6 +98,36 @@
   flex-direction: column;
   gap: 1.5rem;
 }
+
+.taskForm {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0; /* ⬅️ kluczowe */
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.adminTaskList,
+.taskForm {
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.adminTaskList.show,
+.taskForm.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.adminTaskList.hide,
+.taskForm.hide {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
 
 /* Karta taska */
 .adminTaskCard {

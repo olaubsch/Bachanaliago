@@ -7,6 +7,7 @@ import Header from "./Header.jsx";
 import useAuth from "../utils/useLogout.jsx";
 import { useLocation } from "react-router-dom";
 import ThemeToggle from "../utils/ThemeToggle.jsx";
+import CustomButton from "./ui/CustomButton.jsx";
 
 function UserPanel() {
   const [nickname, setNickname] = useState("");
@@ -24,6 +25,7 @@ function UserPanel() {
   const [groupUsers, setGroupUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [isOwner, setIsOwner] = useState(false);
+  const [groupScore, setGroupScore] = useState(0);
   const taskListRef = useRef();
 
   const { logout } = useAuth({
@@ -176,70 +178,104 @@ function UserPanel() {
   return (
     <div className={styles.UserPanelContainer}>
       {!isLoggedIn ? (
-        <div className={styles.loginContainer}>
-          <h2>Login</h2>
-          <input
-            type="text"
-            placeholder="Nickname"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Group Code"
-            value={groupCode}
-            onChange={(e) => setGroupCode(e.target.value)}
-          />
-          <button onClick={handleLogin}>Login</button>
-          <h2>Create Group</h2>
-          <input
-            type="text"
-            placeholder="Group Name"
-            value={newGroupName}
-            onChange={(e) => setNewGroupName(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Your Nickname"
-            value={ownerNickname}
-            onChange={(e) => setOwnerNickname(e.target.value)}
-          />
-          <button onClick={handleCreateGroup}>Create Group</button>
-        </div>
-      ) : (
-        <div className={styles.appContainer}>
-          <Header
-            groupUsers={groupUsers}
-            currentUser={currentUser}
-            isOwner={isOwner}
-            ownerId={ownerId}
-            nickname={nickname}
-            groupName={groupName}
-            groupCode={groupCode}
-            logout={logout}
-          />
-          <MapElement tasks={tasks} />
-          {isLoading ? (
-            <div>Loading tasks...</div>
-          ) : (
-            <div className={styles.taskList} ref={taskListRef}>
-              {tasks.map((task, index) => (
-                <TaskCard
-                  key={task._id}
-                  task={task}
-                  index={index}
-                  containerRef={taskListRef}
-                  expandedTaskId={expandedTaskId}
-                  toggleTask={toggleTask}
-                  handleScanResult={handleScanResult}
-                  submission={submissions.find((sub) => sub.task._id === task._id)}
-                  groupCode={groupCode}
-                  fetchSubmissions={() => fetchSubmissions(groupCode)}
-                />
-              ))}
+          <div className={styles.loginContainer}>
+            <div className={styles.themeAndLanguage}>
+              🇵🇱
+              <ThemeToggle variant="emoji"/>
             </div>
-          )}
-        </div>
+            <div className={styles.zigzagContainer}></div>
+            <div className={styles.loginForm}>
+              <div className={styles.personLoginForm}>
+                <div className={styles.textStack}>
+                  <h1 className={styles.textStroke}>Dołącz do Gry</h1>
+                  <h1 className={styles.textFill}>Dołącz do Gry</h1>
+                </div>
+                <input
+                    className={styles.input}
+                    type="text"
+                    placeholder="Kod Grupy"
+                    value={groupCode || ""}
+                    onChange={(e) => setGroupCode(e.target.value)}
+                />
+                <input
+                    className={styles.input}
+                    type="text"
+                    placeholder="Twój Nick"
+                    value={nickname}
+                    onChange={(e) => setNickname(e.target.value)}
+                />
+                <CustomButton className={styles.button}
+                        onClick={handleLogin}>
+                  Dołącz
+                </CustomButton>
+              </div>
+              {!inviteCode && (
+                  <div className={styles.groupLoginForm}>
+                    <div className={styles.textStack}>
+                      <h1 className={styles.textStroke}>Lub stwórz nową grupę</h1>
+                      <h1 className={styles.textFill}>Lub stwórz nową grupę</h1>
+                    </div>
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder="Nazwa Grupy"
+                        value={newGroupName}
+                        onChange={(e) => setNewGroupName(e.target.value)}
+                    />
+                    <input
+                        className={styles.input}
+                        type="text"
+                        placeholder="Twój Nick (Lider)"
+                        value={ownerNickname}
+                        onChange={(e) => setOwnerNickname(e.target.value)}
+                    />
+                    <CustomButton className={styles.button}
+                            onClick={handleCreateGroup}>
+                      Stwórz Grupę
+                    </CustomButton>
+                  </div>
+              )}
+            </div>
+            {groupCreated && (
+                <p>
+                  Utworzono grupę: {groupCreated.name} (Kod: {groupCreated.code})
+                </p>
+            )}
+          </div>
+      ) : (
+          <div className={styles.appContainer}>
+            <Header
+                groupUsers={groupUsers}
+                currentUser={currentUser}
+                isOwner={isOwner}
+                ownerId={ownerId}
+                nickname={nickname}
+                groupName={groupName}
+                groupCode={groupCode}
+                logout={logout}
+            />
+            <MapElement tasks={tasks}/>
+            {isLoading ? (
+                <div>Loading tasks...</div>
+            ) : (
+                <div className={styles.taskList} ref={taskListRef}>
+                  {tasks.map((task, index) => (
+                      <TaskCard
+                          key={task._id}
+                          task={task}
+                          index={index}
+                          containerRef={taskListRef}
+                          expandedTaskId={expandedTaskId}
+                          toggleTask={toggleTask}
+                          handleScanResult={handleScanResult}
+                          submission={submissions.find((sub) => sub.task._id === task._id)}
+                          groupCode={groupCode}
+                          fetchSubmissions={() => fetchSubmissions(groupCode)}
+                      />
+                  ))}
+                </div>
+            )}
+          </div>
       )}
     </div>
   );

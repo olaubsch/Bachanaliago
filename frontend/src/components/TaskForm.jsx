@@ -1,9 +1,9 @@
-import { useState } from "react";
+import {forwardRef, useImperativeHandle, useState} from "react";
 import axios from "axios";
 import TaskMapPicker from "./TaskMapPicker";
 import styles from "./modules/TaskForm.module.css";
 
-function TaskForm({ onTaskAdded }) {
+const TaskForm = forwardRef(function TaskForm({ onTaskAdded }, ref) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [lat, setLat] = useState("");
@@ -12,10 +12,11 @@ function TaskForm({ onTaskAdded }) {
   const [type, setType] = useState("qr");
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
+
     if (!lat || !lng) {
       alert("Please select a location on the map");
-      return;
+      return false;
     }
     try {
       await axios.post("/api/tasks", {
@@ -32,16 +33,22 @@ function TaskForm({ onTaskAdded }) {
       setLng("");
       setScore(0);
       setType("qr");
+
       onTaskAdded();
+      return true;
     } catch (err) {
       console.error(err);
       alert("Błąd");
+      return false;
     }
   };
 
+    useImperativeHandle(ref, () => ({
+        submit: handleSubmit,
+    }));
+
   return (
     <div className={styles.formContainer}>
-      <h3>Dodaj Taska</h3>
       <input
         type="text"
         placeholder="Nazwa"
@@ -83,11 +90,8 @@ function TaskForm({ onTaskAdded }) {
         Wybrane koordynaty: {lat ? lat.toFixed(4) : "Brak"},{" "}
         {lng ? lng.toFixed(4) : "Brak"}
       </div>
-      <button onClick={handleSubmit} className={styles.button}>
-        Dodaj Taska
-      </button>
     </div>
   );
-}
+});
 
 export default TaskForm;
