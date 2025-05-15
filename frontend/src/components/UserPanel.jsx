@@ -8,6 +8,9 @@ import useAuth from "../utils/useLogout.jsx";
 import { useLocation } from "react-router-dom";
 import ThemeToggle from "../utils/ThemeToggle.jsx";
 import CustomButton from "./ui/CustomButton.jsx";
+import {io} from "socket.io-client";
+
+const socket = io('http://localhost:5000');
 
 function UserPanel() {
   const [nickname, setNickname] = useState("");
@@ -57,7 +60,7 @@ function UserPanel() {
       setIsLoggedIn(true);
       fetchData(storedGroupCode);
     } else {
-      setIsLoading(false); // No stored data, stop loading
+      setIsLoading(false);
     }
   }, [inviteCode]);
 
@@ -96,6 +99,20 @@ function UserPanel() {
     }
   };
 
+  useEffect(() => {
+    if (groupCode) {
+      socket.emit("joinGroup", groupCode.toUpperCase());
+    }
+
+    socket.on("refreshData", () => {
+      fetchData(groupCode);
+    });
+
+    return () => {
+      socket.off("refreshData");
+    };
+  }, [groupCode]);
+
   const handleLogin = async () => {
     try {
       const res = await axios.post("/api/users/login", { nickname, groupCode });
@@ -108,6 +125,8 @@ function UserPanel() {
       fetchData(groupCode);
       localStorage.setItem("nickname", nickname);
       localStorage.setItem("groupCode", groupCode);
+
+      socket.emit("userJoined", groupCode.toUpperCase());
     } catch (err) {
       console.error(err);
       if (err.response && err.response.data.error === "Grupa pełna (max 5 osób)") {
@@ -253,7 +272,9 @@ function UserPanel() {
                 groupName={groupName}
                 groupCode={groupCode}
                 logout={logout}
+                onUserUpdate={() => fetchData(groupCode)}
             />
+
             <MapElement tasks={tasks}/>
             {isLoading ? (
                 <div>Loading tasks...</div>

@@ -1,22 +1,25 @@
 import React from "react";
 import styles from "./modules/Header.module.css";
 import PlusIcon from "../assets/plus-svgrepo-com.svg";
-import CrownIcon from "../assets/crown-svgrepo-com.svg";
-import DeleteIcon from "../assets/trash-svgrepo-com.svg";
-import {useMemo, useState} from "react";
+import {useMemo, useState, useEffect} from "react";
 import axios from "axios";
 import Leaderboard from "./LeaderBoard.jsx";
 import ThemeToggle from "../utils/ThemeToggle.jsx";
+import {io} from "socket.io-client";
+
+const socket = io('http://localhost:5000');
 
 function Header({
                     groupUsers,
+                    setGroupUsers,
                     isOwner,
                     ownerId,
                     currentUser,
                     nickname,
                     groupName,
                     groupCode,
-                    logout
+                    logout,
+                    onUserUpdate
                 }) {
     const [showPopup, setShowPopup] = useState(false);
     const [showLeaderBoardPopup, setShowLeaderBoardPopup] = useState(false);
@@ -48,6 +51,8 @@ function Header({
                     requesterNickname: nickname,
                     userIdToRemove: userId,
                 });
+                socket.emit("userRemoved", { groupCode, userId: userId });
+
                 setGroupUsers(groupUsers.filter((user) => user._id !== userId));
             } catch (err) {
                 console.error(err);
@@ -55,6 +60,31 @@ function Header({
             }
         }
     };
+
+    useEffect(() => {
+        if (!socket || !groupCode || !currentUser) return;
+
+        const upperCode = groupCode.toUpperCase();
+
+        socket.emit("joinGroup", upperCode);
+
+        socket.on("userRemoved", ({ groupCode: eventCode, userId }) => {
+            if (eventCode.toUpperCase() !== upperCode) return;
+
+            if (userId === currentUser._id) {
+                alert("You have been removed from the group.");
+                handleLogout();
+            } else {
+                onUserUpdate();
+            }
+        });
+
+        return () => {
+            socket.off("userRemoved");
+            onUserUpdate();
+        };
+    }, [socket, groupCode, currentUser]);
+
 
     const handleTransferOwnership = async (newOwnerId) => {
         if (window.confirm("Are you sure you want to transfer ownership?")) {
@@ -65,6 +95,7 @@ function Header({
                     newOwnerId,
                 });
                 setIsOwner(false);
+                socket.emit("ownershipTransferred", { groupCode, newOwnerId });
             } catch (err) {
                 console.error(err);
                 alert("Error transferring ownership");
@@ -83,6 +114,8 @@ function Header({
                     groupCode,
                     requesterNickname: nickname,
                 });
+                socket.emit("groupDeleted", { groupCode });
+
                 handleLogout();
             } catch (err) {
                 console.error(err);
@@ -90,6 +123,23 @@ function Header({
             }
         }
     };
+
+    useEffect(() => {
+        if (!socket || !groupCode || !currentUser) return;
+
+        const upperCode = groupCode.toUpperCase();
+        socket.emit("joinGroup", upperCode);
+
+        socket.on("forceLogout", () => {
+            alert("Group has been deleted. You have been logged out.");
+            handleLogout();
+        });
+
+        return () => {
+            socket.off("forceLogout");
+        };
+    }, [socket, groupCode, currentUser]);
+
 
     const handleShareGroupCode = async () => {
         const shareableLink = `${window.location.origin}/?code=${groupCode}`;
@@ -121,6 +171,8 @@ function Header({
                 await axios.delete("/api/users/quit", {
                     data: { nickname, groupCode },
                 });
+                socket.emit("userQuit", { groupCode });
+
                 handleLogout();
             } catch (err) {
                 console.error(err);
