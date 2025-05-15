@@ -255,16 +255,12 @@ function UserPanel() {
                   </div>
               )}
             </div>
-            {groupCreated && (
-                <p>
-                  Utworzono grupę: {groupCreated.name} (Kod: {groupCreated.code})
-                </p>
-            )}
           </div>
       ) : (
           <div className={styles.appContainer}>
             <Header
                 groupUsers={groupUsers}
+                setGroupUsers={setGroupUsers}
                 currentUser={currentUser}
                 isOwner={isOwner}
                 ownerId={ownerId}

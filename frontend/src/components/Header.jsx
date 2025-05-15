@@ -1,11 +1,13 @@
 import React from "react";
 import styles from "./modules/Header.module.css";
-import PlusIcon from "../assets/plus-svgrepo-com.svg";
 import {useMemo, useState, useEffect} from "react";
 import axios from "axios";
 import Leaderboard from "./LeaderBoard.jsx";
-import ThemeToggle from "../utils/ThemeToggle.jsx";
 import {io} from "socket.io-client";
+import {assignUserColors} from "../utils/colorUtils.jsx";
+import UserIcons from "./headerComponents/UserIcons.jsx";
+import FriendListPopup from "./headerComponents/FriendListPopup.jsx";
+import UserSettingsPopup from "./headerComponents/UserSettingsPopup.jsx";
 
 const socket = io('http://localhost:5000');
 
@@ -25,23 +27,9 @@ function Header({
     const [showLeaderBoardPopup, setShowLeaderBoardPopup] = useState(false);
     const [showMainUserPopup, setShowMainUserPopup] = useState(false);
 
-    const colors = [
-        "#ee6055",
-        "#acd8aa",
-        "#aaf683",
-        "#ffd97d",
-        "#ff9b85",
-        "#f48498",
-    ];
-
-    const userColors = useMemo(() => {
-        const colorMap = {};
-        groupUsers.forEach((user) => {
-            const randomColor = colors[Math.floor(Math.random() * colors.length)];
-            colorMap[user._id] = randomColor;
-        });
-        return colorMap;
-    }, [groupUsers]);
+    const userColors = useMemo(() => assignUserColors(groupUsers), [groupUsers]);
+    const otherUsers = groupUsers.filter((user) => user.nickname !== nickname);
+    const handleLogout = logout;
 
     const handleRemoveUser = async (userId) => {
         if (window.confirm("Are you sure you want to remove this user?")) {
@@ -159,8 +147,6 @@ function Header({
         }
     };
 
-    const handleLogout = logout;
-
     const handleQuitGroup = async () => {
         if (
             window.confirm(
@@ -181,40 +167,15 @@ function Header({
         }
     };
 
-    const PlusIcon = ({ stroke = "currentColor", ...props }) => (
-        <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M6 12H18M12 6V18" stroke={stroke} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-    );
-
-    const otherUsers = groupUsers.filter((user) => user.nickname !== nickname);
-
     return (
         <div className={styles.header}>
             {/* Friends */}
             <div
-            style={{display: "flex", cursor: "pointer"}}
-            onClick={() => setShowPopup(true)}
-        >
-            {otherUsers.map((user) => (
-                <div
-                    className={styles.user_icon}
-                    key={user._id}
-                    style={{backgroundColor: userColors[user._id]}}
-                >
-                    {user.nickname.slice(0, 2).toUpperCase()}
-                </div>
-            ))}
-
-            {otherUsers.length < 4 && (
-                <div
-                    className={styles.user_icon_add}
-                    style={otherUsers.length === 0 ? {marginLeft: "unset"} : {}}
-                >
-                    <PlusIcon stroke={"var(--text-header-color)"}/>
-                </div>
-            )}
-        </div>
+                style={{ display: "flex", cursor: "pointer" }}
+                onClick={() => setShowPopup(true)}
+            >
+                <UserIcons users={otherUsers} userColors={userColors} />
+            </div>
 
         {/* Group name & score */}
         <div className={styles.group_name_center}
@@ -236,60 +197,18 @@ function Header({
         {showPopup && (
             <div className={styles.popup_overlay} onClick={() => setShowPopup(false)}>
                 <div className={styles.popup_content} onClick={(e) => e.stopPropagation()}>
-                    <div>
-                        <h1>Członkowie</h1>
-                        {otherUsers.length === 0 ? (
-                            <p>Brak znajomych</p>
-                        ) : (
-                            <div className={styles.userList}>
-                                {groupUsers
-                                    .filter(user => user && user._id && user.nickname) // Ensure user is valid
-                                    .map((user) => (
-                                        <div key={user._id} className={styles.userCard}>
-                                            <h2>{user.nickname}
-                                                { user._id === ownerId && (
-                                                    <span style={{ marginLeft: "0.5rem"}}>👑</span>
-                                                )}</h2>
-                                            {isOwner && user._id !== currentUser?._id && (
-                                                <div className={styles.actions}>
-                                                    <button
-                                                        className={styles.ownerButton}
-                                                        onClick={() => handleTransferOwnership(user._id)}
-                                                    >
-                                                        <h1>👑</h1>
-                                                    </button>
-                                                    <button className={styles.delButton}
-                                                            onClick={() => handleRemoveUser(user._id)}>
-                                                        <h1>🗑</h1>
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                            </div>
-
-                        )}
-                    </div>
-                    <div style={{display: "flex", flexDirection: "column", textAlign: "center", gap: "1rem"}}>
-                        <div
-                            onClick={handleShareGroupCode}
-                            style={{
-                            display: "flex",
-                            flexDirection: "row",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            gap: "0.5rem"
-                        }}>
-                            <span style={{fontSize: "2rem"}}>📤</span>
-                            <button
-                                className={styles.codeButton}
-                            >
-                                {groupCode}
-                            </button>
-                        </div>
-
-                        <button className={styles.button} onClick={() => setShowPopup(false)}>Zamknij</button>
-                    </div>
+                    <FriendListPopup
+                        groupUsers={groupUsers}
+                        isOwner={isOwner}
+                        ownerId={ownerId}
+                        currentUser={currentUser}
+                        groupCode={groupCode}
+                        handleTransferOwnership={handleTransferOwnership}
+                        handleShareGroupCode={handleShareGroupCode}
+                        handleRemoveUser={handleRemoveUser}
+                        setShowPopup={setShowPopup}
+                        otherUsers={otherUsers}
+                    />
                 </div>
             </div>
         )}
@@ -311,42 +230,13 @@ function Header({
         {showMainUserPopup && (
             <div className={styles.popup_overlay} onClick={() => setShowMainUserPopup(false)}>
                 <div className={styles.popup_content} onClick={(e) => e.stopPropagation()}>
-                    <div className={styles.actions_user}>
-                        <h1>Ustawienia</h1>
-                        <div style={{
-                            display: "flex",
-                            flexDirection: "row",
-                            justifyContent: "space-between",
-                            gap: "0.5rem"
-                        }}>
-                            <div style={{flex: 1}}>
-                                <ThemeToggle variant="button"/>
-                            </div>
-                            <div style={{flex: 1}}>
-                                <button className={styles.button} style={{flex: 1}}>
-                                    🇵🇱 language
-                                </button>
-                            </div>
-                        </div>
-                        <button className={styles.button} onClick={handleLogout}>Wyloguj</button>
-                        <button
-                            className={styles.button}
-                            style={{background: '#ee6055'}}
-                            onClick={handleQuitGroup}>
-                            🚪 Quit Group
-                        </button>
-                        {isOwner && (
-                            <button
-                                className={styles.button}
-                                style={{background: '#ee6055'}}
-                                onClick={handleDeleteGroup}>
-                                🗑 Delete Group
-                            </button>
-                        )}
-                    </div>
-                    <button className={styles.button} onClick={() => setShowMainUserPopup(false)}>
-                        Zamknij
-                    </button>
+                    <UserSettingsPopup
+                        isOwner={isOwner}
+                        handleLogout={handleLogout}
+                        handleQuitGroup={handleQuitGroup}
+                        handleDeleteGroup={handleDeleteGroup}
+                        setShowMainUserPopup={setShowMainUserPopup}
+                    />
                 </div>
             </div>
         )}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import styles from "../components/modules/Header.module.css"
+import CustomButton from "../components/ui/CustomButton.jsx";
 
 export default function ThemeToggle({ variant = "button" }) {
     const [currentTheme, setCurrentTheme] = useState("light");
@@ -53,11 +54,11 @@ export default function ThemeToggle({ variant = "button" }) {
     }
 
     return (
-        <button
+        <CustomButton
             onClick={handleClick}
             className={styles.button}
         >
-            {currentTheme === "dark" ? "🌛 dark_mode" : "🌞 light_mode"}
-        </button>
+            {currentTheme === "dark" ? "dark_mode" : "light_mode"}
+        </CustomButton>
     );
 }
