@@ -25,7 +25,13 @@
 
 .warning {
     background-color: var(--red);
-    color: var(--text-header-color);
+    color: #fff;
+    border: none;
+}
+
+.green {
+    background-color: var(--accent);
+    color: #fff;
     border: none;
 }
 

@@ -93,6 +93,7 @@
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
 }
 .taskHeader {
+  color: var(--dark-text);
   padding: 16px 16px;
   font-weight: 600;
   font-size: 16px;
@@ -100,6 +101,7 @@
 }
 
 .taskDetails {
+  color: var(--dark-text);
   padding: 16px;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
   animation: slideDown 0.4s ease forwards;

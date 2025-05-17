@@ -15,7 +15,9 @@ function Header({
                     groupUsers,
                     setGroupUsers,
                     isOwner,
+                    setIsOwner,
                     ownerId,
+                    setOwnerId,
                     currentUser,
                     nickname,
                     groupName,
@@ -82,6 +84,8 @@ function Header({
                     requesterNickname: nickname,
                     newOwnerId,
                 });
+                localStorage.setItem("ownerId", newOwnerId);
+                setOwnerId(newOwnerId);
                 setIsOwner(false);
                 socket.emit("ownershipTransferred", { groupCode, newOwnerId });
             } catch (err) {
@@ -90,6 +94,26 @@ function Header({
             }
         }
     };
+
+    useEffect(() => {
+        if (!socket || !groupCode || !currentUser) return;
+
+        const upperCode = groupCode.toUpperCase();
+
+        socket.emit("joinGroup", upperCode);
+
+        socket.on("ownershipTransferred", ({ groupCode: eventCode, ownerId }) => {
+            if (eventCode.toUpperCase() !== upperCode) return;
+                console.log("WORKS");
+            onUserUpdate();
+        });
+
+        return () => {
+            socket.off("ownershipTransferred");
+            onUserUpdate();
+        };
+    }, [socket, groupCode, currentUser]);
+
 
     const handleDeleteGroup = async () => {
         if (

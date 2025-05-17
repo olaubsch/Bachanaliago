@@ -69,20 +69,18 @@ function QrScanner({ taskId, onScanSuccess }) {
 
 
     return (
-        <div className="qr-scanner-container" style={{ textAlign: 'center' }}>
-            {!isScanning ? (
-                <button onClick={handleStartScan} style={{ cursor: 'pointer' }}>
-                    Rozpocznij Skanowanie
-                </button>
-            ) : (
-                <button onClick={handleStopScan} style={{ cursor: 'pointer', marginTop: '10px' }}>
-                    Zatrzymaj Skanowanie
-                </button>
-            )}
+        <div className={styles.qrScannerContainer} style={{ textAlign: 'center' }}>
+            <button
+                onClick={isScanning ? handleStopScan : handleStartScan}
+                className={styles.qrButton}
+                style={{ borderRadius: !isScanning ? '0.5rem' : '0.5rem 0.5rem 0 0' }}
+            >
+                {isScanning ? 'Zatrzymaj Skanowanie' : 'Rozpocznij Skanowanie'}
+            </button>
 
             {/* Kontener, w którym biblioteka wyrenderuje podgląd kamery */}
             {isScanning && (
-                <div id={qrScannerId} style={{ width: 'auto' }}>
+                <div id={qrScannerId} className={styles.scannerContainer}>
                     {/* Podgląd kamery pojawi się tutaj */}
                 </div>
             )}

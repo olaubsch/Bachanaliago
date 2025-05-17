@@ -4,6 +4,7 @@ import axios from "axios";
 import styles from "./modules/AdminPanel.module.css";
 import CustomButton from "./ui/CustomButton.jsx";
 import VerificationView from "./VerificationView.jsx";
+import ThemeToggle from "../utils/ThemeToggle.jsx";
 
 function AdminPanel() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -49,87 +50,90 @@ function AdminPanel() {
   };
 
   return (
-    <div className={styles.adminContainer}>
-      {!isLoggedIn ? (
-        <div className={styles.adminForm}>
-          <h2>Admin Login</h2>
-          <input
-            type="password"
-            placeholder="Hasło"
-            value={password}
-            className={styles.input}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button className={styles.button} onClick={handleLogin}>
-            Zaloguj
-          </button>
+      <div className={styles.adminContainer}>
+        <div className={styles.themeAndLanguage}>
+          <ThemeToggle variant={"emoji"}/>
         </div>
-      ) : (
-          <div className={styles.adminPanel}>
-            <div className={styles.zigzagContainer}></div>
+        {!isLoggedIn ? (
+            <div className={styles.adminForm}>
+              <h2>Admin Login</h2>
+              <input
+                  type="password"
+                  placeholder="Hasło"
+                  value={password}
+                  className={styles.input}
+                  onChange={(e) => setPassword(e.target.value)}
+              />
+              <button className={styles.button} onClick={handleLogin}>
+                Zaloguj
+              </button>
+            </div>
+        ) : (
+            <div className={styles.adminPanel}>
+              <div className={styles.zigzagContainer}></div>
 
-            <div className={styles.leftColumn}>
-              <div className={styles.adminForm}>
-                <h2 className={styles.taskHeader}>Panel Admina</h2>
-                <div className={styles.contentContainer}>
-                  <div className={styles.headerControls}>
-                    <h2>{showForm ? "Dodaj Taska" : "Lista Tasków"}</h2>
-                    <div style={{display: "flex", gap: "0.5rem"}}>
-                      <CustomButton variant={showForm ? "outline" : "default"}
-                                    onClick={() => setShowForm((prev) => !prev)}>
-                        {showForm ? "Anuluj" : "Dodaj"}
-                      </CustomButton>
-                      {showForm && (
-                          <CustomButton onClick={handleExternalSubmit}>
-                            Dodaj
-                          </CustomButton>
-                      )}
-                    </div>
-                  </div>
-                  {showForm ? (
-                      <div
-                          className={`${styles.taskForm} ${showForm ? styles.show : styles.hide}`}
-                      >
-                        <TaskForm ref={formRef} onTaskAdded={fetchTasks}/>
+              <div className={styles.leftColumn}>
+                <div className={styles.adminForm}>
+                  <h2 className={styles.taskHeader}>Panel Admina</h2>
+                  <div className={styles.contentContainer}>
+                    <div className={styles.headerControls}>
+                      <h2>{showForm ? "Dodaj Taska" : "Lista Tasków"}</h2>
+                      <div style={{display: "flex", gap: "0.5rem"}}>
+                        <CustomButton variant={showForm ? "outline" : "default"}
+                                      onClick={() => setShowForm((prev) => !prev)}>
+                          {showForm ? "Anuluj" : "Dodaj"}
+                        </CustomButton>
+                        {showForm && (
+                            <CustomButton onClick={handleExternalSubmit}>
+                              Dodaj
+                            </CustomButton>
+                        )}
                       </div>
-                  ) : (
-                      <div
-                          className={`${styles.adminTaskList} ${!showForm ? styles.show : styles.hide}`}
-                      >
-                        {tasks.map((task) => (
-                            <div key={task._id} className={styles.adminTaskCard}>
-                              <div className={styles.taskHeader}>
-                                <strong>{task.name}</strong>
-                              </div>
-                              <div className={styles.taskDetails}>
-                                <p>{task.description}</p>
-                                <p>{task.location.lat}, {task.location.lng}</p>
-                                <p>Punkty: {task.score}</p>
-                                <p>Typ: {task.type}</p>
-                                {task.type === "qr" && <p>QR ID: {task._id}</p>}
-                                <div style={{display: "flex", justifyContent: "flex-end"}}>
-                                  <CustomButton
-                                      width={"fit-content"}
-                                      className={styles.button}
-                                      onClick={() => handleDelete(task._id)}
-                                  >
-                                    Usuń
-                                  </CustomButton>
+                    </div>
+                    {showForm ? (
+                        <div
+                            className={`${styles.taskForm} ${showForm ? styles.show : styles.hide}`}
+                        >
+                          <TaskForm ref={formRef} onTaskAdded={fetchTasks}/>
+                        </div>
+                    ) : (
+                        <div
+                            className={`${styles.adminTaskList} ${!showForm ? styles.show : styles.hide}`}
+                        >
+                          {tasks.map((task) => (
+                              <div key={task._id} className={styles.adminTaskCard}>
+                                <div className={styles.taskHeader}>
+                                  <strong>{task.name}</strong>
+                                </div>
+                                <div className={styles.taskDetails}>
+                                  <p>{task.description}</p>
+                                  <p>{task.location.lat}, {task.location.lng}</p>
+                                  <p>Punkty: {task.score}</p>
+                                  <p>Typ: {task.type}</p>
+                                  {task.type === "qr" && <p>QR ID: {task._id}</p>}
+                                  <div style={{display: "flex", justifyContent: "flex-end"}}>
+                                    <CustomButton
+                                        width={"fit-content"}
+                                        className={styles.button}
+                                        onClick={() => handleDelete(task._id)}
+                                    >
+                                      Usuń
+                                    </CustomButton>
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                        ))}
-                      </div>
-                  )}
+                          ))}
+                        </div>
+                    )}
+                  </div>
                 </div>
               </div>
+              <div className={styles.rightColumn}>
+                <VerificationView/>
+              </div>
             </div>
-            <div className={styles.rightColumn}>
-              <VerificationView/>
-            </div>
-          </div>
-      )}
-    </div>
+        )}
+      </div>
   );
 }
 

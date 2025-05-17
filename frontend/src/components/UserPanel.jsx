@@ -22,12 +22,12 @@ function UserPanel() {
   const [newGroupName, setNewGroupName] = useState("");
   const [ownerNickname, setOwnerNickname] = useState("");
   const [ownerId, setOwnerId] = useState("");
+  const [isOwner, setIsOwner] = useState(false);
   const [groupCreated, setGroupCreated] = useState(null);
   const [groupName, setGroupName] = useState("");
   const [expandedTaskId, setExpandedTaskId] = useState(null);
   const [groupUsers, setGroupUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
-  const [isOwner, setIsOwner] = useState(false);
   const [groupScore, setGroupScore] = useState(0);
   const taskListRef = useRef();
 
@@ -73,6 +73,7 @@ function UserPanel() {
       setGroupUsers(groupRes.data.users);
       setIsOwner(groupRes.data.owner.nickname === nickname);
       setOwnerId(groupRes.data.owner._id);
+      localStorage.setItem("ownerId", groupRes.data.owner._id);
     } catch (err) {
       console.error(err);
       alert("Failed to fetch data");
@@ -108,8 +109,13 @@ function UserPanel() {
       fetchData(groupCode);
     });
 
+    socket.on("refreshTasks", () => {
+      fetchSubmissions(groupCode);
+    });
+
     return () => {
       socket.off("refreshData");
+      socket.off("refreshTasks");
     };
   }, [groupCode]);
 
@@ -117,6 +123,7 @@ function UserPanel() {
     try {
       const res = await axios.post("/api/users/login", { nickname, groupCode });
       setCurrentUser(res.data);
+      localStorage.setItem("currentUser", JSON.stringify(res.data));
       const groupRes = await axios.get(`/api/groups/${groupCode.toUpperCase()}`);
       setGroupName(groupRes.data.name);
       setGroupUsers(groupRes.data.users);
@@ -149,6 +156,8 @@ function UserPanel() {
         name: newGroupName,
         ownerNickname,
       });
+      setCurrentUser(res.data.user);
+      localStorage.setItem("currentUser", JSON.stringify(res.data.user));
       const { group, user } = res.data;
       setGroupCreated(group);
       setNickname(ownerNickname);
@@ -159,6 +168,7 @@ function UserPanel() {
       setIsLoggedIn(true);
       localStorage.setItem("nickname", ownerNickname);
       localStorage.setItem("groupCode", group.code);
+      localStorage.setItem("ownerId", group.owner._id);
       fetchData(group.code);
       const groupRes = await axios.get(`/api/groups/${group.code}`);
       setGroupUsers(groupRes.data.users);
@@ -263,6 +273,7 @@ function UserPanel() {
                 setGroupUsers={setGroupUsers}
                 currentUser={currentUser}
                 isOwner={isOwner}
+                setIsOwner={setIsOwner}
                 ownerId={ownerId}
                 nickname={nickname}
                 groupName={groupName}
@@ -285,7 +296,7 @@ function UserPanel() {
                           expandedTaskId={expandedTaskId}
                           toggleTask={toggleTask}
                           handleScanResult={handleScanResult}
-                          submission={submissions.find((sub) => sub.task._id === task._id)}
+                          submission={submissions.find((sub) => sub.task?._id === task._id)}
                           groupCode={groupCode}
                           fetchSubmissions={() => fetchSubmissions(groupCode)}
                       />

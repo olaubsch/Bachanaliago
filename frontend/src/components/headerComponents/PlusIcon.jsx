@@ -10,7 +10,7 @@ const PlusIcon = ({ stroke = "currentColor", ...props }) => (
         <path
             d="M6 12H18M12 6V18"
             stroke={stroke}
-            strokeWidth="2"
+            strokeWidth="4"
             strokeLinecap="round"
             strokeLinejoin="round"
         />

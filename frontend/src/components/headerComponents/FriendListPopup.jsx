@@ -1,12 +1,11 @@
 import styles from "../modules/Header.module.css";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import CustomButton from "../ui/CustomButton.jsx";
 
 const FriendListPopup = ({
                              groupUsers,
                              isOwner,
                              ownerId,
-                             currentUser,
                              groupCode,
                              handleTransferOwnership,
                              handleShareGroupCode,
@@ -14,6 +13,18 @@ const FriendListPopup = ({
                              setShowPopup,
                              otherUsers
 }) => {
+    const [storedOwnerId, setStoredOwnerId] = useState(null);
+    const [currentUser, setCurrentUser] = useState(null);
+
+    useEffect(() => {
+        const id = localStorage.getItem("ownerId");
+        const storedUser = localStorage.getItem("currentUser");
+        setStoredOwnerId(id);
+        setCurrentUser(storedUser ? JSON.parse(storedUser)._id : null);
+    }, []);
+
+    const isLocalOwner = currentUser === storedOwnerId;
+
     return (
         <>
             <div>
@@ -27,10 +38,10 @@ const FriendListPopup = ({
                             .map((user) => (
                                 <div key={user._id} className={styles.userCard}>
                                     <h2>{user.nickname}
-                                        {user._id === ownerId && (
+                                        {user._id === storedOwnerId && (
                                             <span style={{marginLeft: "0.5rem"}}>👑</span>
                                         )}</h2>
-                                    {isOwner && user._id !== currentUser?._id && (
+                                    {isLocalOwner && user._id !== storedOwnerId && (
                                         <div className={styles.actions}>
                                             <button
                                                 className={styles.ownerButton}

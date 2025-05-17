@@ -32,6 +32,10 @@ exports.submitTask = async (req, res) => {
       submission.submissionData = submissionData;
       submission.status = 'pending';
       await submission.save();
+
+      const io = req.app.get("io");
+      io.emit("pendingSubmission");
+
       return res.json({ message: "Submission received, pending verification" });
     }
   } catch (err) {
@@ -55,20 +59,34 @@ exports.getPendingSubmissions = async (req, res) => {
 exports.verifySubmission = async (req, res) => {
   const { submissionId } = req.params;
   const { status } = req.body;
-  if (!['approved', 'rejected'].includes(status)) return res.status(400).json({ error: "Invalid status" });
+  if (!['approved', 'rejected'].includes(status)) {
+    return res.status(400).json({ error: "Invalid status" });
+  }
 
   try {
-    const submission = await TaskSubmission.findById(submissionId).populate('task').populate('group');
+    const submission = await TaskSubmission.findById(submissionId)
+        .populate('task')
+        .populate('group');
+
     if (!submission) return res.status(404).json({ error: "Submission not found" });
     if (submission.status !== 'pending') return res.status(400).json({ error: "Submission is not pending" });
+
     submission.status = status;
     submission.verifiedAt = new Date();
     await submission.save();
+
     if (status === 'approved') {
       submission.group.score += submission.task.score;
       await submission.group.save();
     }
+
     res.json({ message: `Submission ${status}` });
+
+    const io = req.app.get("io");
+    if (submission.group?.code) {
+      io.to(submission.group.code).emit("refreshTasks");
+    }
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error" });

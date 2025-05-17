@@ -2,6 +2,9 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import styles from "./modules/AdminPanel.module.css";
 import CustomButton from "./ui/CustomButton.jsx";
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:5000");
 
 // Define the backend URL based on the environment
 const BACKEND_URL = "http://localhost:5000";
@@ -20,6 +23,18 @@ function VerificationView() {
     }
   };
 
+  useEffect(() => {
+    fetchPendingSubmissions();
+
+    socket.on("pendingSubmission", () => {
+      console.log("Received new pending submission");
+      fetchPendingSubmissions();
+    });
+
+    return () => {
+      socket.off("pendingSubmission");
+    };
+  }, []);
 
   const handleVerify = async (submissionId, status) => {
     try {
@@ -42,37 +57,36 @@ function VerificationView() {
           {submissions.length === 0 ? (
                 <p>No pending submissions</p>
             ) : (
-                mockData.map((sub) => (
+              submissions.map((sub) => (
                     <div key={sub._id} className={styles.adminTaskCard}>
                       <div className={styles.taskHeader}>
                         <strong>{sub.task.name} - {sub.group.name}</strong>
                       </div>
                       <div className={styles.taskDetails}>
-                        <p>Type: {sub.type}</p>
                         {sub.type === "text" && <p>Submission: {sub.submissionData}</p>}
                         {sub.type === "photo" && (
                             <img
                                 src={`${BACKEND_URL}/${sub.submissionData}`}
                                 alt="Submission"
-                                style={{maxWidth: "200px"}}
+                                style={{ borderRadius: "0.5rem"}}
                             />
                         )}
                         {sub.type === "video" && (
                             <video
                                 src={`${BACKEND_URL}/${sub.submissionData}`}
                                 controls
-                                style={{maxWidth: "200px"}}
+                                style={{ borderRadius: "0.5rem"}}
                             />
                         )}
                         <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
                           <CustomButton
-                              className={styles.button}
+                              variant={"outline"}
                               onClick={() => handleVerify(sub._id, "approved")}
                           >
                             Approve
                           </CustomButton>
                           <CustomButton
-                              className={styles.button}
+                              variant={"warning"}
                               onClick={() => handleVerify(sub._id, "rejected")}
                           >
                             Reject

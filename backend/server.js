@@ -32,8 +32,6 @@ app.use("/api/groups", groupRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use('/api/submissions', submissionRoutes);
 
-const groupUsersMap = {}; // key: groupCode, value: array of { socketId, nickname }
-
 io.on("connection", (socket) => {
     console.log("New client connected");
 
@@ -56,8 +54,12 @@ io.on("connection", (socket) => {
     socket.on("groupDeleted", ({ groupCode }) => {
         io.to(groupCode).emit("forceLogout");
     });
-});
 
+    socket.on("ownershipTransferred", ({ groupCode, newOwnerId }) => {
+        io.to(groupCode).emit("ownershipTransferred", { groupCode, newOwnerId });
+    });
+
+});
 
 mongoose
   .connect(process.env.MONGO_URI)
