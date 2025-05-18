@@ -8,6 +8,7 @@ import {assignUserColors} from "../utils/colorUtils.jsx";
 import UserIcons from "./headerComponents/UserIcons.jsx";
 import FriendListPopup from "./headerComponents/FriendListPopup.jsx";
 import UserSettingsPopup from "./headerComponents/UserSettingsPopup.jsx";
+import {showAlert} from "./ui/alert.jsx";
 
 const socket = io('http://localhost:5000');
 
@@ -47,7 +48,7 @@ function Header({
                 setGroupUsers(groupUsers.filter((user) => user._id !== userId));
             } catch (err) {
                 console.error(err);
-                alert("Error removing user");
+                showAlert("Error removing user");
             }
         }
     };
@@ -63,7 +64,7 @@ function Header({
             if (eventCode.toUpperCase() !== upperCode) return;
 
             if (userId === currentUser._id) {
-                alert("You have been removed from the group.");
+                showAlert("You have been removed from the group.");
                 handleLogout();
             } else {
                 onUserUpdate();
@@ -91,7 +92,7 @@ function Header({
                 socket.emit("ownershipTransferred", { groupCode, newOwnerId });
             } catch (err) {
                 console.error(err);
-                alert("Error transferring ownership");
+                showAlert("Error transferring ownership");
             }
         }
     };
@@ -132,7 +133,7 @@ function Header({
                 handleLogout();
             } catch (err) {
                 console.error(err);
-                alert("Error deleting group");
+                showAlert("Error deleting group");
             }
         }
     };
@@ -144,7 +145,7 @@ function Header({
         socket.emit("joinGroup", upperCode);
 
         socket.on("forceLogout", () => {
-            alert("Group has been deleted. You have been logged out.");
+            showAlert("Group has been deleted. You have been logged out.");
             handleLogout();
         });
 
@@ -165,7 +166,7 @@ function Header({
                 });
             } else {
                 await navigator.clipboard.writeText(shareableLink);
-                alert("Link do grupy skopiowany do schowka!");
+                showAlert("Link do grupy skopiowany do schowka!");
             }
         } catch (error) {
             console.error("Error sharing:", error);
@@ -187,7 +188,7 @@ function Header({
                 handleLogout();
             } catch (err) {
                 console.error(err);
-                alert("Error quitting from group");
+                showAlert("Error quitting from group");
             }
         }
     };

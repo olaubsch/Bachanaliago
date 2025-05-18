@@ -9,6 +9,8 @@ import { useLocation } from "react-router-dom";
 import ThemeToggle from "../utils/ThemeToggle.jsx";
 import CustomButton from "./ui/CustomButton.jsx";
 import {io} from "socket.io-client";
+import {showAlert} from "./ui/alert.jsx";
+import CustomInput from "./ui/CustomInput.jsx";
 
 const socket = io('http://localhost:5000');
 
@@ -77,7 +79,7 @@ function UserPanel() {
       localStorage.setItem("ownerId", groupRes.data.owner._id);
     } catch (err) {
       console.error(err);
-      alert("Failed to fetch data");
+      showAlert("Failed to fetch data");
     } finally {
       setIsLoading(false); // Stop loading
     }
@@ -139,18 +141,18 @@ function UserPanel() {
     } catch (err) {
       console.error(err);
       if (err.response && err.response.data.error === "Grupa pełna (max 5 osób)") {
-        alert("Grupa jest pełna! Max 5 osób.");
+        showAlert("Grupa jest pełna! Max 5 osób.");
       } else if (err.response && err.response.data.error === "Nick already taken in this group") {
-        alert("Ten nick jest już zajęty w tej grupie!");
+        showAlert("Ten nick jest już zajęty w tej grupie!");
       } else {
-        alert("Nie udało się zalogować");
+        showAlert("Nie udało się zalogować");
       }
     }
   };
 
   const handleCreateGroup = async () => {
     if (!newGroupName.trim() || !ownerNickname.trim()) {
-      alert("Podaj nazwę grupy i swój nick!");
+      showAlert("Podaj nazwę grupy i swój nick!");
       return;
     }
     try {
@@ -177,9 +179,9 @@ function UserPanel() {
     } catch (err) {
       console.error(err);
       if (err.response && err.response.data.error === "Nick already taken in this group") {
-        alert("Ten nick jest już zajęty w tej grupie!");
+        showAlert("Ten nick jest już zajęty w tej grupie!");
       } else {
-        alert("Błąd tworzenia grupy: " + (err.response?.data?.error || "Nieznany błąd"));
+        showAlert("Błąd tworzenia grupy: " + (err.response?.data?.error || "Nieznany błąd"));
       }
     }
   };
@@ -190,14 +192,14 @@ function UserPanel() {
         groupCode,
         submissionData: scannedCode,
       });
-      alert(res.data.message);
+      showAlert(res.data.message);
       fetchSubmissions(groupCode);
     } catch (err) {
       console.error(err);
       if (err.response) {
-        alert(err.response.data.error);
+        showAlert(err.response.data.error);
       } else {
-        alert("Błąd przy przetwarzaniu kodu QR");
+        showAlert("Błąd przy przetwarzaniu kodu QR");
       }
     }
   };
@@ -221,14 +223,14 @@ function UserPanel() {
                   <h1 className={styles.textStroke}>Dołącz do Gry</h1>
                   <h1 className={styles.textFill}>Dołącz do Gry</h1>
                 </div>
-                <input
+                <CustomInput
                     className={styles.input}
                     type="text"
                     placeholder="Kod Grupy"
                     value={groupCode || ""}
                     onChange={(e) => setGroupCode(e.target.value)}
                 />
-                <input
+                <CustomInput
                     className={styles.input}
                     type="text"
                     placeholder="Twój Nick"
@@ -246,14 +248,14 @@ function UserPanel() {
                       <h1 className={styles.textStroke}>Lub stwórz nową grupę</h1>
                       <h1 className={styles.textFill}>Lub stwórz nową grupę</h1>
                     </div>
-                    <input
+                    <CustomInput
                         className={styles.input}
                         type="text"
                         placeholder="Nazwa Grupy"
                         value={newGroupName}
                         onChange={(e) => setNewGroupName(e.target.value)}
                     />
-                    <input
+                    <CustomInput
                         className={styles.input}
                         type="text"
                         placeholder="Twój Nick (Lider)"

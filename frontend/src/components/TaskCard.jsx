@@ -4,6 +4,8 @@ import MapElement from "./MapElement";
 import QrScanner from "./QrScanner";
 import axios from "axios";
 import styles from "./modules/UserPanel.module.css";
+import {showAlert} from "./ui/alert.jsx";
+import CustomInput from "./ui/CustomInput.jsx";
 
 export default function TaskCard({
   task,
@@ -42,7 +44,7 @@ export default function TaskCard({
       setText("");
     } catch (err) {
       console.error(err);
-      alert("Error submitting task");
+      showAlert("Error submitting task");
     }
   };
 
@@ -60,7 +62,7 @@ export default function TaskCard({
       fetchSubmissions();
     } catch (err) {
       console.error(err);
-      alert("Error submitting task");
+      showAlert("Error submitting task");
     }
   };
 
@@ -118,12 +120,12 @@ export default function TaskCard({
               )}
               {task.type === "photo" && status !== "approved" && (
                 <div>
-                  <input type="file" name="file" accept="image/*" onChange={(e) => handleFileSubmit(e, "image/*")} />
+                  <CustomInput type="file" name="file" accept="image/*" onChange={(e) => handleFileSubmit(e, "image/*")} />
                 </div>
               )}
               {task.type === "video" && status !== "approved" && (
                 <div>
-                  <input type="file" name="file" accept="video/*" onChange={(e) => handleFileSubmit(e, "video/*")} />
+                  <CustomInput type="file" name="file" accept="video/*" onChange={(e) => handleFileSubmit(e, "video/*")} />
                 </div>
               )}
             </>

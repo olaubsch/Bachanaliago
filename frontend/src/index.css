@@ -81,3 +81,7 @@ body {
   to { opacity: 1; }
 }
 
+.leaflet-top {
+  z-index: 900 !important;
+}
+

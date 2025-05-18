@@ -3,6 +3,7 @@ import axios from "axios";
 import styles from "./modules/AdminPanel.module.css";
 import CustomButton from "./ui/CustomButton.jsx";
 import { io } from "socket.io-client";
+import {showAlert} from "./ui/alert.jsx";
 
 const socket = io("http://localhost:5000");
 
@@ -42,7 +43,7 @@ function VerificationView() {
       fetchPendingSubmissions();
     } catch (err) {
       console.error(err);
-      alert("Error verifying submission");
+      showAlert("Error verifying submission");
     }
   };
 

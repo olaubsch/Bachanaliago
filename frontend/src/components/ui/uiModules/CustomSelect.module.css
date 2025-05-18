@@ -1,0 +1,56 @@
+.selectWrapper {
+    position: relative;
+    width: 100%;
+    max-width: 70%;
+}
+
+.selectButton {
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    backdrop-filter: blur(50px);
+    background-color: transparent;
+    color: var(--text-color);
+    border: 1px solid var(--text-color);
+    font-size: 1rem;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+.selectButton:focus {
+    outline: 2px solid var(--text-color);
+}
+
+.arrow {
+    margin-left: 1rem;
+    font-size: 0.8rem;
+}
+
+.dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    margin-top: 0.5rem;
+    background-color: var(--text-header-color);
+    color: var(--text-color);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.option {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+}
+
+.option:hover {
+    background: rgba(0, 0, 0, 0.05);
+}

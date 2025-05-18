@@ -5,6 +5,8 @@ import styles from "./modules/AdminPanel.module.css";
 import CustomButton from "./ui/CustomButton.jsx";
 import VerificationView from "./VerificationView.jsx";
 import ThemeToggle from "../utils/ThemeToggle.jsx";
+import {showAlert} from "./ui/alert.jsx";
+import CustomInput from "./ui/CustomInput.jsx";
 
 function AdminPanel() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -27,7 +29,7 @@ function AdminPanel() {
       setIsLoggedIn(true);
       fetchTasks();
     } else {
-      alert("Złe hasło");
+      showAlert("Złe hasło");
     }
   };
 
@@ -51,13 +53,14 @@ function AdminPanel() {
 
   return (
       <div className={styles.adminContainer}>
+        <div className={styles.zigzagContainer}></div>
         <div className={styles.themeAndLanguage}>
           <ThemeToggle variant={"emoji"}/>
         </div>
         {!isLoggedIn ? (
             <div className={styles.adminForm}>
               <h2>Admin Login</h2>
-              <input
+              <CustomInput
                   type="password"
                   placeholder="Hasło"
                   value={password}
@@ -70,8 +73,6 @@ function AdminPanel() {
             </div>
         ) : (
             <div className={styles.adminPanel}>
-              <div className={styles.zigzagContainer}></div>
-
               <div className={styles.leftColumn}>
                 <div className={styles.adminForm}>
                   <h2 className={styles.taskHeader}>Panel Admina</h2>
