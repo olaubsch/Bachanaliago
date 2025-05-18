@@ -102,7 +102,7 @@ exports.getLeaderboard = async (req, res) => {
   try {
     const groups = await Group.find()
       .sort({ tasksCompleted: -1 })
-      .select("name code tasksCompleted");
+      .select("name code score tasksCompleted");
 
     //console.log("Pobrane grupy:", groups); // <-- TO DODAJ
 

@@ -23,6 +23,7 @@ function Header({
                     groupName,
                     groupCode,
                     logout,
+                    groupScore,
                     onUserUpdate
                 }) {
     const [showPopup, setShowPopup] = useState(false);
@@ -207,7 +208,7 @@ function Header({
             <h2 className={styles.group_name}>
                 {groupName}
             </h2>
-            <h3>⭐ 2137 ⭐</h3>
+            <h3>⭐ {groupScore} ⭐</h3>
         </div>
 
         {/* Main user */}

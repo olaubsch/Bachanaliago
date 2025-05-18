@@ -73,6 +73,7 @@ function UserPanel() {
       setGroupUsers(groupRes.data.users);
       setIsOwner(groupRes.data.owner.nickname === nickname);
       setOwnerId(groupRes.data.owner._id);
+      setGroupScore(groupRes.data.score);
       localStorage.setItem("ownerId", groupRes.data.owner._id);
     } catch (err) {
       console.error(err);
@@ -110,6 +111,7 @@ function UserPanel() {
     });
 
     socket.on("refreshTasks", () => {
+      fetchData(groupCode);
       fetchSubmissions(groupCode);
     });
 
@@ -279,9 +281,9 @@ function UserPanel() {
                 groupName={groupName}
                 groupCode={groupCode}
                 logout={logout}
+                groupScore={groupScore}
                 onUserUpdate={() => fetchData(groupCode)}
             />
-
             <MapElement tasks={tasks}/>
             {isLoading ? (
                 <div>Loading tasks...</div>

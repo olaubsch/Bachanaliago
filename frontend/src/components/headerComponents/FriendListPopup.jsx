@@ -29,37 +29,32 @@ const FriendListPopup = ({
         <>
             <div>
                 <h1>Członkowie</h1>
-                {otherUsers.length === 0 ? (
-                    <p>Brak znajomych</p>
-                ) : (
-                    <div className={styles.userList}>
-                        {groupUsers
-                            .filter(user => user && user._id && user.nickname) // Ensure user is valid
-                            .map((user) => (
-                                <div key={user._id} className={styles.userCard}>
-                                    <h2>{user.nickname}
-                                        {user._id === storedOwnerId && (
-                                            <span style={{marginLeft: "0.5rem"}}>👑</span>
-                                        )}</h2>
-                                    {isLocalOwner && user._id !== storedOwnerId && (
-                                        <div className={styles.actions}>
-                                            <button
-                                                className={styles.ownerButton}
-                                                onClick={() => handleTransferOwnership(user._id)}
-                                            >
-                                                <h1>👑</h1>
-                                            </button>
-                                            <button className={styles.delButton}
-                                                    onClick={() => handleRemoveUser(user._id)}>
-                                                <h1>🗑</h1>
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
-                    </div>
-
-                )}
+                <div className={styles.userList}>
+                    {groupUsers
+                        .filter(user => user && user._id && user.nickname) // Ensure user is valid
+                        .map((user) => (
+                            <div key={user._id} className={styles.userCard}>
+                                <h2>{user.nickname}
+                                    {user._id === storedOwnerId && (
+                                        <span style={{marginLeft: "0.5rem"}}>👑</span>
+                                    )}</h2>
+                                {isLocalOwner && user._id !== storedOwnerId && (
+                                    <div className={styles.actions}>
+                                        <button
+                                            className={styles.ownerButton}
+                                            onClick={() => handleTransferOwnership(user._id)}
+                                        >
+                                            <h1>👑</h1>
+                                        </button>
+                                        <button className={styles.delButton}
+                                                onClick={() => handleRemoveUser(user._id)}>
+                                            <h1>🗑</h1>
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                </div>
             </div>
             <div style={{display: "flex", flexDirection: "column", textAlign: "center", gap: "1rem"}}>
                 <div

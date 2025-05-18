@@ -45,17 +45,18 @@ const Leaderboard = () => {
                 <h2>Punkty</h2>
               </div>
               <div style={{maxHeight: "45vh", overflowY: "auto"}}>
-                {mockGroups
+                {groups
                     .slice()
-                    .sort((a, b) => (b.tasksCompleted ?? 0) - (a.tasksCompleted ?? 0))
+                    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
                     .map((group, index) => {
-                      const score = group.tasksCompleted ?? 0;
+                      const score = group.score ?? 0;
                       const medals = ["🥇", "🥈", "🥉"];
-                      const medal = score > 0 ? medals[index] || "🏅" : "";
+                      const medal = score > 0 ? medals[index] || "" : "🏅";
 
                       return (
-                          <div className={styles.row} key={group._id} style={{ display: "flex", justifyContent: "space-between" }}>
-                            <h3 style={{ flex: 1 }}>{medal} {group.name}</h3>
+                          <div className={styles.row} key={group._id}
+                               style={{display: "flex", justifyContent: "space-between"}}>
+                            <h3 style={{flex: 1}}>{medal} {group.name}</h3>
                             <h3>{score}</h3>
                           </div>
                       );

@@ -1,6 +1,6 @@
 import styles from "../modules/Header.module.css";
 import ThemeToggle from "../../utils/ThemeToggle.jsx";
-import React from "react";
+import React, {useEffect, useState} from "react";
 import CustomButton from "../ui/CustomButton.jsx";
 
 const UserSettingsPopup = ({
@@ -10,6 +10,18 @@ const UserSettingsPopup = ({
                                isOwner,
                                setShowMainUserPopup
 }) => {
+    const [storedOwnerId, setStoredOwnerId] = useState(null);
+    const [currentUser, setCurrentUser] = useState(null);
+
+    useEffect(() => {
+        const id = localStorage.getItem("ownerId");
+        const storedUser = localStorage.getItem("currentUser");
+        setStoredOwnerId(id);
+        setCurrentUser(storedUser ? JSON.parse(storedUser)._id : null);
+    }, []);
+
+    const isLocalOwner = currentUser === storedOwnerId;
+
     return (
         <>
             <div className={styles.actions_user}>
@@ -37,7 +49,7 @@ const UserSettingsPopup = ({
                     onClick={handleQuitGroup}>
                     Quit Group
                 </CustomButton>
-                {isOwner && (
+                {isLocalOwner && (
                     <CustomButton
                         variant={"warning"}
                         onClick={handleDeleteGroup}>
