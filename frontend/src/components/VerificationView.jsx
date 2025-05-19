@@ -61,7 +61,7 @@ function VerificationView() {
               submissions.map((sub) => (
                     <div key={sub._id} className={styles.adminTaskCard}>
                       <div className={styles.taskHeader}>
-                        <strong>{sub.task.name} - {sub.group.name}</strong>
+                        <strong>{sub.task?.name} - {sub.group?.name}</strong>
                       </div>
                       <div className={styles.taskDetails}>
                         {sub.type === "text" && <p>Submission: {sub.submissionData}</p>}
