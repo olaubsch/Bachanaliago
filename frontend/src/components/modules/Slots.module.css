@@ -1,0 +1,78 @@
+.slots-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: #f0f0f0;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .points-display {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .reels {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .reel {
+    width: 100px;
+    height: 100px;
+    overflow: hidden;
+    background-color: white;
+    border: 2px solid #333;
+    border-radius: 10px;
+  }
+  
+  .symbols {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .symbol {
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+  }
+  
+  button {
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+  
+  .message {
+    margin-top: 20px;
+    font-size: 18px;
+    min-height: 24px;
+  }
+  
+  .paytable {
+    margin-top: 20px;
+    text-align: left;
+    font-size: 16px;
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  .paytable h3 {
+    margin-top: 0;
+  }

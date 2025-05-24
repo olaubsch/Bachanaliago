@@ -7,7 +7,8 @@ const groupSchema = new mongoose.Schema({
   completedTasks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }],
   users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   owner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  tasksCompleted: { type: Number, default: 0 }
+  tasksCompleted: { type: Number, default: 0 },
+  hasPlayedSlots: { type: Boolean, default: false }
 });
 
 module.exports = mongoose.model("Group", groupSchema);

@@ -11,6 +11,7 @@ import CustomButton from "./ui/CustomButton.jsx";
 import {io} from "socket.io-client";
 import {showAlert} from "./ui/alert.jsx";
 import CustomInput from "./ui/CustomInput.jsx";
+import Slots from "./Slots";
 
 const socket = io('http://localhost:5000');
 
@@ -20,7 +21,7 @@ function UserPanel() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [tasks, setTasks] = useState([]);
   const [submissions, setSubmissions] = useState([]);
-  const [isLoading, setIsLoading] = useState(true); // Added loading state
+  const [isLoading, setIsLoading] = useState(true);
   const [newGroupName, setNewGroupName] = useState("");
   const [ownerNickname, setOwnerNickname] = useState("");
   const [ownerId, setOwnerId] = useState("");
@@ -32,6 +33,8 @@ function UserPanel() {
   const [currentUser, setCurrentUser] = useState(null);
   const [groupScore, setGroupScore] = useState(0);
   const taskListRef = useRef();
+  const [keySequence, setKeySequence] = useState([]);
+  const [showSlots, setShowSlots] = useState(false);
 
   const { logout } = useAuth({
     setIsLoggedIn,
@@ -66,8 +69,36 @@ function UserPanel() {
     }
   }, [inviteCode]);
 
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      setKeySequence(prev => [...prev, event.key].slice(-10));
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
+    const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+    if (keySequence.length === 10 && keySequence.every((key, index) => key === konamiCode[index])) {
+      axios.post(`/api/groups/${groupCode}/play-slots`)
+        .then(response => {
+          setShowSlots(true);
+        })
+        .catch(error => {
+          if (error.response && error.response.status === 403) {
+            showAlert("Your group has already played the slots.");
+          } else {
+            showAlert("Error starting slots game.");
+          }
+        });
+      setKeySequence([]);
+    }
+  }, [keySequence, groupCode]);
+
   const fetchData = async (code) => {
-    setIsLoading(true); // Start loading
+    setIsLoading(true);
     try {
       await Promise.all([fetchTasks(), fetchSubmissions(code)]);
       const groupRes = await axios.get(`/api/groups/${code.toUpperCase()}`);
@@ -81,7 +112,7 @@ function UserPanel() {
       console.error(err);
       showAlert("Failed to fetch data");
     } finally {
-      setIsLoading(false); // Stop loading
+      setIsLoading(false);
     }
   };
 
@@ -306,6 +337,19 @@ function UserPanel() {
                       />
                   ))}
                 </div>
+            )}
+            {showSlots && (
+              <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'white', zIndex: 1000, overflow: 'auto' }}>
+                <button onClick={() => setShowSlots(false)}>Close</button>
+                <Slots
+                  groupScore={groupScore}
+                  groupCode={groupCode}
+                  onSpinComplete={(newScore) => {
+                    setGroupScore(newScore);
+                    setShowSlots(false);
+                  }}
+                />
+              </div>
             )}
           </div>
       )}

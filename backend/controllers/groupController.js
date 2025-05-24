@@ -211,3 +211,39 @@ exports.deleteGroup = async (req, res) => {
     res.status(500).json({ error: "Error deleting group" });
   }
 };
+
+exports.playSlots = async (req, res) => {
+  const { code } = req.params;
+  try {
+    const group = await Group.findOneAndUpdate(
+      { code, hasPlayedSlots: false },
+      { hasPlayedSlots: true },
+      { new: true }
+    );
+    if (group) {
+      res.json({ message: "Slots game started" });
+    } else {
+      res.status(403).json({ error: "Group has already played the slots" });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error starting slots game" });
+  }
+};
+
+exports.updateGroupScore = async (req, res) => {
+  const { code } = req.params;
+  const { newScore } = req.body;
+  try {
+    const group = await Group.findOne({ code });
+    if (!group) {
+      return res.status(404).json({ error: "Grupa nie znaleziona" });
+    }
+    group.score = newScore;
+    await group.save();
+    res.json({ message: "Score updated", newScore: group.score });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Błąd aktualizacji punktów" });
+  }
+};
