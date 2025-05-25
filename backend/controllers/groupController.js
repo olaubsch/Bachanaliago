@@ -2,6 +2,7 @@ const Group = require("../models/Group");
 const User = require("../models/User");
 
 exports.createGroup = async (req, res) => {
+  console.log("Odebrano POST /api/groups:", req.body);
   const { name, ownerNickname } = req.body;
 
   if (!name || !ownerNickname) {

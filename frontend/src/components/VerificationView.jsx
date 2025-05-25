@@ -5,8 +5,21 @@ import CustomButton from "./ui/CustomButton.jsx";
 import { io } from "socket.io-client";
 import { showAlert } from "./ui/alert.jsx";
 
-const socket = io("http://localhost:5000");
+const socket = io("/", {
+  transports: ["websocket", "polling"],
+  secure: true,
+  withCredentials: false,
+});
 
+<<<<<<< HEAD
+=======
+// Derive the backend URL from the socket connection
+const BACKEND_URL = (() => {
+  const url = new URL(socket.io.uri);
+  return `${url.protocol}//${url.host}`;
+})();
+
+>>>>>>> 60bd803 (merge)
 function VerificationView() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [submissions, setSubmissions] = useState([]);
@@ -16,7 +29,11 @@ function VerificationView() {
     try {
       const res = await axios.get("/api/submissions/pending");
       setSubmissions(res.data);
+<<<<<<< HEAD
       console.log("Pending submissions:", res.data);
+=======
+      console.log("Kutas: ", res.data);
+>>>>>>> 60bd803 (merge)
     } catch (err) {
       console.error(err);
     }
@@ -86,6 +103,7 @@ function VerificationView() {
             submissions.map((sub) => (
               <div key={sub._id} className={styles.adminTaskCard}>
                 <div className={styles.taskHeader}>
+<<<<<<< HEAD
                   <strong>{sub.task?.name} - {sub.group?.name}</strong>
                 </div>
                 <div className={styles.taskDetails}>
@@ -113,6 +131,37 @@ function VerificationView() {
                     )
                   )}
                   <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
+=======
+                  <strong>
+                    {sub.task?.name} - {sub.group?.name}
+                  </strong>
+                </div>
+                <div className={styles.taskDetails}>
+                  {sub.type === "text" && (
+                    <p>Submission: {sub.submissionData}</p>
+                  )}
+                  {sub.type === "photo" && (
+                    <img
+                      src={`${BACKEND_URL}/${sub.submissionData}`}
+                      alt="Submission"
+                      style={{ borderRadius: "0.5rem" }}
+                    />
+                  )}
+                  {sub.type === "video" && (
+                    <video
+                      src={`${BACKEND_URL}/${sub.submissionData}`}
+                      controls
+                      style={{ borderRadius: "0.5rem" }}
+                    />
+                  )}
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "0.5rem",
+                      justifyContent: "flex-end",
+                    }}
+                  >
+>>>>>>> 60bd803 (merge)
                     <CustomButton
                       variant={"outline"}
                       onClick={() => handleVerify(sub._id, "approved")}

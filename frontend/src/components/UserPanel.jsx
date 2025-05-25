@@ -13,7 +13,11 @@ import { showAlert } from "./ui/alert.jsx";
 import CustomInput from "./ui/CustomInput.jsx";
 import Slots from "./Slots";
 
-const socket = io("http://localhost:5000");
+const socket = io("/", {
+  transports: ["websocket", "polling"],
+  secure: true,
+  withCredentials: false,
+});
 
 function UserPanel() {
   const [nickname, setNickname] = useState("");
@@ -177,18 +181,18 @@ function UserPanel() {
       .catch((err) => console.error("Błąd ładowania słownika:", err));
   }, []);
 
-   const containsBannedWords = (text) => {
-   if (!text) return false;
+  const containsBannedWords = (text) => {
+    if (!text) return false;
 
-  // usuń spacje, znaki specjalne i zamień na małe litery
-  const cleanedText = text.toLowerCase().replace(/[\s\W_]+/g, "");
+    // usuń spacje, znaki specjalne i zamień na małe litery
+    const cleanedText = text.toLowerCase().replace(/[\s\W_]+/g, "");
 
-  return badWords.some((word) => {
-    const cleanedWord = word.toLowerCase().replace(/[\s\W_]+/g, "");
-    const regex = new RegExp(cleanedWord, "i");
-    return regex.test(cleanedText);
-  });
-};
+    return badWords.some((word) => {
+      const cleanedWord = word.toLowerCase().replace(/[\s\W_]+/g, "");
+      const regex = new RegExp(cleanedWord, "i");
+      return regex.test(cleanedText);
+    });
+  };
 
   const handleLogin = async () => {
     if (containsBannedWords(nickname)) {

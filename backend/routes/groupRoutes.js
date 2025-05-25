@@ -1,3 +1,4 @@
+console.log("Router /api/groups załadowany");
 const express = require("express");
 const router = express.Router();
 const {
@@ -13,7 +14,6 @@ const {
   playSlots,
   updateGroupScore
 } = require("../controllers/groupController");
-
 router.post("/", createGroup);
 router.get("/leaderboard", getLeaderboard);
 router.get("/:code", getGroupByCode);

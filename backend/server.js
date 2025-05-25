@@ -13,57 +13,63 @@ const bannedWordsRoutes = require("./routes/bannedWordsRoutes");
 const userRoutes = require("./routes/userRoutes");
 const groupRoutes = require("./routes/groupRoutes");
 const taskRoutes = require("./routes/taskRoutes");
-const submissionRoutes = require('./routes/submissionRoutes');
+const submissionRoutes = require("./routes/submissionRoutes");
 
 const app = express();
 const server = http.createServer(app);
 
 // --- SOCKET.IO SETUP ---
 const io = socketIo(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST", "DELETE"],
-    }
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST", "DELETE"],
+  },
 });
 
 app.set("io", io);
 
 app.use(cors());
 app.use(express.json());
-app.use('/uploads', express.static('uploads'));
+app.use("/uploads", express.static("uploads"));
 
 app.use("/api/users", userRoutes);
+console.log("===> Rejestruję /api/groups");
 app.use("/api/groups", groupRoutes);
 app.use("/api/tasks", taskRoutes);
+<<<<<<< HEAD
 app.use('/api/submissions', submissionRoutes);
 app.use("/api/bannedWords", bannedWordsRoutes);
+=======
+app.use("/api/submissions", submissionRoutes);
+
+app.use((req, res, next) => {
+  console.log("404: Nieznana trasa", req.method, req.originalUrl);
+  res.status(404).json({ error: "Nie ma takiego endpointu" });
+});
+>>>>>>> c3dff3d (merge)
 
 io.on("connection", (socket) => {
-    console.log("New client connected");
+  console.log("New client connected");
 
-    socket.on("joinGroup", (groupCode) => {
-        socket.join(groupCode); // join socket room
-    });
+  socket.on("joinGroup", (groupCode) => {
+    socket.join(groupCode); // join socket room
+  });
 
-    socket.on("userJoined", (groupCode) => {
-        socket.to(groupCode).emit("refreshData");
-    });
+  socket.on("userJoined", (groupCode) => {
+    socket.to(groupCode).emit("refreshData");
+  });
 
-    socket.on("userRemoved", ({ groupCode, userId }) => {
-        io.to(groupCode).emit("userRemoved", { groupCode, userId });
-    });
+  socket.on("userRemoved", ({ groupCode, userId }) => {
+    io.to(groupCode).emit("userRemoved", { groupCode, userId });
+  });
 
-    socket.on("userQuit", ({ groupCode }) => {
-        io.to(groupCode).emit("refreshData");
-    });
+  socket.on("userQuit", ({ groupCode }) => {
+    io.to(groupCode).emit("refreshData");
+  });
 
-    socket.on("groupDeleted", ({ groupCode }) => {
-        io.to(groupCode).emit("forceLogout");
-    });
-
-    socket.on("ownershipTransferred", ({ groupCode, newOwnerId }) => {
-        io.to(groupCode).emit("ownershipTransferred", { groupCode, newOwnerId });
-    });
+  socket.on("groupDeleted", ({ groupCode }) => {
+    io.to(groupCode).emit("forceLogout");
+  });
 
     socket.on("getImage", async (data) => {
         const { submissionId } = data;
@@ -86,6 +92,9 @@ io.on("connection", (socket) => {
         }
     });
 
+  socket.on("ownershipTransferred", ({ groupCode, newOwnerId }) => {
+    io.to(groupCode).emit("ownershipTransferred", { groupCode, newOwnerId });
+  });
 });
 
 mongoose
@@ -93,21 +102,21 @@ mongoose
   .then(() => {
     console.log("MongoDB connected");
 
-        // Ensure the uploads folder exists
-        const uploadDir = 'uploads';
-        try {
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir);
-            console.log('Uploads folder created');
-        } else {
-            console.log('Uploads folder already exists');
-        }
-        } catch (err) {
-        console.error('Error creating uploads folder:', err);
-        }
+    // Ensure the uploads folder exists
+    const uploadDir = "uploads";
+    try {
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir);
+        console.log("Uploads folder created");
+      } else {
+        console.log("Uploads folder already exists");
+      }
+    } catch (err) {
+      console.error("Error creating uploads folder:", err);
+    }
 
-      server.listen(5000, () =>
-        console.log("Server + Socket.IO running on http://localhost:5000")
+    server.listen(5000, "0.0.0.0", () =>
+      console.log("Server + Socket.IO running on http://localhost:5000")
     );
   })
   .catch((err) => console.error(err));
