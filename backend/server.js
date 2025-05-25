@@ -4,6 +4,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const http = require("http");
 const socketIo = require("socket.io");
+const fs = require("fs"); // Add this line to require the fs module
 
 const userRoutes = require("./routes/userRoutes");
 const groupRoutes = require("./routes/groupRoutes");
@@ -65,6 +66,20 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
     console.log("MongoDB connected");
+
+        // Ensure the uploads folder exists
+        const uploadDir = 'uploads';
+        try {
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir);
+            console.log('Uploads folder created');
+        } else {
+            console.log('Uploads folder already exists');
+        }
+        } catch (err) {
+        console.error('Error creating uploads folder:', err);
+        }
+
       server.listen(5000, () =>
         console.log("Server + Socket.IO running on http://localhost:5000")
     );
