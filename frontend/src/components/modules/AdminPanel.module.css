@@ -1,0 +1,264 @@
+.adminContainer {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  max-width: 80%;
+  margin: 0 auto;
+  padding: 4rem 6rem;
+  box-sizing: border-box;
+  background-color: var(--bg-color);
+}
+
+.adminPanel {
+  min-width: 1010px;
+  display: flex;
+  width: 100%;
+  gap: 1rem;
+}
+
+.adminForm {
+  display: flex;
+  flex-direction: column;
+
+  max-width: 1600px;
+  height: 90vh;
+  z-index: 1;
+}
+
+.columnsWrapper {
+  display: flex;
+  gap: 4rem;
+  width: 100%;
+  align-items: stretch;
+  height: 80vh; /* narzucamy kolumnom jednakową wysokość */
+}
+
+/* OBIE KOLUMNY */
+.leftColumn {
+  width: 60%;
+  z-index: 1;
+  border-radius: 1rem;
+}
+.rightColumn {
+  width: 40%;
+  z-index: 1;
+  border-radius: 1rem;
+}
+
+.contentContainer {
+  backdrop-filter: blur(100px);
+  -webkit-backdrop-filter: blur(100px);
+  height: 80vh;
+  background: rgba(var(--bg-rgb-admin), 0.6);
+  border-radius: 1rem;
+  padding: 2rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Nagłówek z przełącznikiem */
+.headerControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem 1.5rem 2rem;
+  border-bottom: 1px solid rgba(var(--text-color-rgb), 0.2);
+}
+
+
+/* Lewa kolumna scrolluje się cała */
+.leftColumn {
+  overflow-y: auto;
+}
+
+/* Prawa kolumna: nagłówek + scrollowana lista */
+.rightColumn {
+  overflow: hidden;
+}
+
+/* Sticky nagłówek */
+.stickyHeader {
+  flex-shrink: 0;
+  position: sticky;
+  display: flex;
+  justify-content: space-between;
+  top: 0;
+  z-index: 2;
+  background-color: rgba(255, 255, 255, 0.85);
+  padding: 1rem 2rem;
+  font-weight: 600;
+  font-size: 1.25rem;
+  border-bottom: 1px solid var(--bg-color);
+}
+
+/* Lista tasków – musi mieć flex-grow i 100% wysokości */
+.adminTaskList {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0; /* ⬅️ kluczowe */
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.pendingTaskList {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0; /* ⬅️ kluczowe */
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.taskForm {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0; /* ⬅️ kluczowe */
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.adminTaskList,
+.taskForm {
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.adminTaskList.show,
+.taskForm.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.adminTaskList.hide,
+.taskForm.hide {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+
+/* Karta taska */
+.adminTaskCard {
+  background: var(--text-header-color);
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.adminTaskCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+}
+
+.taskHeader {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.taskDetails {
+  font-size: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Inputy i przycisk */
+.input {
+  backdrop-filter: blur(50px);
+  background-color: transparent;
+  color: var(--text-color);
+  border: 1px solid var(--text-color);
+  font-size: 1rem;
+  font-family: "Tauri", sans-serif;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  width: 100%;
+}
+
+.input::placeholder {
+  color: var(--text-color);
+  opacity: 0.5;
+}
+
+.input:focus {
+  outline: 2px solid var(--text-color);
+}
+
+.button {
+  backdrop-filter: blur(5px);
+  background: var(--text-color);
+  color: var(--bg-color);
+  border: none;
+  font-size: 1rem;
+  font-family: "Prompt", sans-serif;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  padding: 1rem 2rem;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.zigzagContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-image: url('../../assets/staticzigzag.svg');
+  z-index: 0;
+  transform: scale(1.2);
+}
+
+.themeAndLanguage {
+  position: fixed;
+  display: flex;
+  top: 1rem;
+  right: 1rem;
+  z-index: 100;
+
+  font-size: 2rem;
+  column-gap: 1rem;
+}
+
+@media only screen and (max-device-width: 768px) {
+  .adminContainer {
+    width: 100%;
+    max-width: 100%;
+    margin: unset;
+    padding: unset;
+  }
+
+  .headerControls {
+    padding: 1.5rem 2rem;
+  }
+
+  .adminForm {
+    width: 100%;
+  }
+  .adminPanel {
+    min-width: unset;
+    flex-direction: column;
+  }
+
+  .contentContainer {
+    width: 100%;
+    padding: unset;
+  }
+
+  .leftColumn, .rightColumn {
+    width: 100%;
+  }
+}

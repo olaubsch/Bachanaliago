@@ -1,25 +1,21 @@
 const Task = require("../models/Task");
 
-// Tworzenie taska (admin)
 exports.createTask = async (req, res) => {
-  const { name, description, location, score, qrcode } = req.body;
+  const { name, description, location, score, type } = req.body;
   try {
     const task = await Task.create({
       name,
       description,
       location,
       score,
-      qrcode,
+      type,
     });
     res.status(201).json(task);
   } catch (err) {
-    res
-      .status(400)
-      .json({ error: "Nie udało się stworzyć taska", details: err });
+    res.status(400).json({ error: "Nie udało się stworzyć taska", details: err });
   }
 };
 
-// Pobieranie wszystkich tasków (wszyscy gracze widzą te same)
 exports.getTasks = async (req, res) => {
   try {
     const tasks = await Task.find();
@@ -29,7 +25,6 @@ exports.getTasks = async (req, res) => {
   }
 };
 
-// Usuwanie taska (admin)
 exports.deleteTask = async (req, res) => {
   const { id } = req.params;
   try {
@@ -41,19 +36,16 @@ exports.deleteTask = async (req, res) => {
 };
 
 exports.getTaskByQrCode = async (req, res) => {
-  const { qrcode } = req.params;
-
+  const { id } = req.params;
   try {
-    const task = await Task.findOne({ qrcode }); // zakładam, że w modelu Task masz pole qrCode
-
+    const task = await Task.findById(id);
     if (!task) {
       return res.status(404).json({ error: "Zadanie nie znalezione" });
     }
-
     res.json({
       id: task._id,
       name: task.name,
-      score: task.score, // zakładam, że zadanie ma pole `points`
+      score: task.score,
     });
   } catch (err) {
     console.error(err);

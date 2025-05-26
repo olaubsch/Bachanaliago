@@ -7,8 +7,8 @@ const taskSchema = new mongoose.Schema({
     lat: Number,
     lng: Number,
   },
-  qrcode: { type: String, unique: true },
   score: { type: Number, default: 10 },
+  type: { type: String, enum: ['qr', 'text', 'photo', 'video'], required: true },
 });
 
 module.exports = mongoose.model("Task", taskSchema);

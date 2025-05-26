@@ -9,7 +9,9 @@ const {
   getLeaderboard,
   incrementTasksCompleted,
   addScoreToGroup,
-  getScore
+  getScore,
+  playSlots,
+  updateGroupScore
 } = require("../controllers/groupController");
 
 router.post("/", createGroup);
@@ -20,5 +22,7 @@ router.get('/:code/score', getScore);
 router.post("/removeUser", removeUserFromGroup);
 router.post("/transferOwnership", transferOwnership);
 router.post("/deleteGroup", deleteGroup);
+router.post('/:code/play-slots', playSlots);
+router.post('/:code/update-score', updateGroupScore);
 
 module.exports = router;

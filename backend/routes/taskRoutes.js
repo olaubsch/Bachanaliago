@@ -10,6 +10,6 @@ const {
 router.post("/", createTask);
 router.get("/", getTasks);
 router.delete("/:id", deleteTask);
-router.get('/:qrcode', getTaskByQrCode);
+router.get("/:id", getTaskByQrCode);
 
 module.exports = router;

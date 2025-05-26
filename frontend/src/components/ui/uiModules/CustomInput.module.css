@@ -1,0 +1,22 @@
+.input {
+    width: 100%;
+    font-family: inherit;
+    box-sizing: border-box;
+
+    backdrop-filter: blur(50px);
+    background-color: transparent;
+    color: var(--text-color);
+    border: 1px solid var(--text-color);
+    font-size: 1rem;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+.input::placeholder {
+    color: var(--text-color);
+    opacity: 0.5;
+}
+
+.input:focus {
+    outline: 2px solid var(--text-color);
+}

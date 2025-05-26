@@ -1,142 +1,118 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import MapElement from "./MapElement";
 import styles from "./modules/UserPanel.module.css";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import QrScanner from "./QrScanner.jsx";
-import DeleteIcon from "../assets/trash-svgrepo-com.svg";
-import CrownIcon from "../assets/crown-svgrepo-com.svg";
-import PlusIcon from "../assets/plus-svgrepo-com.svg";
-import Leaderboard from "./LeaderBoard";
 import TaskCard from "./TaskCard";
+import Header from "./Header.jsx";
+import useAuth from "../utils/useLogout.jsx";
+import { useLocation } from "react-router-dom";
+import ThemeToggle from "../utils/ThemeToggle.jsx";
+import CustomButton from "./ui/CustomButton.jsx";
+import {io} from "socket.io-client";
+import {showAlert} from "./ui/alert.jsx";
+import CustomInput from "./ui/CustomInput.jsx";
+import Slots from "./Slots";
+
+const socket = io('http://localhost:5000');
 
 function UserPanel() {
   const [nickname, setNickname] = useState("");
   const [groupCode, setGroupCode] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [tasks, setTasks] = useState([]);
+  const [submissions, setSubmissions] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [newGroupName, setNewGroupName] = useState("");
   const [ownerNickname, setOwnerNickname] = useState("");
+  const [ownerId, setOwnerId] = useState("");
+  const [isOwner, setIsOwner] = useState(false);
   const [groupCreated, setGroupCreated] = useState(null);
   const [groupName, setGroupName] = useState("");
   const [expandedTaskId, setExpandedTaskId] = useState(null);
   const [groupUsers, setGroupUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
-  const [isOwner, setIsOwner] = useState(false);
   const [groupScore, setGroupScore] = useState(0);
-  const [showPopup, setShowPopup] = useState(false);
   const taskListRef = useRef();
-  const { scrollY } = useScroll({ container: taskListRef });
-  const [showMainUserPopup, setShowMainUserPopup] = useState(false);
+  const [keySequence, setKeySequence] = useState([]);
+  const [showSlots, setShowSlots] = useState(false);
 
-  const colors = [
-    "#ee6055",
-    "#acd8aa",
-    "#aaf683",
-    "#ffd97d",
-    "#ff9b85",
-    "#f48498",
-  ];
-  const userColors = useMemo(() => {
-    const colorMap = {};
-    groupUsers.forEach((user) => {
-      const randomColor = colors[Math.floor(Math.random() * colors.length)];
-      colorMap[user._id] = randomColor;
-    });
-    return colorMap;
-  }, [groupUsers]);
+  const { logout } = useAuth({
+    setIsLoggedIn,
+    setNickname,
+    setGroupCode,
+    setGroupName,
+    setGroupUsers,
+    setTasks,
+    setCurrentUser,
+    setIsOwner,
+  });
+
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const inviteCode = params.get("code");
 
   useEffect(() => {
     const storedNickname = localStorage.getItem("nickname");
     const storedGroupCode = localStorage.getItem("groupCode");
+
+    if (inviteCode) {
+      setGroupCode(inviteCode);
+    }
+
     if (storedNickname && storedGroupCode) {
       setNickname(storedNickname);
       setGroupCode(storedGroupCode);
       setIsLoggedIn(true);
-      fetchTasks();
-      axios
-        .get(`/api/groups/${storedGroupCode.toUpperCase()}`)
-        .then((res) => {
-          setGroupName(res.data.name);
-          setGroupUsers(res.data.users);
-          setIsOwner(res.data.owner.nickname === storedNickname);
-        })
-        .catch((err) => console.error(err));
-      axios
-        .post("/api/users/login", {
-          nickname: storedNickname,
-          groupCode: storedGroupCode,
-        })
-        .then((res) => {
-          setCurrentUser(res.data);
-        })
-        .catch((err) => {
-          console.error(err);
-          alert("Failed to restore user session");
-        });
+      fetchData(storedGroupCode);
+    } else {
+      setIsLoading(false);
     }
+  }, [inviteCode]);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      setKeySequence(prev => [...prev, event.key].slice(-10));
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
-  const handleLogin = async () => {
+  useEffect(() => {
+    const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+    if (keySequence.length === 10 && keySequence.every((key, index) => key === konamiCode[index])) {
+      axios.post(`/api/groups/${groupCode}/play-slots`)
+        .then(response => {
+          setShowSlots(true);
+        })
+        .catch(error => {
+          if (error.response && error.response.status === 403) {
+            showAlert("Your group has already played the slots.");
+          } else {
+            showAlert("Error starting slots game.");
+          }
+        });
+      setKeySequence([]);
+    }
+  }, [keySequence, groupCode]);
+
+  const fetchData = async (code) => {
+    setIsLoading(true);
     try {
-      const res = await axios.post("/api/users/login", { nickname, groupCode });
-      setCurrentUser(res.data);
-      const groupRes = await axios.get(
-        `/api/groups/${groupCode.toUpperCase()}`
-      );
+      await Promise.all([fetchTasks(), fetchSubmissions(code)]);
+      const groupRes = await axios.get(`/api/groups/${code.toUpperCase()}`);
       setGroupName(groupRes.data.name);
       setGroupUsers(groupRes.data.users);
-      setIsOwner(groupRes.data.owner._id === res.data._id);
-      setIsLoggedIn(true);
-      fetchTasks();
-      localStorage.setItem("nickname", nickname);
-      localStorage.setItem("groupCode", groupCode);
+      setIsOwner(groupRes.data.owner.nickname === nickname);
+      setOwnerId(groupRes.data.owner._id);
+      setGroupScore(groupRes.data.score);
+      localStorage.setItem("ownerId", groupRes.data.owner._id);
     } catch (err) {
       console.error(err);
-      if (
-        err.response &&
-        err.response.data.error === "Grupa pełna (max 5 osób)"
-      ) {
-        alert("Grupa jest pełna! Max 5 osób.");
-      } else if (
-        err.response &&
-        err.response.data.error === "Nick already taken in this group"
-      ) {
-        alert("Ten nick jest już zajęty w tej grupie!");
-      } else {
-        alert("Nie udało się zalogować");
-      }
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("nickname");
-    localStorage.removeItem("groupCode");
-    setIsLoggedIn(false);
-    setNickname("");
-    setGroupCode("");
-    setGroupName("");
-    setGroupUsers([]);
-    setTasks([]);
-    setCurrentUser(null);
-    setIsOwner(false);
-  };
-
-  const handleQuitGroup = async () => {
-    if (
-      window.confirm(
-        "Are you sure you want to quit the group? This action cannot be undone."
-      )
-    ) {
-      try {
-        await axios.delete("/api/users/quit", {
-          data: { nickname, groupCode },
-        });
-        handleLogout();
-      } catch (err) {
-        console.error(err);
-        alert("Error quitting from group");
-      }
+      showAlert("Failed to fetch data");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -149,9 +125,65 @@ function UserPanel() {
     }
   };
 
+  const fetchSubmissions = async (code) => {
+    try {
+      const res = await axios.get(`/api/submissions/group/${code}`);
+      setSubmissions(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    if (groupCode) {
+      socket.emit("joinGroup", groupCode.toUpperCase());
+    }
+
+    socket.on("refreshData", () => {
+      fetchData(groupCode);
+    });
+
+    socket.on("refreshTasks", () => {
+      fetchData(groupCode);
+      fetchSubmissions(groupCode);
+    });
+
+    return () => {
+      socket.off("refreshData");
+      socket.off("refreshTasks");
+    };
+  }, [groupCode]);
+
+  const handleLogin = async () => {
+    try {
+      const res = await axios.post("/api/users/login", { nickname, groupCode });
+      setCurrentUser(res.data);
+      localStorage.setItem("currentUser", JSON.stringify(res.data));
+      const groupRes = await axios.get(`/api/groups/${groupCode.toUpperCase()}`);
+      setGroupName(groupRes.data.name);
+      setGroupUsers(groupRes.data.users);
+      setIsOwner(groupRes.data.owner._id === res.data._id);
+      setIsLoggedIn(true);
+      fetchData(groupCode);
+      localStorage.setItem("nickname", nickname);
+      localStorage.setItem("groupCode", groupCode);
+
+      socket.emit("userJoined", groupCode.toUpperCase());
+    } catch (err) {
+      console.error(err);
+      if (err.response && err.response.data.error === "Grupa pełna (max 5 osób)") {
+        showAlert("Grupa jest pełna! Max 5 osób.");
+      } else if (err.response && err.response.data.error === "Nick already taken in this group") {
+        showAlert("Ten nick jest już zajęty w tej grupie!");
+      } else {
+        showAlert("Nie udało się zalogować");
+      }
+    }
+  };
+
   const handleCreateGroup = async () => {
     if (!newGroupName.trim() || !ownerNickname.trim()) {
-      alert("Podaj nazwę grupy i swój nick!");
+      showAlert("Podaj nazwę grupy i swój nick!");
       return;
     }
     try {
@@ -159,6 +191,8 @@ function UserPanel() {
         name: newGroupName,
         ownerNickname,
       });
+      setCurrentUser(res.data.user);
+      localStorage.setItem("currentUser", JSON.stringify(res.data.user));
       const { group, user } = res.data;
       setGroupCreated(group);
       setNickname(ownerNickname);
@@ -169,110 +203,34 @@ function UserPanel() {
       setIsLoggedIn(true);
       localStorage.setItem("nickname", ownerNickname);
       localStorage.setItem("groupCode", group.code);
-      fetchTasks();
+      localStorage.setItem("ownerId", group.owner._id);
+      fetchData(group.code);
       const groupRes = await axios.get(`/api/groups/${group.code}`);
       setGroupUsers(groupRes.data.users);
     } catch (err) {
       console.error(err);
-      if (
-        err.response &&
-        err.response.data.error === "Nick already taken in this group"
-      ) {
-        alert("Ten nick jest już zajęty w tej grupie!");
+      if (err.response && err.response.data.error === "Nick already taken in this group") {
+        showAlert("Ten nick jest już zajęty w tej grupie!");
       } else {
-        alert(
-          "Błąd tworzenia grupy: " +
-            (err.response?.data?.error || "Nieznany błąd")
-        );
+        showAlert("Błąd tworzenia grupy: " + (err.response?.data?.error || "Nieznany błąd"));
       }
     }
   };
 
-  const handleRemoveUser = async (userId) => {
-    if (window.confirm("Are you sure you want to remove this user?")) {
-      try {
-        await axios.post("/api/groups/removeUser", {
-          groupCode,
-          requesterNickname: nickname,
-          userIdToRemove: userId,
-        });
-        setGroupUsers(groupUsers.filter((user) => user._id !== userId));
-      } catch (err) {
-        console.error(err);
-        alert("Error removing user");
-      }
-    }
-  };
-
-  const handleTransferOwnership = async (newOwnerId) => {
-    if (window.confirm("Are you sure you want to transfer ownership?")) {
-      try {
-        await axios.post("/api/groups/transferOwnership", {
-          groupCode,
-          requesterNickname: nickname,
-          newOwnerId,
-        });
-        setIsOwner(false);
-      } catch (err) {
-        console.error(err);
-        alert("Error transferring ownership");
-      }
-    }
-  };
-
-  const handleDeleteGroup = async () => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete the group? This action cannot be undone."
-      )
-    ) {
-      try {
-        await axios.post("/api/groups/deleteGroup", {
-          groupCode,
-          requesterNickname: nickname,
-        });
-        handleLogout();
-      } catch (err) {
-        console.error(err);
-        alert("Error deleting group");
-      }
-    }
-  };
-
-  const handleScanResult = async (result, expectedTaskId) => {
-    console.log("Otrzymano wynik skanowania:", result, " : ", expectedTaskId);
-    if (result !== expectedTaskId) {
-      alert("Ten kod QR nie pasuje do tego zadania!");
-      return;
-    }
+  const handleScanResult = async (scannedCode, taskId) => {
     try {
-      const taskRes = await axios.get(`/api/tasks/${result}`);
-      const task = taskRes.data;
-      console.log("Znaleziono zadanie:", task);
-      console.log(
-        "Wysyłam do grupy:",
+      const res = await axios.post(`/api/submissions/${taskId}/submit`, {
         groupCode,
-        "taskId:",
-        task.id,
-        "punkty:",
-        task.score
-      );
-      const groupRes = await axios.get(`/api/groups/${groupCode}`);
-      const group = groupRes.data;
-      console.log("Znaleziono grupę:", group);
-      await axios.post(`/api/groups/${groupCode}/score`, {
-        points: task.score,
-        taskId: task.id,
+        submissionData: scannedCode,
       });
-      alert(`Dodano ${task.score} punktów za zadanie: ${task.name}`);
+      showAlert(res.data.message);
+      fetchSubmissions(groupCode);
     } catch (err) {
       console.error(err);
-      if (err.response && err.response.status === 404) {
-        alert("Kod QR nie jest powiązany z żadnym zadaniem!");
-      } else if (err.response && err.response.status === 400) {
-        alert("To zadanie zostało już wykonane!");
+      if (err.response) {
+        showAlert(err.response.data.error);
       } else {
-        alert("Błąd przy przetwarzaniu kodu QR");
+        showAlert("Błąd przy przetwarzaniu kodu QR");
       }
     }
   };
@@ -281,261 +239,119 @@ function UserPanel() {
     setExpandedTaskId((prevId) => (prevId === taskId ? null : taskId));
   };
 
-  const otherUsers = groupUsers.filter((user) => user.nickname !== nickname);
-
-  const handleShareGroupCode = async () => {
-    try {
-      if (navigator.share) {
-        await navigator.share({
-          title: "Group Code",
-          text: `Join my group with this code: ${groupCode}`,
-        });
-      } else {
-        await navigator.clipboard.writeText(groupCode);
-        alert("Group code copied to clipboard!");
-      }
-    } catch (error) {
-      console.error("Error sharing:", error);
-    }
-  };
-
   return (
-    <div className={styles.loginContainer}>
+    <div className={styles.UserPanelContainer}>
       {!isLoggedIn ? (
-        <div className={styles.loginForm}>
-          <h2>Logowanie Gracza</h2>
-          <input
-            type="text"
-            placeholder="Nick"
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Kod Grupy"
-            value={groupCode}
-            onChange={(e) => setGroupCode(e.target.value)}
-          />
-          <button onClick={handleLogin}>Zaloguj</button>
-          <h3>Lub stwórz nową grupę</h3>
-          <input
-            type="text"
-            placeholder="Nazwa Grupy"
-            value={newGroupName}
-            onChange={(e) => setNewGroupName(e.target.value)}
-          />
-          <input
-            type="text"
-            placeholder="Twój Nick"
-            value={ownerNickname}
-            onChange={(e) => setOwnerNickname(e.target.value)}
-          />
-          <button onClick={handleCreateGroup}>Stwórz Grupę</button>
-          {groupCreated && (
-            <p>
-              Utworzono grupę: {groupCreated.name} (Kod: {groupCreated.code})
-            </p>
-          )}
-        </div>
-      ) : (
-        <div>
-          <div className={styles.header_color}>
-            <div className={styles.header}>
-              <h2 className={styles.group_name}>{groupName}</h2>
-              <div className={styles.user_list}>
-                <div
-                  style={{ display: "flex", cursor: "pointer" }}
-                  onClick={() => setShowPopup(true)}
-                >
-                  {otherUsers.map((user) => (
-                    <div
-                      className={styles.user_icon}
-                      key={user._id}
-                      style={{ backgroundColor: userColors[user._id] }}
-                    >
-                      {user.nickname.slice(0, 2).toUpperCase()}
-                    </div>
-                  ))}
-                  <div className={styles.user_icon_add}>
-                    <img src={PlusIcon} alt="Add User" className={styles.icon} />
-                  </div>
-                </div>
-                <div
-                  className={styles.user_icon_main}
-                  onClick={() => setShowMainUserPopup(true)}
-                >
-                  {nickname.slice(0, 2).toUpperCase()}
-                </div>
-                {showPopup && (
-                  <div
-                    className={styles.popup_overlay}
-                    onClick={() => setShowPopup(false)}
-                  >
-                    <div
-                      className={styles.popup_content}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div>
-                        <h1>Członkowie grupy</h1>
-                        {otherUsers.length === 0 ? (
-                          <p>Brak znajomych</p>
-                        ) : (
-                          <div className={styles.userList}>
-                            {groupUsers
-                              .filter((user) => user && user._id && user.nickname)
-                              .map((user) => (
-                                <div key={user._id} className={styles.userCard}>
-                                  <h2>{user.nickname}</h2>
-                                  {isOwner && user._id !== currentUser?._id && (
-                                    <div className={styles.actions}>
-                                      <button
-                                        className={styles.ownerButton}
-                                        onClick={() =>
-                                          handleTransferOwnership(user._id)
-                                        }
-                                      >
-                                        <img
-                                          src={CrownIcon}
-                                          alt="Transfer Ownership"
-                                          className={styles.icon}
-                                        />
-                                      </button>
-                                      <button
-                                        className={styles.delButton}
-                                        onClick={() => handleRemoveUser(user._id)}
-                                      >
-                                        <img
-                                          src={DeleteIcon}
-                                          alt="Remove User"
-                                          className={styles.icon}
-                                        />
-                                      </button>
-                                    </div>
-                                  )}
-                                </div>
-                              ))}
-                          </div>
-                        )}
-                      </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          textAlign: "center",
-                          gap: "1rem",
-                        }}
-                      >
-                        <button
-                          className={styles.codeButton}
-                          onClick={handleShareGroupCode}
-                        >
-                          {groupCode}
-                        </button>
-                        <button
-                          className={styles.button}
-                          onClick={() => setShowPopup(false)}
-                        >
-                          Zamknij
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {showMainUserPopup && (
-                  <div
-                    className={styles.popup_overlay}
-                    onClick={() => setShowMainUserPopup(false)}
-                  >
-                    <div
-                      className={styles.popup_content}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <div>
-                        <h1>Twoje informacje</h1>
-                        <p>
-                          <strong>Nick:</strong> {nickname}
-                        </p>
-                        <p>
-                          <strong>Kod grupy:</strong> {groupCode}
-                        </p>
-                        <p>
-                          <strong>Właściciel:</strong> {isOwner ? "Tak" : "Nie"}
-                        </p>
-                      </div>
-                      <div className={styles.actions_user}>
-                        <div style={{ marginBottom: "1rem" }}>
-                          <button
-                            className={styles.button}
-                            onClick={handleLogout}
-                          >
-                            Wyloguj
-                          </button>
-                          <button
-                            className={styles.button}
-                            style={{ background: "#ee6055" }}
-                            onClick={handleQuitGroup}
-                          >
-                            Quit Group
-                          </button>
-                          {isOwner && (
-                            <button
-                              className={styles.button}
-                              style={{ background: "#ee6055" }}
-                              onClick={handleDeleteGroup}
-                            >
-                              Delete Group
-                            </button>
-                          )}
-                        </div>
-                        <button
-                          className={styles.button}
-                          onClick={() => setShowMainUserPopup(false)}
-                        >
-                          Zamknij
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+          <div className={styles.loginContainer}>
+            <div className={styles.themeAndLanguage}>
+              🇵🇱
+              <ThemeToggle variant="emoji"/>
             </div>
-            <MapElement tasks={tasks} className={styles.MapElement} />
+            <div className={styles.zigzagContainer}></div>
+            <div className={styles.loginForm}>
+              <div className={styles.personLoginForm}>
+                <div className={styles.textStack}>
+                  <h1 className={styles.textStroke}>Dołącz do Gry</h1>
+                  <h1 className={styles.textFill}>Dołącz do Gry</h1>
+                </div>
+                <CustomInput
+                    className={styles.input}
+                    type="text"
+                    placeholder="Kod Grupy"
+                    value={groupCode || ""}
+                    onChange={(e) => setGroupCode(e.target.value)}
+                />
+                <CustomInput
+                    className={styles.input}
+                    type="text"
+                    placeholder="Twój Nick"
+                    value={nickname}
+                    onChange={(e) => setNickname(e.target.value)}
+                />
+                <CustomButton className={styles.button}
+                        onClick={handleLogin}>
+                  Dołącz
+                </CustomButton>
+              </div>
+              {!inviteCode && (
+                  <div className={styles.groupLoginForm}>
+                    <div className={styles.textStack}>
+                      <h1 className={styles.textStroke}>Lub stwórz nową grupę</h1>
+                      <h1 className={styles.textFill}>Lub stwórz nową grupę</h1>
+                    </div>
+                    <CustomInput
+                        className={styles.input}
+                        type="text"
+                        placeholder="Nazwa Grupy"
+                        value={newGroupName}
+                        onChange={(e) => setNewGroupName(e.target.value)}
+                    />
+                    <CustomInput
+                        className={styles.input}
+                        type="text"
+                        placeholder="Twój Nick (Lider)"
+                        value={ownerNickname}
+                        onChange={(e) => setOwnerNickname(e.target.value)}
+                    />
+                    <CustomButton className={styles.button}
+                            onClick={handleCreateGroup}>
+                      Stwórz Grupę
+                    </CustomButton>
+                  </div>
+              )}
+            </div>
           </div>
-          <div className={styles.taskList} ref={taskListRef}>
-            {tasks.map((task, index) => (
-              <TaskCard
-                key={task._id}
-                task={task}
-                index={index}
-                containerRef={taskListRef}
-                expandedTaskId={expandedTaskId}
-                toggleTask={toggleTask}
-                handleScanResult={handleScanResult}
-              />
-            ))}
+      ) : (
+          <div className={styles.appContainer}>
+            <Header
+                groupUsers={groupUsers}
+                setGroupUsers={setGroupUsers}
+                currentUser={currentUser}
+                isOwner={isOwner}
+                setIsOwner={setIsOwner}
+                ownerId={ownerId}
+                nickname={nickname}
+                groupName={groupName}
+                groupCode={groupCode}
+                logout={logout}
+                groupScore={groupScore}
+                onUserUpdate={() => fetchData(groupCode)}
+            />
+            <MapElement tasks={tasks}/>
+            {isLoading ? (
+                <div>Loading tasks...</div>
+            ) : (
+                <div className={styles.taskList} ref={taskListRef}>
+                  {tasks.map((task, index) => (
+                      <TaskCard
+                          key={task._id}
+                          task={task}
+                          index={index}
+                          containerRef={taskListRef}
+                          expandedTaskId={expandedTaskId}
+                          toggleTask={toggleTask}
+                          handleScanResult={handleScanResult}
+                          submission={submissions.find((sub) => sub.task?._id === task._id)}
+                          groupCode={groupCode}
+                          fetchSubmissions={() => fetchSubmissions(groupCode)}
+                      />
+                  ))}
+                </div>
+            )}
+            {showSlots && (
+              <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'white', zIndex: 1000, overflow: 'auto' }}>
+                <button onClick={() => setShowSlots(false)}>Close</button>
+                <Slots
+                  groupScore={groupScore}
+                  groupCode={groupCode}
+                  onSpinComplete={(newScore) => {
+                    setGroupScore(newScore);
+                    setShowSlots(false);
+                  }}
+                />
+              </div>
+            )}
           </div>
-          <h3>Członkowie grupy:</h3>
-          <ul>
-            {groupUsers
-              .filter((user) => user && user._id && user.nickname)
-              .map((user) => (
-                <li key={user._id}>
-                  {user.nickname}
-                  {isOwner && user._id !== currentUser?._id && (
-                    <>
-                      <button onClick={() => handleRemoveUser(user._id)}>
-                        Remove
-                      </button>
-                      <button onClick={() => handleTransferOwnership(user._id)}>
-                        Transfer Ownership
-                      </button>
-                    </>
-                  )}
-                </li>
-              ))}
-          </ul>
-          <Leaderboard />
-        </div>
       )}
     </div>
   );
