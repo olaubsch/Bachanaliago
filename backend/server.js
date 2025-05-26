@@ -5,6 +5,9 @@ const mongoose = require("mongoose");
 const http = require("http");
 const socketIo = require("socket.io");
 const fs = require("fs"); // Add this line to require the fs module
+const fsPromises = fs.promises;
+const path = require("path");
+const TaskSubmission = require("./models/TaskSubmission");
 
 const userRoutes = require("./routes/userRoutes");
 const groupRoutes = require("./routes/groupRoutes");
@@ -58,6 +61,27 @@ io.on("connection", (socket) => {
 
     socket.on("ownershipTransferred", ({ groupCode, newOwnerId }) => {
         io.to(groupCode).emit("ownershipTransferred", { groupCode, newOwnerId });
+    });
+
+    socket.on("getImage", async (data) => {
+        const { submissionId } = data;
+        try {
+          const submission = await TaskSubmission.findById(submissionId);
+          if (!submission || (submission.type !== "photo" && submission.type !== "video")) {
+            socket.emit("imageError", { submissionId, error: "Invalid submission" });
+            return;
+          }
+    
+          const filePath = path.join(__dirname, submission.submissionData);
+          const fileData = await fsPromises.readFile(filePath);
+          const mimeType = submission.type === "photo" ? "image/jpeg" : "video/mp4"; // Adjust MIME type as needed
+          const dataUrl = `data:${mimeType};base64,${fileData.toString("base64")}`;
+    
+          socket.emit("imageData", { submissionId, dataUrl });
+        } catch (err) {
+          console.error(err);
+          socket.emit("imageError", { submissionId, error: "File not found or server error" });
+        }
     });
 
 });
