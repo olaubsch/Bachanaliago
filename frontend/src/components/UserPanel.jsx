@@ -8,12 +8,12 @@ import useAuth from "../utils/useLogout.jsx";
 import { useLocation } from "react-router-dom";
 import ThemeToggle from "../utils/ThemeToggle.jsx";
 import CustomButton from "./ui/CustomButton.jsx";
-import {io} from "socket.io-client";
-import {showAlert} from "./ui/alert.jsx";
+import { io } from "socket.io-client";
+import { showAlert } from "./ui/alert.jsx";
 import CustomInput from "./ui/CustomInput.jsx";
 import Slots from "./Slots";
 
-const socket = io('http://localhost:5000');
+const socket = io("http://localhost:5000");
 
 function UserPanel() {
   const [nickname, setNickname] = useState("");
@@ -72,22 +72,37 @@ function UserPanel() {
 
   useEffect(() => {
     const handleKeyDown = (event) => {
-      setKeySequence(prev => [...prev, event.key].slice(-10));
+      setKeySequence((prev) => [...prev, event.key].slice(-10));
     };
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
 
   useEffect(() => {
-    const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
-    if (keySequence.length === 10 && keySequence.every((key, index) => key === konamiCode[index])) {
-      axios.post(`/api/groups/${groupCode}/play-slots`)
-        .then(response => {
+    const konamiCode = [
+      "ArrowUp",
+      "ArrowUp",
+      "ArrowDown",
+      "ArrowDown",
+      "ArrowLeft",
+      "ArrowRight",
+      "ArrowLeft",
+      "ArrowRight",
+      "b",
+      "a",
+    ];
+    if (
+      keySequence.length === 10 &&
+      keySequence.every((key, index) => key === konamiCode[index])
+    ) {
+      axios
+        .post(`/api/groups/${groupCode}/play-slots`)
+        .then((response) => {
           setShowSlots(true);
         })
-        .catch(error => {
+        .catch((error) => {
           if (error.response && error.response.status === 403) {
             showAlert("Your group has already played the slots.");
           } else {
@@ -156,19 +171,20 @@ function UserPanel() {
   }, [groupCode]);
 
   useEffect(() => {
-      fetch("/api/bannedWords")
-        .then(res => res.json())
-        .then(data => setBadWords(data))
-        .catch(err => console.error("Błąd ładowania słownika:", err));
+    fetch("/api/bannedWords")
+      .then((res) => res.json())
+      .then((data) => setBadWords(data))
+      .catch((err) => console.error("Błąd ładowania słownika:", err));
   }, []);
-    
+
   const containsBannedWords = (text) => {
     if (!text) return false;
-    return badWords.some(word => text.toLowerCase().includes(word.toLowerCase()));
+    return badWords.some((word) =>
+      text.toLowerCase().includes(word.toLowerCase())
+    );
   };
 
   const handleLogin = async () => {
-
     if (containsBannedWords(nickname)) {
       alert("Nick zawiera niedozwolone słowa!");
       return;
@@ -178,7 +194,9 @@ function UserPanel() {
       const res = await axios.post("/api/users/login", { nickname, groupCode });
       setCurrentUser(res.data);
       localStorage.setItem("currentUser", JSON.stringify(res.data));
-      const groupRes = await axios.get(`/api/groups/${groupCode.toUpperCase()}`);
+      const groupRes = await axios.get(
+        `/api/groups/${groupCode.toUpperCase()}`
+      );
       setGroupName(groupRes.data.name);
       setGroupUsers(groupRes.data.users);
       setIsOwner(groupRes.data.owner._id === res.data._id);
@@ -190,9 +208,15 @@ function UserPanel() {
       socket.emit("userJoined", groupCode.toUpperCase());
     } catch (err) {
       console.error(err);
-      if (err.response && err.response.data.error === "Grupa pełna (max 5 osób)") {
+      if (
+        err.response &&
+        err.response.data.error === "Grupa pełna (max 5 osób)"
+      ) {
         showAlert("Grupa jest pełna! Max 5 osób.");
-      } else if (err.response && err.response.data.error === "Nick already taken in this group") {
+      } else if (
+        err.response &&
+        err.response.data.error === "Nick already taken in this group"
+      ) {
         showAlert("Ten nick jest już zajęty w tej grupie!");
       } else {
         showAlert("Nie udało się zalogować");
@@ -206,7 +230,10 @@ function UserPanel() {
       return;
     }
 
-    if (containsBannedWords(newGroupName) || containsBannedWords(ownerNickname)) {
+    if (
+      containsBannedWords(newGroupName) ||
+      containsBannedWords(ownerNickname)
+    ) {
       alert("Nick lub nazwa grupy zawiera niedozwolone słowa!");
       return;
     }
@@ -234,10 +261,16 @@ function UserPanel() {
       setGroupUsers(groupRes.data.users);
     } catch (err) {
       console.error(err);
-      if (err.response && err.response.data.error === "Nick already taken in this group") {
+      if (
+        err.response &&
+        err.response.data.error === "Nick already taken in this group"
+      ) {
         showAlert("Ten nick jest już zajęty w tej grupie!");
       } else {
-        showAlert("Błąd tworzenia grupy: " + (err.response?.data?.error || "Nieznany błąd"));
+        showAlert(
+          "Błąd tworzenia grupy: " +
+            (err.response?.data?.error || "Nieznany błąd")
+        );
       }
     }
   };
@@ -267,116 +300,132 @@ function UserPanel() {
   return (
     <div className={styles.UserPanelContainer}>
       {!isLoggedIn ? (
-          <div className={styles.loginContainer}>
-            <div className={styles.themeAndLanguage}>
-              🇵🇱
-              <ThemeToggle variant="emoji"/>
+        <div className={styles.loginContainer}>
+          <div className={styles.themeAndLanguage}>
+            <span className={styles.lang}>PL</span>
+            <div className={styles.themeIconWrapper}>
+              <ThemeToggle />
             </div>
-            <div className={styles.zigzagContainer}></div>
-            <div className={styles.loginForm}>
-              <div className={styles.personLoginForm}>
+          </div>
+          <div className={styles.zigzagContainer}></div>
+          <div className={styles.loginForm}>
+            <div className={styles.personLoginForm}>
+              <div className={styles.textStack}>
+                <h1 className={styles.textStroke}>Dołącz do Gry</h1>
+                <h1 className={styles.textFill}>Dołącz do Gry</h1>
+              </div>
+              <CustomInput
+                className={styles.input}
+                type="text"
+                placeholder="Kod Grupy"
+                value={groupCode || ""}
+                onChange={(e) => setGroupCode(e.target.value)}
+              />
+              <CustomInput
+                className={styles.input}
+                type="text"
+                placeholder="Twój Nick"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+              />
+              <CustomButton className={styles.button} onClick={handleLogin}>
+                Dołącz
+              </CustomButton>
+            </div>
+            {!inviteCode && (
+              <div className={styles.groupLoginForm}>
                 <div className={styles.textStack}>
-                  <h1 className={styles.textStroke}>Dołącz do Gry</h1>
-                  <h1 className={styles.textFill}>Dołącz do Gry</h1>
+                  <h1 className={styles.textStroke}>Lub stwórz nową grupę</h1>
+                  <h1 className={styles.textFill}>Lub stwórz nową grupę</h1>
                 </div>
                 <CustomInput
-                    className={styles.input}
-                    type="text"
-                    placeholder="Kod Grupy"
-                    value={groupCode || ""}
-                    onChange={(e) => setGroupCode(e.target.value)}
+                  className={styles.input}
+                  type="text"
+                  placeholder="Nazwa Grupy"
+                  value={newGroupName}
+                  onChange={(e) => setNewGroupName(e.target.value)}
                 />
                 <CustomInput
-                    className={styles.input}
-                    type="text"
-                    placeholder="Twój Nick"
-                    value={nickname}
-                    onChange={(e) => setNickname(e.target.value)}
+                  className={styles.input}
+                  type="text"
+                  placeholder="Twój Nick (Lider)"
+                  value={ownerNickname}
+                  onChange={(e) => setOwnerNickname(e.target.value)}
                 />
-                <CustomButton className={styles.button}
-                        onClick={handleLogin}>
-                  Dołącz
+                <CustomButton
+                  className={styles.button}
+                  onClick={handleCreateGroup}
+                >
+                  Stwórz Grupę
                 </CustomButton>
               </div>
-              {!inviteCode && (
-                  <div className={styles.groupLoginForm}>
-                    <div className={styles.textStack}>
-                      <h1 className={styles.textStroke}>Lub stwórz nową grupę</h1>
-                      <h1 className={styles.textFill}>Lub stwórz nową grupę</h1>
-                    </div>
-                    <CustomInput
-                        className={styles.input}
-                        type="text"
-                        placeholder="Nazwa Grupy"
-                        value={newGroupName}
-                        onChange={(e) => setNewGroupName(e.target.value)}
-                    />
-                    <CustomInput
-                        className={styles.input}
-                        type="text"
-                        placeholder="Twój Nick (Lider)"
-                        value={ownerNickname}
-                        onChange={(e) => setOwnerNickname(e.target.value)}
-                    />
-                    <CustomButton className={styles.button}
-                            onClick={handleCreateGroup}>
-                      Stwórz Grupę
-                    </CustomButton>
-                  </div>
-              )}
-            </div>
+            )}
           </div>
+        </div>
       ) : (
-          <div className={styles.appContainer}>
-            <Header
-                groupUsers={groupUsers}
-                setGroupUsers={setGroupUsers}
-                currentUser={currentUser}
-                isOwner={isOwner}
-                setIsOwner={setIsOwner}
-                ownerId={ownerId}
-                nickname={nickname}
-                groupName={groupName}
-                groupCode={groupCode}
-                logout={logout}
-                groupScore={groupScore}
-                onUserUpdate={() => fetchData(groupCode)}
-            />
-            <MapElement tasks={tasks}/>
-            {isLoading ? (
-                <div>Loading tasks...</div>
-            ) : (
-                <div className={styles.taskList} ref={taskListRef}>
-                  {tasks.map((task, index) => (
-                      <TaskCard
-                          key={task._id}
-                          task={task}
-                          index={index}
-                          containerRef={taskListRef}
-                          expandedTaskId={expandedTaskId}
-                          toggleTask={toggleTask}
-                          handleScanResult={handleScanResult}
-                          submission={submissions.find((sub) => sub.task?._id === task._id)}
-                          groupCode={groupCode}
-                          fetchSubmissions={() => fetchSubmissions(groupCode)}
-                      />
-                  ))}
-                </div>
-            )}
-            {showSlots && (
-              <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'white', zIndex: 1000, overflow: 'auto' }}>
-                <button onClick={() => setShowSlots(false)}>Close</button>
-                <Slots
-                  groupScore={groupScore}
+        <div className={styles.appContainer}>
+          <Header
+            groupUsers={groupUsers}
+            setGroupUsers={setGroupUsers}
+            currentUser={currentUser}
+            isOwner={isOwner}
+            setIsOwner={setIsOwner}
+            ownerId={ownerId}
+            nickname={nickname}
+            groupName={groupName}
+            groupCode={groupCode}
+            logout={logout}
+            groupScore={groupScore}
+            onUserUpdate={() => fetchData(groupCode)}
+          />
+          <MapElement tasks={tasks} />
+          {isLoading ? (
+            <div>Loading tasks...</div>
+          ) : (
+            <div className={styles.taskList} ref={taskListRef}>
+              {tasks.map((task, index) => (
+                <TaskCard
+                  key={task._id}
+                  task={task}
+                  index={index}
+                  containerRef={taskListRef}
+                  expandedTaskId={expandedTaskId}
+                  toggleTask={toggleTask}
+                  handleScanResult={handleScanResult}
+                  submission={submissions.find(
+                    (sub) => sub.task?._id === task._id
+                  )}
                   groupCode={groupCode}
-                  onSpinComplete={(newScore) => {
-                    setGroupScore(newScore);
-                    setShowSlots(false);
-                  }}
+                  fetchSubmissions={() => fetchSubmissions(groupCode)}
                 />
-              </div>
-            )}
-          </div>
+              ))}
+            </div>
+          )}
+          {showSlots && (
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor: "white",
+                zIndex: 1000,
+                overflow: "auto",
+              }}
+            >
+              <button onClick={() => setShowSlots(false)}>Close</button>
+              <Slots
+                groupScore={groupScore}
+                groupCode={groupCode}
+                onSpinComplete={(newScore) => {
+                  setGroupScore(newScore);
+                  setShowSlots(false);
+                }}
+              />
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

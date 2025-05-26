@@ -1,174 +1,203 @@
 .popup_overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 2000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
 }
 
 .popup_content {
-    background: rgba(var(--bg-rgb), 0.5);
-    backdrop-filter: blur(50px);
-    -webkit-backdrop-filter: blur(50px);
-    padding: 1.5rem;
-    margin: 1rem;
-    border-radius: 2rem;
-    max-width: 400px;
-    min-height: 60vh;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    border: 1px solid var(--text-color);
-    contain: paint;
+  background: rgba(var(--bg-rgb), 0.5);
+  backdrop-filter: blur(50px);
+  -webkit-backdrop-filter: blur(50px);
+  padding: 1.5rem;
+  margin: 1rem;
+  border-radius: 2rem;
+  max-width: 400px;
+  min-height: 60vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid var(--text-color);
+  contain: paint;
 }
 
 .user_icon {
-    height: 3rem;
-    width: 3rem;
-    border-radius: 2rem;
-    background-color: #535bf2;
-    color: var(--text-header-color);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-left: -35px;
-    border: solid 2px var(--bg-color);
+  height: 3rem;
+  width: 3rem;
+  border-radius: 2rem;
+  background-color: #535bf2;
+  color: var(--text-header-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-left: -35px;
+  border: solid 2px var(--bg-color);
 }
 
 .user_icon_main {
-    height: 3rem;
-    width: 3rem;
-    border-radius: 2rem;
-    background-color: #acd8aa;
-    color: var(--text-header-color);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.5rem;
-    font-weight: bold;
-    border: solid 2px var(--bg-color);
+  height: 3rem;
+  width: 3rem;
+  border-radius: 2rem;
+  background-color: #acd8aa;
+  color: var(--text-header-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border: solid 2px var(--bg-color);
 }
 
 .user_icon_add {
-    height: 3rem;
-    width: 3rem;
-    border-radius: 2rem;
-    background-color: #535bf2;
-    stroke: var(--text-header-color);;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 2.5rem;
-    font-weight: bold;
-    margin-left: -35px;
-    border: solid 2px var(--bg-color);
+  height: 3rem;
+  width: 3rem;
+  border-radius: 2rem;
+  background-color: #535bf2;
+  stroke: var(--text-header-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-left: -35px;
+  border: solid 2px var(--bg-color);
 }
 
 .user_icon:first-child {
-    margin-left: 0;
+  margin-left: 0;
 }
 
 .group_name_center {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
 }
 
 .group_name {
-    font-size: 2rem;
-    line-height: 2rem;
-    text-align: center;
+  font-size: 2rem;
+  line-height: 2rem;
+  text-align: center;
 }
 
 .header {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.5rem;
-    padding: 0 0.5rem;
-    margin-top: 0.5rem;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  padding: 0 0.5rem;
+  margin-top: 0.5rem;
 }
 
 .button {
-    background: var(--text-color);
-    color: var(--bg-color);
-    border: none;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: bold;
-    border-radius: 0.5rem;
-    padding: 1rem 2rem;
+  background: var(--text-color);
+  color: var(--bg-color);
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 0.5rem;
+  padding: 1rem 2rem;
 }
 
 .userInfo {
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
 }
 
 .nickname {
-    font-weight: 600;
-    font-size: 16px;
+  font-weight: 600;
+  font-size: 16px;
 }
 
 .actions {
-    display: flex;
-    gap: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
 }
 
 .actions_user {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .delButton {
-    background-color: transparent;
-    color: var(--bg-color);
-    border: none;
-    padding: 0.5rem;
-    border-radius: 2rem;
-    cursor: pointer;
+  background-color: transparent;
+  color: var(--bg-color);
+  border: none;
+  padding: 0.5rem;
+  border-radius: 2rem;
+  cursor: pointer;
 }
 
 .ownerButton {
-    background-color: transparent;
-    color: var(--bg-color);
-    border: none;
-    padding: 0.5rem;
-    border-radius: 2rem;
-    cursor: pointer;
+  background-color: transparent;
+  color: var(--bg-color);
+  border: none;
+  padding: 0.5rem;
+  border-radius: 2rem;
+  cursor: pointer;
 }
 
 .icon {
-    width: 2rem;
-    height: 2rem;
+  width: 2rem;
+  height: 2rem;
 }
 
 .codeButton {
-    background: none;
-    border: none;
-    font-size: 2rem;
-    font-weight: bold;
-    cursor: pointer;
-    color: inherit;
-    padding: 0;
-    text-decoration: underline;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  color: inherit;
+  padding: 0;
+  text-decoration: underline;
 }
 
 .userCard {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 0;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.iconWrapper {
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  background-color: var(--text-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.iconText {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--bg-color);
+}
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
 }
