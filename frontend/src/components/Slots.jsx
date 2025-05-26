@@ -129,7 +129,7 @@ const Slots = ({ groupScore, groupCode, onSpinComplete }) => {
         setMessage(`You lose ${betAmount} points. New score: ${newScore}`);
       }
       try {
-        await axios.post(`/api/groups/${groupCode}/update-score`, { newScore });
+        await axios.post(`/api/groups/${groupCode}/update-score`, { newScore, fromSlots: true });
         setTimeout(() => {
           onSpinComplete(newScore);
         }, 2000);
