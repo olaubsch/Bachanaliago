@@ -35,6 +35,7 @@ function UserPanel() {
   const taskListRef = useRef();
   const [keySequence, setKeySequence] = useState([]);
   const [showSlots, setShowSlots] = useState(false);
+  const [badWords, setBadWords] = useState([]);
 
   const { logout } = useAuth({
     setIsLoggedIn,
@@ -154,7 +155,25 @@ function UserPanel() {
     };
   }, [groupCode]);
 
+  useEffect(() => {
+      fetch("/api/bannedWords")
+        .then(res => res.json())
+        .then(data => setBadWords(data))
+        .catch(err => console.error("Błąd ładowania słownika:", err));
+  }, []);
+    
+  const containsBannedWords = (text) => {
+    if (!text) return false;
+    return badWords.some(word => text.toLowerCase().includes(word.toLowerCase()));
+  };
+
   const handleLogin = async () => {
+
+    if (containsBannedWords(nickname)) {
+      alert("Nick zawiera niedozwolone słowa!");
+      return;
+    }
+
     try {
       const res = await axios.post("/api/users/login", { nickname, groupCode });
       setCurrentUser(res.data);
@@ -186,6 +205,12 @@ function UserPanel() {
       showAlert("Podaj nazwę grupy i swój nick!");
       return;
     }
+
+    if (containsBannedWords(newGroupName) || containsBannedWords(ownerNickname)) {
+      alert("Nick lub nazwa grupy zawiera niedozwolone słowa!");
+      return;
+    }
+
     try {
       const res = await axios.post("/api/groups", {
         name: newGroupName,
