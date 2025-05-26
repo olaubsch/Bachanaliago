@@ -1,78 +1,115 @@
 .slots-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    background-color: #f0f0f0;
-    padding: 20px;
-    font-family: Arial, sans-serif;
-  }
-  
-  .points-display {
-    font-size: 24px;
-    margin-bottom: 20px;
-  }
-  
-  .reels {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-  }
-  
-  .reel {
-    width: 100px;
-    height: 100px;
-    overflow: hidden;
-    background-color: white;
-    border: 2px solid #333;
-    border-radius: 10px;
-  }
-  
-  .symbols {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .symbol {
-    width: 100px;
-    height: 100px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 40px;
-  }
-  
-  button {
-    padding: 10px 20px;
-    font-size: 18px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-  }
-  
-  .message {
-    margin-top: 20px;
-    font-size: 18px;
-    min-height: 24px;
-  }
-  
-  .paytable {
-    margin-top: 20px;
-    text-align: left;
-    font-size: 16px;
-    background-color: #fff;
-    padding: 15px;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  }
-  
-  .paytable h3 {
-    margin-top: 0;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem;
+  font-family: "Prompt", sans-serif;
+  color: var(--text-color);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.points-display {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.point-input {
+  backdrop-filter: blur(50px);
+  -webkit-backdrop-filter: blur(50px);
+  background-color: transparent;
+  color: var(--text-color);
+  border: 1px solid var(--text-color);
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: "Tauri", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  border-radius: 0.5rem;
+  padding: 1rem 1rem;
+}
+.reels {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.reel {
+  overflow: hidden;
+  width: 100px;
+  height: 100px;
+  border-radius: 1rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--text-color);
+}
+
+.symbols {
+  display: flex;
+  flex-direction: column;
+}
+
+.symbol {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 3rem;
+  border-radius: 1rem;
+}
+
+button {
+  margin-top: 1rem;
+  padding: 0.75rem 2rem;
+  border: 1px solid var(--text-color);
+  background-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  color: var(--text-color);
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+button:hover {
+  transform: scale(1.05);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.message {
+  font-size: 1.2rem;
+  font-weight: 500;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.paytable {
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 600px;
+  width: 90%;
+  backdrop-filter: blur(50px);
+  -webkit-backdrop-filter: blur(50px);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  display: inline-block;
+  border: 1px solid var(--text-color);
+}
+
+.zigzagContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-image: url("../../assets/zigzag.svg");
+  z-index: 0;
+  transition: height 1s ease;
+  justify-content: center;
+  z-index: -1;
+  height: 100vh;
+}

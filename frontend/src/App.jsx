@@ -4,6 +4,7 @@ import AdminPanel from "./components/AdminPanel";
 import UserPanel from "./components/UserPanel";
 import VerificationView from "./components/VerificationView";
 import TermsModal from "./components/ui/TermsModal";
+import Slots from "./components/Slots";
 
 function App() {
   const [accepted, setAccepted] = useState(false);
@@ -28,6 +29,7 @@ function App() {
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/" element={<UserPanel />} />
         <Route path="/admin/verification" element={<VerificationView />} />
+        <Route path="/slots" element={<Slots />} />
       </Routes>
     </Router>
   );
