@@ -8,6 +8,7 @@ const fs = require("fs"); // Add this line to require the fs module
 const fsPromises = fs.promises;
 const path = require("path");
 const TaskSubmission = require("./models/TaskSubmission");
+const bannedWordsRoutes = require("./routes/bannedWordsRoutes");
 
 const userRoutes = require("./routes/userRoutes");
 const groupRoutes = require("./routes/groupRoutes");
@@ -35,6 +36,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/groups", groupRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use('/api/submissions', submissionRoutes);
+app.use("/api/bannedWords", bannedWordsRoutes);
 
 io.on("connection", (socket) => {
     console.log("New client connected");
