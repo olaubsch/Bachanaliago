@@ -177,12 +177,18 @@ function UserPanel() {
       .catch((err) => console.error("Błąd ładowania słownika:", err));
   }, []);
 
-  const containsBannedWords = (text) => {
-    if (!text) return false;
-    return badWords.some((word) =>
-      text.toLowerCase().includes(word.toLowerCase())
-    );
-  };
+   const containsBannedWords = (text) => {
+   if (!text) return false;
+
+  // usuń spacje, znaki specjalne i zamień na małe litery
+  const cleanedText = text.toLowerCase().replace(/[\s\W_]+/g, "");
+
+  return badWords.some((word) => {
+    const cleanedWord = word.toLowerCase().replace(/[\s\W_]+/g, "");
+    const regex = new RegExp(cleanedWord, "i");
+    return regex.test(cleanedText);
+  });
+};
 
   const handleLogin = async () => {
     if (containsBannedWords(nickname)) {
