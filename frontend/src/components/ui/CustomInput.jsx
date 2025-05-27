@@ -10,6 +10,7 @@ export default function CustomInput({
                                   className = '',
                                   ...props
                               }) {
+    const inputClass = type === 'file' ? styles.inputFile : styles.input;
     return (
         <input
             type={type}
@@ -17,7 +18,7 @@ export default function CustomInput({
             onChange={onChange}
             placeholder={placeholder}
             required={required}
-            className={`${styles.input} ${className}`}
+            className={`${inputClass} ${className}`}
             {...props}
         />
     );

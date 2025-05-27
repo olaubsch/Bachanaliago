@@ -32,7 +32,7 @@
 
 .small {
     width: 100%;
-    background-color: var(--text-color);
+    background-color: rgba(var(--text-color-rgb), 0.9);
     color: var(--text-header-color);
     border: unset;
     font-size: 1rem;

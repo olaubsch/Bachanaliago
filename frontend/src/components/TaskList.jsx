@@ -236,45 +236,43 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions }) {
                                     <h3>{task.name}</h3>
                                     <h4>{status}</h4>
                                 </div>
-                                {isExpanded && (
-                                    <div className={styles.descContainer}>
-                                        <div>{task.description}</div>
-                                        <div>
-                                            Location: ({task.location.lat}, {task.location.lng})
-                                        </div>
-                                        {status === "pending" ? (
-                                            <div>Awaiting verification. Further submissions are disabled.</div>
-                                        ) : (
-                                            <>
-                                                {task.type === "qr" && status !== "approved" && (
-                                                    <QrScanner onScanSuccess={(code) => handleScanResult(code, task._id)} />
-                                                )}
-                                                {task.type === "text" && status !== "approved" && (
-                                                    <div>
-                                                        <CustomTextArea
-                                                            value={text}
-                                                            onChange={(e) => setText(e.target.value)}
-                                                            placeholder="Enter your answer"
-                                                        />
-                                                        <CustomButton width={"100%"} onClick={() => handleTextSubmit(task._id)}>Submit</CustomButton>
-                                                    </div>
-                                                )}
-                                                {task.type === "photo" && status !== "approved" && (
-                                                    <div>
-                                                        <CustomInput type="file" name="file" accept="image/*" onChange={(e) => handleFileSubmit(e, "image/*", task._id)} />
-                                                    </div>
-                                                )}
-                                                {task.type === "video" && status !== "approved" && (
-                                                    <div>
-                                                        <CustomInput type="file" name="file" accept="video/*" onChange={(e) => handleFileSubmit(e, "video/*", task._id)} />
-                                                    </div>
-                                                )}
-                                            </>
-                                        )}
-                                        {status === "approved" && <div>Completed!</div>}
-                                        {status === "rejected" && <div>Rejected. Please try again.</div>}
+                                <div className={`${styles.descContainer} ${isExpanded ? styles.expanded : ''}`}>
+                                    <div>{task.description}</div>
+                                    <div style={{ marginTop: '1rem' }}>
+                                        Location: ({task.location.lat}, {task.location.lng})
                                     </div>
-                                )}
+                                    {status === "pending" ? (
+                                        <div>Awaiting verification. Further submissions are disabled.</div>
+                                    ) : (
+                                        <>
+                                            {task.type === "qr" && status !== "approved" && (
+                                                <QrScanner onScanSuccess={(code) => handleScanResult(code, task._id)} />
+                                            )}
+                                            {task.type === "text" && status !== "approved" && (
+                                                <div style={{ marginTop: '1rem' }}>
+                                                    <CustomTextArea
+                                                        value={text}
+                                                        onChange={(e) => setText(e.target.value)}
+                                                        placeholder="Enter your answer"
+                                                    />
+                                                    <CustomButton width={"100%"} onClick={() => handleTextSubmit(task._id)}>Submit</CustomButton>
+                                                </div>
+                                            )}
+                                            {task.type === "photo" && status !== "approved" && (
+                                                <div style={{ marginTop: '1rem', width: '100%' }}>
+                                                    <CustomInput type="file" name="file" accept="image/*" onChange={(e) => handleFileSubmit(e, "image/*", task._id)} />
+                                                </div>
+                                            )}
+                                            {task.type === "video" && status !== "approved" && (
+                                                <div style={{ marginTop: '1rem', width: '100%' }}>
+                                                    <CustomInput type="file" name="file" accept="video/*" onChange={(e) => handleFileSubmit(e, "video/*", task._id)} />
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                    {status === "approved" && <div>Completed!</div>}
+                                    {status === "rejected" && <div>Rejected. Please try again.</div>}
+                                </div>
                             </div>
                         );
                     })}

@@ -33,6 +33,7 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    transition: all 0.3s ease-in-out; /* Apply transition to all animatable properties */
 }
 
 .filter {
@@ -50,10 +51,20 @@
     line-height: 1.75rem;
 }
 
-.descContainer {
-    border-top: 2px solid var(--bg-color);
+.descContainer.expanded {
+    max-height: 800px;
+    opacity: 1;
     margin-top: 1rem;
     padding: 0.5rem;
+    visibility: visible;
+}
+
+.descContainer {
+    border-top: 2px solid var(--bg-color);
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    visibility: hidden;
 }
 
 .taskCardDescription {

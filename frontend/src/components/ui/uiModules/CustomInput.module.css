@@ -43,3 +43,28 @@
 .inputTextArea:focus {
     outline: 2px solid var(--dark-text);
 }
+
+.inputFile {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 1rem;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--text-color);
+    border: 1px solid var(--text-color);
+    border-radius: 0.5rem;
+    background-color: transparent;
+}
+
+
+.inputFile::-webkit-file-upload-button {
+    visibility: hidden;
+}
+
+.inputFile:hover::before {
+    background-color: #444;
+}
+
+.inputFile:focus {
+    outline: 2px solid var(--text-color);
+}

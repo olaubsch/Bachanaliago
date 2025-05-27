@@ -61,27 +61,37 @@ function AdminPanel() {
         <ThemeToggle variant={"emoji"} />
       </div>
       {!isLoggedIn ? (
-        <div className={styles.adminForm}>
-          <h2>Admin Login</h2>
-          <CustomInput
-            type="password"
-            placeholder="Hasło"
-            value={password}
-            className={styles.input}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button className={styles.button} onClick={handleLogin}>
-            Zaloguj
-          </button>
-        </div>
+          <div className={styles.adminForm}>
+            <h2>Admin Login</h2>
+            <form
+                onSubmit={(e) => {
+                  e.preventDefault(); // Prevents page reload
+                  handleLogin();
+                }}
+                style={{display: "flex", gap: 10}}
+            >
+              <div style={{display: "flex", gap: 10}}>
+                <CustomInput
+                    type="password"
+                    placeholder="Hasło"
+                    value={password}
+                    className={styles.input}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+                <button className={styles.button} onClick={handleLogin}>
+                  Zaloguj
+                </button>
+              </div>
+            </form>
+          </div>
       ) : (
-        <div className={styles.adminPanel}>
-          <div className={styles.leftColumn}>
-            <div className={styles.adminForm}>
-              <h2 className={styles.taskHeader}>Panel Admina</h2>
-              <div className={styles.contentContainer}>
-                <div className={styles.headerControls}>
-                  <h2>{showForm ? "Dodaj Taska" : "Lista Tasków"}</h2>
+          <div className={styles.adminPanel}>
+            <div className={styles.leftColumn}>
+              <div className={styles.adminForm}>
+                <h2 className={styles.taskHeader}>Panel Admina</h2>
+                <div className={styles.contentContainer}>
+                  <div className={styles.headerControls}>
+                    <h2>{showForm ? "Dodaj Taska" : "Lista Tasków"}</h2>
                   <div style={{ display: "flex", gap: "0.5rem" }}>
                     <CustomButton
                       variant={showForm ? "outline" : "default"}
