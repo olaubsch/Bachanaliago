@@ -19,6 +19,14 @@ function Alert({ message, onClose }) {
         }
     }, [isClosing, onClose]);
 
+    useEffect(() => {
+        const autoCloseTimer = setTimeout(() => {
+            handleClose();
+        }, 5000); // 5 seconds
+
+        return () => clearTimeout(autoCloseTimer);
+    }, [])
+
     return (
         <div className={styles.backdrop}>
             <div className={`${styles.popup_content} ${isClosing ? styles.hide : ''}`}>

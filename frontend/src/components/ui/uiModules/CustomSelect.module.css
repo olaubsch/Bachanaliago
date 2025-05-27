@@ -1,18 +1,26 @@
-.selectWrapper {
+.selectWrapperDefault {
     position: relative;
     width: 100%;
     max-width: 70%;
 }
 
+.selectWrapperSmall {
+    position: relative;
+    width: min-content;
+    max-width: 70%;
+}
+
 .selectButton {
-    width: 100%;
     text-align: left;
     font-family: inherit;
     cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
 
+.default {
+    width: 100%;
     backdrop-filter: blur(50px);
     background-color: transparent;
     color: var(--text-color);
@@ -22,7 +30,30 @@
     padding: 1rem;
 }
 
-.selectButton:focus {
+.small {
+    width: 100%;
+    background-color: var(--text-color);
+    color: var(--text-header-color);
+    border: unset;
+    font-size: 1rem;
+    border-radius: 1.5rem;
+    padding: 0.5rem 1rem;
+}
+
+.sizingHelper {
+    visibility: hidden;      /* Hide visually */
+    height: 1px;               /* Prevent affecting vertical spacing */
+    overflow: hidden;
+    white-space: nowrap;     /* Prevent wrapping */
+    font-size: 1rem;
+    font-family: inherit;
+    padding: 0 1rem;
+    display: block;          /* Ensure it takes layout space */
+}
+
+
+
+.default:focus {
     outline: 2px solid var(--text-color);
 }
 
@@ -43,6 +74,21 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     z-index: 1000;
     max-height: 200px;
+    overflow-y: auto;
+}
+
+.smallDropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    margin-top: 0;
+    background-color: var(--text-color);
+    color: var(--text-header-color);
+    border-radius: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    z-index: 1000;
+
     overflow-y: auto;
 }
 

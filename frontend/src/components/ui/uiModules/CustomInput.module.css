@@ -2,7 +2,7 @@
     width: 100%;
     font-family: inherit;
     box-sizing: border-box;
-
+    resize: vertical;
     backdrop-filter: blur(50px);
     background-color: transparent;
     color: var(--text-color);
@@ -19,4 +19,27 @@
 
 .input:focus {
     outline: 2px solid var(--text-color);
+}
+
+.inputTextArea {
+    width: 100%;
+    font-family: inherit;
+    box-sizing: border-box;
+    resize: vertical;
+    backdrop-filter: blur(50px);
+    background-color: transparent;
+    color: var(--dark-text);
+    border: 1px solid var(--dark-text);
+    font-size: 1rem;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+.inputTextArea::placeholder {
+    color: var(--text-color);
+    opacity: 0.5;
+}
+
+.inputTextArea:focus {
+    outline: 2px solid var(--dark-text);
 }

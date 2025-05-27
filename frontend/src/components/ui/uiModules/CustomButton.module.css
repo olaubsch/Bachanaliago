@@ -50,6 +50,9 @@
 
 @media (hover: hover) {
     .button:hover {
+        background: var(--text-color);
+        color: var(--text-header-color);
+        border: none;
         opacity: 0.7;
     }
 }

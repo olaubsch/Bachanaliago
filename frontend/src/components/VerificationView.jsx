@@ -22,7 +22,6 @@ function VerificationView() {
     }
   };
 
-  // Effect to set up socket listeners and clean them up
   useEffect(() => {
     // Socket event handlers
     const handleImageData = (data) => {
@@ -45,7 +44,6 @@ function VerificationView() {
       fetchPendingSubmissions();
     });
 
-    // Cleanup on unmount
     return () => {
       socket.off("imageData", handleImageData);
       socket.off("imageError", handleImageError);
