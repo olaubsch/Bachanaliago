@@ -17,9 +17,21 @@ exports.createTask = async (req, res) => {
 };
 
 exports.getTasks = async (req, res) => {
+  const lang = req.query.lang || "pl";
+
   try {
     const tasks = await Task.find();
-    res.json(tasks);
+
+    const localized = tasks.map(task => ({
+      _id: task._id,
+      name: task.name?.get(lang) || task.name?.get("pl") || "Brak nazwy",
+      description: task.description?.get(lang) || task.description?.get("pl") || "Brak opisu",
+      location: task.location,
+      score: task.score,
+      type: task.type
+    }));
+
+    res.json(localized);
   } catch (err) {
     res.status(500).json({ error: "Błąd pobierania tasków" });
   }
@@ -37,6 +49,7 @@ exports.deleteTask = async (req, res) => {
 
 exports.getTaskByQrCode = async (req, res) => {
   const { id } = req.params;
+  const lang = req.query.lang || "pl";
   try {
     const task = await Task.findById(id);
     if (!task) {
@@ -44,7 +57,7 @@ exports.getTaskByQrCode = async (req, res) => {
     }
     res.json({
       id: task._id,
-      name: task.name,
+      name: task.name?.get(lang) || task.name?.get("pl"),
       score: task.score,
     });
   } catch (err) {

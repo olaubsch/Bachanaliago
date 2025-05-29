@@ -1,8 +1,16 @@
 const mongoose = require("mongoose");
 
 const taskSchema = new mongoose.Schema({
-  name: String,
-  description: String,
+  name: {
+    type: Map,
+    of: String,
+    required: true,
+  },
+  description: {
+    type: Map,
+    of: String,
+    required: true,
+  },
   location: {
     lat: Number,
     lng: Number,

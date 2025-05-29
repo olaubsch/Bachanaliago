@@ -7,8 +7,8 @@ import CustomSelect from "./ui/CustomSelect.jsx";
 import CustomInput from "./ui/CustomInput.jsx";
 
 const TaskForm = forwardRef(function TaskForm({ onTaskAdded }, ref) {
-    const [name, setName] = useState("");
-    const [description, setDescription] = useState("");
+    const [name, setName] = useState({ pl: "", en: "" });
+    const [description, setDescription] = useState({ pl: "", en: "" });
     const [lat, setLat] = useState("");
     const [lng, setLng] = useState("");
     const [score, setScore] = useState(0);
@@ -61,17 +61,33 @@ const TaskForm = forwardRef(function TaskForm({ onTaskAdded }, ref) {
         <div className={styles.formContainer}>
             <CustomInput
                 type="text"
-                placeholder="Nazwa"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                placeholder="Nazwa (PL)"
+                value={name.pl}
+                onChange={(e) => setName({ ...name, pl: e.target.value })}
                 required
                 className={styles.input}
             />
             <CustomInput
                 type="text"
-                placeholder="Opis"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Nazwa (EN)"
+                value={name.en}
+                onChange={(e) => setName({ ...name, en: e.target.value })}
+                required
+                className={styles.input}
+            />
+            <CustomInput
+                type="text"
+                placeholder="Opis (PL)"
+                value={description.pl}
+                onChange={(e) => setDescription({ ...description, pl: e.target.value })}
+                required
+                className={styles.input}
+            />
+            <CustomInput
+                type="text"
+                placeholder="Opis (EN)"
+                value={description.en}
+                onChange={(e) => setDescription({ ...description, en: e.target.value })}
                 required
                 className={styles.input}
             />

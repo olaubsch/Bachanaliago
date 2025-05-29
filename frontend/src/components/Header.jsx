@@ -247,7 +247,7 @@ function Header({
                         <Leaderboard/>
                     </div>
                     <button className={styles.button} onClick={() => setShowLeaderBoardPopup(false)}>
-                        Zamknij
+                        {language === "pl" ? "Zamknij" : "Close"}
                     </button>
                 </div>
             </div>

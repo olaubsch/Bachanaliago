@@ -11,7 +11,7 @@ function Popup({ title, children, onClose }) {
                     {children}
                 </div>
                 <button className={styles.closeButton} onClick={onClose}>
-                    Zamknij
+                    {language === "pl" ? "Zamknij" : "Close"}
                 </button>
             </div>
         </div>,

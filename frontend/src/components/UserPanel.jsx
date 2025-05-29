@@ -13,6 +13,7 @@ import { showAlert } from "./ui/alert.jsx";
 import CustomInput from "./ui/CustomInput.jsx";
 import TaskList from "./TaskList.jsx";
 import Slots from "./Slots";
+import { useLanguage } from "../utils/LanguageContext";
 
 const socket = io("http://localhost:5000");
 
@@ -37,7 +38,10 @@ function UserPanel() {
   const [keySequence, setKeySequence] = useState([]);
   const [showSlots, setShowSlots] = useState(false);
   const [activeViewMap, setActiveViewMap] = useState(true);
-  const [badWords, setBadWords] = useState([]);
+  const [badWords, setBadWords] = useState([]);  
+  const { language,toggleLanguage } = useLanguage();
+
+
 
   const { logout } = useAuth({
     setIsLoggedIn,
@@ -136,7 +140,7 @@ function UserPanel() {
 
   const fetchTasks = async () => {
     try {
-      const res = await axios.get("/api/tasks");
+      const res = await axios.get(`/api/tasks?lang=${language}`);
       setTasks(res.data);
     } catch (err) {
       console.error(err);
@@ -288,7 +292,9 @@ function UserPanel() {
       {!isLoggedIn ? (
         <div className={styles.loginContainer}>
           <div className={styles.themeAndLanguage}>
-            <span className={styles.lang}>PL</span>
+            <button onClick={toggleLanguage} className={styles.langToggle}>
+              {language.toUpperCase()}
+            </button>
             <div className={styles.themeIconWrapper}>
               <ThemeToggle />
             </div>
