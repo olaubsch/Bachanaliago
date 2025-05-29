@@ -14,7 +14,6 @@ const userRoutes = require("./routes/userRoutes");
 const groupRoutes = require("./routes/groupRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const submissionRoutes = require("./routes/submissionRoutes");
-const submissionRoutes = require("./routes/submissionRoutes");
 
 const app = express();
 const server = http.createServer(app);
