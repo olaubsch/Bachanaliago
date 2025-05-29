@@ -1,0 +1,59 @@
+version: "3.8"
+
+services:
+  nginx:
+    image: nginx:latest
+    container_name: bachanaliago-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+      - ./frontend/dist:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+    networks:
+      - bachanalianet
+
+  backend:
+    build: ./backend
+    container_name: backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    expose:
+      - "5000"
+    networks:
+      - bachanalianet
+
+  db:
+    image: mongo:5
+    container_name: bachanaliago-db
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - bachanalianet
+
+  frontend-builder:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend-builder
+    working_dir: /app
+    command: sh -c "npm install && npm run build"
+    volumes:
+      - ./frontend/dist:/app/dist
+    networks:
+      - bachanalianet
+    depends_on:
+      - backend
+
+volumes:
+  mongo-data:
+
+networks:
+  bachanalianet:
+    driver: bridge
