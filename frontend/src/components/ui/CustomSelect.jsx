@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, {useState, useRef, useEffect, useMemo} from 'react';
 import styles from './uiModules/CustomSelect.module.css';
 
-export default function CustomSelect({ options, value, onChange, placeholder = "Select…" }) {
+export default function CustomSelect({ options, value, onChange, placeholder = "Select…", variant = 'default', width }) {
     const [open, setOpen] = useState(false);
     const ref = useRef();
 
@@ -22,18 +22,36 @@ export default function CustomSelect({ options, value, onChange, placeholder = "
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    const longestLabel = useMemo(() => {
+        return options.reduce((longest, option) => (
+            option.label.length > longest.length ? option.label : longest
+        ), placeholder);
+    }, [options, placeholder]);
+
     return (
-        <div className={styles.selectWrapper} ref={ref}>
+        <div className={
+            variant === 'small'
+                ? styles.selectWrapperSmall
+                : styles.selectWrapperDefault
+        } ref={ref}>
+            {variant === 'small' && (
+                <span className={styles.sizingHelper}>{longestLabel}</span>
+            )}
             <button
-                className={styles.selectButton}
+                className={`${styles.selectButton} ${styles[variant]}`}
                 onClick={() => setOpen(prev => !prev)}
                 type="button"
             >
                 {selectedOption ? selectedOption.label : placeholder}
-                <span className={styles.arrow}>▾</span>
+                {variant !== 'small' && <span className={styles.arrow}>▾</span>}
             </button>
             {open && (
-                <ul className={styles.dropdown}>
+                <ul
+                    className={
+                        variant === 'small'
+                            ? styles.smallDropdown
+                            : styles.dropdown
+                    }>
                     {options.map(option => (
                         <li
                             key={option.value}

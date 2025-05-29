@@ -186,6 +186,7 @@ const Slots = ({ groupScore, groupCode, onSpinComplete }) => {
           />
         </div>
         <button
+            className={ styles.spinButton }
           onClick={spin}
           disabled={
             isSpinning || hasSpun || betAmount <= 0 || betAmount > groupScore

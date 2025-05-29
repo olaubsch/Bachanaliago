@@ -11,6 +11,7 @@ import CustomButton from "./ui/CustomButton.jsx";
 import { io } from "socket.io-client";
 import { showAlert } from "./ui/alert.jsx";
 import CustomInput from "./ui/CustomInput.jsx";
+import TaskList from "./TaskList.jsx";
 import Slots from "./Slots";
 
 const socket = io("/", {
@@ -39,6 +40,7 @@ function UserPanel() {
   const taskListRef = useRef();
   const [keySequence, setKeySequence] = useState([]);
   const [showSlots, setShowSlots] = useState(false);
+  const [activeViewMap, setActiveViewMap] = useState(true);
   const [badWords, setBadWords] = useState([]);
 
   const { logout } = useAuth({
@@ -285,28 +287,6 @@ function UserPanel() {
     }
   };
 
-  const handleScanResult = async (scannedCode, taskId) => {
-    try {
-      const res = await axios.post(`/api/submissions/${taskId}/submit`, {
-        groupCode,
-        submissionData: scannedCode,
-      });
-      showAlert(res.data.message);
-      fetchSubmissions(groupCode);
-    } catch (err) {
-      console.error(err);
-      if (err.response) {
-        showAlert(err.response.data.error);
-      } else {
-        showAlert("Błąd przy przetwarzaniu kodu QR");
-      }
-    }
-  };
-
-  const toggleTask = (taskId) => {
-    setExpandedTaskId((prevId) => (prevId === taskId ? null : taskId));
-  };
-
   return (
     <div className={styles.UserPanelContainer}>
       {!isLoggedIn ? (
@@ -373,69 +353,67 @@ function UserPanel() {
           </div>
         </div>
       ) : (
-        <div className={styles.appContainer}>
-          <Header
-            groupUsers={groupUsers}
-            setGroupUsers={setGroupUsers}
-            currentUser={currentUser}
-            isOwner={isOwner}
-            setIsOwner={setIsOwner}
-            ownerId={ownerId}
-            nickname={nickname}
-            groupName={groupName}
-            groupCode={groupCode}
-            logout={logout}
-            groupScore={groupScore}
-            onUserUpdate={() => fetchData(groupCode)}
-          />
-          <MapElement tasks={tasks} />
-          {isLoading ? (
-            <div>Loading tasks...</div>
-          ) : (
-            <div className={styles.taskList} ref={taskListRef}>
-              {tasks.map((task, index) => (
-                <TaskCard
-                  key={task._id}
-                  task={task}
-                  index={index}
-                  containerRef={taskListRef}
-                  expandedTaskId={expandedTaskId}
-                  toggleTask={toggleTask}
-                  handleScanResult={handleScanResult}
-                  submission={submissions.find(
-                    (sub) => sub.task?._id === task._id
-                  )}
-                  groupCode={groupCode}
-                  fetchSubmissions={() => fetchSubmissions(groupCode)}
-                />
-              ))}
-            </div>
-          )}
-          {showSlots && (
-            <div
-              style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                backgroundColor: "white",
-                zIndex: 1000,
-                overflow: "auto",
-              }}
-            >
-              <button onClick={() => setShowSlots(false)}>Close</button>
-              <Slots
-                groupScore={groupScore}
+          <div className={styles.appContainer}>
+            <Header
+                groupUsers={groupUsers}
+                setGroupUsers={setGroupUsers}
+                currentUser={currentUser}
+                isOwner={isOwner}
+                setIsOwner={setIsOwner}
+                ownerId={ownerId}
+                nickname={nickname}
+                groupName={groupName}
                 groupCode={groupCode}
-                onSpinComplete={(newScore) => {
-                  setGroupScore(newScore);
-                  setShowSlots(false);
-                }}
-              />
-            </div>
-          )}
-        </div>
+                logout={logout}
+                groupScore={groupScore}
+                onUserUpdate={() => fetchData(groupCode)}
+            />
+              <div
+                  onTouchStart={() => setActiveViewMap(true)}
+                  style={{
+                      height: activeViewMap ? '250px' : '75px',
+                      borderRadius: '1.5rem',
+                      overflow: 'hidden',
+                      transition: 'height 0.3s ease-in-out',
+                  }}>
+                  <MapElement
+                      tasks={tasks}
+                  />
+              </div>
+              <div onTouchStart={() => setActiveViewMap(false)}>
+                  <TaskList
+                      tasks={tasks}
+                      submissions={submissions}
+                      groupCode={groupCode}
+                      isLoading={isLoading}
+                      fetchSubmissions={() => fetchSubmissions(groupCode)}
+                  />
+              </div>
+              {showSlots && (
+                  <div
+                      style={{
+                          position: "fixed",
+                          top: 0,
+                          left: 0,
+                          width: "100%",
+                          height: "100%",
+                          backgroundColor: "white",
+                          zIndex: 1000,
+                          overflow: "auto",
+                      }}
+                  >
+                      <button onClick={() => setShowSlots(false)}>Close</button>
+                      <Slots
+                          groupScore={groupScore}
+                          groupCode={groupCode}
+                          onSpinComplete={(newScore) => {
+                              setGroupScore(newScore);
+                              setShowSlots(false);
+                          }}
+                      />
+                  </div>
+              )}
+          </div>
       )}
     </div>
   );

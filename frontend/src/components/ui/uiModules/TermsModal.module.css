@@ -18,6 +18,7 @@
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
   text-align: center;
   display: inline-block;
+  background-color: rgba(var(--bg-rgb-admin), 0.6);
 }
 .modalContent p {
   margin-bottom: 1rem;

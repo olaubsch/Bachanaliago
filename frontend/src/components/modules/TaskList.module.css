@@ -1,0 +1,103 @@
+/* src/components/modules/TaskList.module.css */
+
+.listContainer {
+    position: relative;
+    border-radius: 1.5rem; /* rounded-lg */
+    margin-left: auto; /* mx-auto */
+    margin-right: auto; /* mx-auto */
+    max-width: 28rem; /* max-w-md */
+    font-family: 'Inter', sans-serif;
+    overflow: auto;
+    height: 60vh;
+}
+
+.fadeIndicator {
+    position: sticky;
+    border-top: 2px solid #ef4444; /* border-t-2 border-red-500 */
+    border-bottom: 2px solid #ef4444; /* border-b-2 border-red-500 */
+    background-color: rgba(239, 68, 68, 0.1); /* bg-red-500 bg-opacity-10 */
+    pointer-events: none;
+    z-index: 2;
+}
+
+.taskCard {
+    backdrop-filter: blur(50px);
+    -webkit-backdrop-filter: blur(50px);
+    margin: 0.25rem; /* m-1 */
+    background-color: rgba(255, 255, 255, 0.9); /* bg-blue-500 */
+    color: var(--dark-text); /* text-white */
+    border-radius: 1.5rem; /* rounded */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+    cursor: pointer;
+    padding: 2rem 0.5rem;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease-in-out; /* Apply transition to all animatable properties */
+}
+
+.filter {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.5rem 0.25rem 0.25rem 0.25rem;
+}
+
+.taskCardTitle {
+    display: flex;
+    padding: 0 0.5rem;
+    justify-content: space-between !important;
+    font-weight: 700; /* font-bold */
+    font-size: 1.125rem; /* text-lg */
+    line-height: 1.75rem;
+}
+
+.descContainer.expanded {
+    max-height: 800px;
+    opacity: 1;
+    margin-top: 1rem;
+    padding: 0.5rem;
+    visibility: visible;
+}
+
+.descContainer {
+    border-top: 2px solid var(--bg-color);
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    visibility: hidden;
+}
+
+.taskCardDescription {
+    font-size: 0.875rem; /* text-sm */
+    line-height: 1.25rem;
+    margin-top: 0.5rem; /* mt-2 */
+    text-align: center;
+    padding-left: 0.5rem; /* px-2 */
+    padding-right: 0.5rem; /* px-2 */
+    /* Allows text to fill space when expanded */
+    flex-grow: 1;
+    /* Optional: Add overflow-y for very long descriptions */
+    /* overflow-y: auto; */
+}
+
+.scanQrButton {
+    margin-top: 1rem; /* mt-4 */
+    padding: 0.5rem 1rem; /* px-4 py-2 */
+    background-color: #1d4ed8; /* bg-blue-700 */
+    color: #ffffff; /* text-white */
+    border-radius: 0.375rem; /* rounded-md */
+    transition: background-color 0.2s ease-in-out; /* transition-colors duration-200 */
+    border: none; /* Ensure no default button border */
+    cursor: pointer;
+    outline: none; /* Remove focus outline */
+}
+
+.scanQrButton:hover {
+    background-color: #1e40af; /* hover:bg-blue-800 */
+}
+
+.loadingMessage {
+    text-align: center;
+    padding-top: 1rem;
+    color: #4b5563; /* text-gray-600 */
+}
