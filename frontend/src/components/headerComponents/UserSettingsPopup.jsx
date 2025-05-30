@@ -30,7 +30,7 @@ const UserSettingsPopup = ({
         <div
           style={{
             display: "flex",
-            flexDirection: "row",
+            flexDirection: "column",
             justifyContent: "space-between",
             gap: "0.5rem",
           }}
@@ -38,34 +38,33 @@ const UserSettingsPopup = ({
           <div className={styles.wrapper}>
             <h1 className={styles.title}>{language === "pl" ? "Ustawienia" : "Settings"}</h1>
 
-            <div className={styles.iconWrapper}>
-              <ThemeToggle variant="button" />
-            </div>
-
-            <div className={styles.iconWrapper}>
-              <button
-                onClick={() => {
-                  toggleLanguage(); // zmień język
-                  window.location.reload(); // odśwież stronę
-                }}
-              >
-                {language.toUpperCase()}
-              </button>
-            </div>
+              <div style={{display: "flex", gap: "0.5rem"}}>
+                  <div className={styles.iconWrapper}>
+                      <ThemeToggle variant="button"/>
+                  </div>
+                  <div className={styles.iconWrapper}>
+                      <button
+                          onClick={() => {
+                              toggleLanguage()
+                          }}
+                      >
+                          {language.toUpperCase()}
+                      </button>
+                  </div>
+              </div>
           </div>
+            <CustomButton onClick={handleLogout}>Wyloguj</CustomButton>
+            <CustomButton onClick={handleQuitGroup}>Quit Group</CustomButton>
+            {isLocalOwner && (
+                <CustomButton variant={"warning"} onClick={handleDeleteGroup}>
+                    Delete Group
+                </CustomButton>
+            )}
         </div>
-        <CustomButton onClick={handleLogout}>{language === "pl" ? "Wyloguj" : "Log Out"}</CustomButton>
-        <CustomButton onClick={handleQuitGroup}>{language === "pl" ? "Opuść grupę" : "Quit Group"}</CustomButton>
-        {isLocalOwner && (
-          <CustomButton variant={"warning"} onClick={handleDeleteGroup}>
-            {language === "pl" ? "Usuń grupę" : "Delete Group"}
-            
-          </CustomButton>
-        )}
       </div>
-      <CustomButton onClick={() => setShowMainUserPopup(false)}>
-        {language === "pl" ? "Zamknij" : "Close"}
-      </CustomButton>
+        <CustomButton onClick={() => setShowMainUserPopup(false)}>
+            Zamknij
+        </CustomButton>
     </>
   );
 };

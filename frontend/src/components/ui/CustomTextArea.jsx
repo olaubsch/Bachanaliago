@@ -7,6 +7,7 @@ export default function CustomTextArea({
                                            placeholder = '',
                                            required = false,
                                            rows = 4,
+                                           textColor = 'var(--dark-text)',
                                            className = '',
                                            minHeight = '80px',
                                            maxHeight = '300px',
@@ -33,7 +34,7 @@ export default function CustomTextArea({
             required={required}
             rows={rows}
             className={`${styles.inputTextArea} ${className}`}
-            style={{ minHeight, maxHeight, resize: 'none', overflow: 'hidden' }}
+            style={{ minHeight, maxHeight, resize: 'none', overflow: 'hidden', color: textColor }}
             {...props}
         />
     );

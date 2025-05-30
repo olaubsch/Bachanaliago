@@ -51,7 +51,7 @@ const Leaderboard = () => {
                     .map((group, index) => {
                       const score = group.score ?? 0;
                       const medals = ["🥇", "🥈", "🥉"];
-                      const medal = score > 0 ? medals[index] || "" : "🏅";
+                      const medal = score > 0 ? medals[index] || "🏅" : "";
 
                       return (
                           <div className={styles.row} key={group._id}

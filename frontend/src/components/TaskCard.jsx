@@ -6,6 +6,8 @@ import axios from "axios";
 import styles from "./modules/UserPanel.module.css";
 import {showAlert} from "./ui/alert.jsx";
 import CustomInput from "./ui/CustomInput.jsx";
+import CustomButton from "./ui/CustomButton.jsx";
+import CustomTextArea from "./ui/CustomTextArea.jsx";
 
 export default function TaskCard({
   task,
@@ -21,18 +23,12 @@ export default function TaskCard({
   const ref = useRef();
   const [text, setText] = useState("");
 
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    container: containerRef,
-    offset: ["start end", "start start"],
-  });
+
 
   const isExpanded = expandedTaskId === task._id;
   const status = submission ? submission.status : "not started";
 
-  const baseScale = useTransform(scrollYProgress, [0, 1], [0.92, 1]);
-  const baseY = useTransform(scrollYProgress, [0, 1], [-40, 0]);
-  const baseOpacity = useTransform(scrollYProgress, [0, 1], [0.6, 1]);
+
 
   const handleTextSubmit = async () => {
     try {
@@ -67,39 +63,18 @@ export default function TaskCard({
   };
 
   return (
-    <motion.div
-      ref={ref}
-      className={styles.taskCard}
-      style={{
-        scale: isExpanded ? 1 : baseScale,
-        y: isExpanded ? 0 : baseY,
-        opacity: isExpanded ? 1 : baseOpacity,
-        zIndex: 1000 - index,
-      }}
-      layout
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.4 }}
-    >
+    <div>
       <div onClick={() => toggleTask(task._id)} className={styles.taskHeader}>
-        {task.name} - {status}
+        <h3>{task.name}</h3>
+        <p>{status}</p>
       </div>
 
       {isExpanded && (
-        <motion.div
-          className={styles.taskDetails}
-          layout
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+        <div
         >
           <div>{task.description}</div>
           <div>
             Location: ({task.location.lat}, {task.location.lng})
-          </div>
-          <div className={styles.taskMap}>
-            <MapElement tasks={[task]} />
           </div>
           {status === "pending" ? (
             <div>Awaiting verification. Further submissions are disabled.</div>
@@ -110,12 +85,12 @@ export default function TaskCard({
               )}
               {task.type === "text" && status !== "approved" && (
                 <div>
-                  <textarea
+                  <CustomTextArea
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     placeholder="Enter your answer"
                   />
-                  <button onClick={handleTextSubmit}>Submit</button>
+                  <CustomButton width={"100%"} onClick={handleTextSubmit}>Submit</CustomButton>
                 </div>
               )}
               {task.type === "photo" && status !== "approved" && (
@@ -132,8 +107,8 @@ export default function TaskCard({
           )}
           {status === "approved" && <div>Completed!</div>}
           {status === "rejected" && <div>Rejected. Please try again.</div>}
-        </motion.div>
+        </div>
       )}
-    </motion.div>
+    </div>
   );
 }

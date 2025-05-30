@@ -7,17 +7,20 @@ import CustomTextArea from "./ui/CustomTextArea.jsx";
 import CustomButton from "./ui/CustomButton.jsx";
 import CustomInput from "./ui/CustomInput.jsx";
 import CustomSelect from "./ui/CustomSelect.jsx";
+import LocationIcon from "../utils/LocationPin.jsx";
+import {useLanguage} from "../utils/LanguageContext.jsx";
 
 const LIST_CONTAINER_HEIGHT_VH = 61;
 const FADE_ZONE_HEIGHT_PERCENT = 25;
 const FADE_ZONE_START_PERCENT = 100 - FADE_ZONE_HEIGHT_PERCENT;
 
-function TaskList({ tasks, submissions, groupCode, fetchSubmissions }) {
+function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition }) {
     const containerRef = useRef(null);
     const [scrollTop, setScrollTop] = useState(0);
     const [containerClientHeight, setContainerClientHeight] = useState(0);
     const [maxScrollTop, setMaxScrollTop] = useState(0);
     const [expandedCardIndex, setExpandedCardIndex] = useState(null);
+    const { language } = useLanguage();
 
     const itemHeight = 86; // Fixed height for each task item in pixels (collapsed)
     const itemMargin = 4; // Margin applied to each item (m-1 in Tailwind is 4px on all sides)
@@ -35,6 +38,13 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions }) {
         { label: "Not Started", value: "not started" },
         { label: "Pending", value: "pending" },
     ];
+
+    const statusColorMap = {
+        approved: "#acd8aa",      // green
+        rejected: "#ff686b",      // red
+        pending: "#f9dc5c",       // orange
+        "not started": "#fff", // blue
+    };
 
     const [filter, setFilter] = useState("all");
 
@@ -227,45 +237,61 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions }) {
                                     transition: 'opacity 0.15s ease-out, transform 0.15s ease-out, height 0.3s ease-in-out',
                                     opacity,
                                     transform: `scale(${scale}) translateY(${translateY}px)`,
-                                    padding: isExpanded ? "2rem 1rem 1rem" : "2rem 1rem",
+                                    borderLeft: isExpanded ? "none" : `5px solid ${statusColorMap[status?.toLowerCase()] || "#ccc"}`,
+
                                 }}
                             >
                                 <div key={index}
                                      onClick={() => handleTaskClick(index)}
-                                     className={ styles.taskCardTitle }>
-                                    <h3>{task.name}</h3>
-                                    <h4>{status}</h4>
+                                     className={ styles.statusInfo }>
+                                    <div>
+                                        <h3>{task.name[language]}</h3>
+                                        <p>{status}</p>
+                                    </div>
+                                    <div className={ styles.partner }></div>
                                 </div>
                                 <div className={`${styles.descContainer} ${isExpanded ? styles.expanded : ''}`}>
-                                    <div>{task.description}</div>
-                                    <div style={{ marginTop: '1rem' }}>
-                                        Location: ({task.location.lat}, {task.location.lng})
+                                    <div>{task.description[language]}</div>
+                                    <div style={{marginTop: '1rem'}}>
+                                        <CustomButton
+                                            onClick={() => setPosition(task.location)}
+                                            width={"100%"}
+                                            style={{marginTop: '0.5rem'}}
+                                        >
+                                            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', alignItems: 'center' }}>
+                                                <LocationIcon className={styles.icon} />
+                                                <div>Pokaż lokacje</div>
+                                            </div>
+                                        </CustomButton>
                                     </div>
                                     {status === "pending" ? (
-                                        <div>Awaiting verification. Further submissions are disabled.</div>
+                                        <div style={{ fontSize: "14px", marginTop: "1rem"}}>Awaiting verification. Further submissions are disabled.</div>
                                     ) : (
                                         <>
                                             {task.type === "qr" && status !== "approved" && (
-                                                <QrScanner onScanSuccess={(code) => handleScanResult(code, task._id)} />
+                                                <QrScanner onScanSuccess={(code) => handleScanResult(code, task._id)}/>
                                             )}
                                             {task.type === "text" && status !== "approved" && (
-                                                <div style={{ marginTop: '1rem' }}>
+                                                <div style={{marginTop: '1rem'}}>
                                                     <CustomTextArea
                                                         value={text}
                                                         onChange={(e) => setText(e.target.value)}
                                                         placeholder="Enter your answer"
                                                     />
-                                                    <CustomButton width={"100%"} onClick={() => handleTextSubmit(task._id)}>Submit</CustomButton>
+                                                    <CustomButton width={"100%"}
+                                                                  onClick={() => handleTextSubmit(task._id)}>Submit</CustomButton>
                                                 </div>
                                             )}
                                             {task.type === "photo" && status !== "approved" && (
-                                                <div style={{ marginTop: '1rem', width: '100%' }}>
-                                                    <CustomInput type="file" name="file" accept="image/*" onChange={(e) => handleFileSubmit(e, "image/*", task._id)} />
+                                                <div style={{marginTop: '1rem', width: '100%'}}>
+                                                    <CustomInput type="file" name="file" accept="image/*"
+                                                                 onChange={(e) => handleFileSubmit(e, "image/*", task._id)}/>
                                                 </div>
                                             )}
                                             {task.type === "video" && status !== "approved" && (
-                                                <div style={{ marginTop: '1rem', width: '100%' }}>
-                                                    <CustomInput type="file" name="file" accept="video/*" onChange={(e) => handleFileSubmit(e, "video/*", task._id)} />
+                                                <div style={{marginTop: '1rem', width: '100%'}}>
+                                                    <CustomInput type="file" name="file" accept="video/*"
+                                                                 onChange={(e) => handleFileSubmit(e, "video/*", task._id)}/>
                                                 </div>
                                             )}
                                         </>

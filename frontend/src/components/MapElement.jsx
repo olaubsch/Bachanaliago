@@ -22,62 +22,99 @@ function SetViewOnPosition({ position }) {
   return null;
 }
 
-function MapElement({ tasks }) {
-  const [position, setPosition] = useState(null);
+function MapElement({ tasks, position: externalPosition, onClearPosition }) {
+  const [userLocation, setUserLocation] = useState(null);
+  const [mapCenter, setMapCenter] = useState(null);
   const [error, setError] = useState(null);
+  const [centerSource, setCenterSource] = useState(null);
 
-  // Get user's current location
   useEffect(() => {
     if (navigator.geolocation) {
       const watchId = navigator.geolocation.watchPosition(
-        (pos) => {
-          setPosition([pos.coords.latitude, pos.coords.longitude]);
-        },
-        (err) => {
-          setError(err.message);
-        }
+          (pos) => {
+            const coords = [pos.coords.latitude, pos.coords.longitude];
+            setUserLocation(coords);
+
+            if (!mapCenter && !externalPosition) {
+              setMapCenter(coords);
+              setCenterSource("user");
+            }
+          },
+          (err) => setError(err.message)
       );
-      return () => {
-        navigator.geolocation.clearWatch(watchId);
-      };
+      return () => navigator.geolocation.clearWatch(watchId);
     } else {
-      setError('Geolocation is not supported by this browser');
+      setError("Geolocation is not supported by this browser");
     }
-  }, []);
+  }, [mapCenter, externalPosition]);
+
+  useEffect(() => {
+    if (externalPosition && centerSource !== "external") {
+      setMapCenter(externalPosition);
+      setCenterSource("external");
+    }
+  }, [externalPosition]);
+
+  const handleRecenter = () => {
+    if (userLocation) {
+      setMapCenter(userLocation);
+      setCenterSource("user");
+
+      // Tell parent to forget external position
+      onClearPosition?.();
+    }
+  };
 
   if (error) {
     return <div className={styles.load_wrapper}>Error: {error}</div>;
   }
 
   return (
-    <div className={`${styles.map_wrapper} ${position ? styles.map_visible : ''}`}>
-      {!position ? (
+    <div className={`${styles.map_wrapper} ${ mapCenter ? styles.map_visible : ''}`}>
+      {!mapCenter ? (
           <div className={styles.load_wrapper}>
             <div className={styles.wave_loader} />
           </div>
       ) : (
-          <MapContainer center={position} scrollWheelZoom={false} tap={false} dragging={!L.Browser.mobile} zoomControl={false} zoom={13} style={{ height: '250px', width: '100%', borderRadius: '1.5rem' }}>
-        <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        <SetViewOnPosition position={position} />
-        {/* User's location marker */}
-        <Marker position={position} icon={userIcon}>
-          <Popup>Your location</Popup>
-        </Marker>
-        {/* Task circles */}
-        {tasks.map((task) => (
-            <Circle
-                key={task._id}
-                center={[task.location.lat, task.location.lng]}
-                radius={100} // 100 meters
-                pathOptions={{ color: 'blue', fillColor: 'blue', fillOpacity: 0.5 }}
+          <>
+            <MapContainer
+                center={mapCenter}
+                scrollWheelZoom={false}
+                tap={false}
+                dragging={!L.Browser.mobile}
+                zoomControl={false}
+                zoom={13}
+                style={{
+                  height: '250px', width: '100%', borderRadius: '12px' }}
             >
-              <Popup>{task.name}</Popup>
-            </Circle>
-        ))}
-      </MapContainer>
+              <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
+              <SetViewOnPosition position={mapCenter} />
+              {userLocation && (
+                  <Marker position={mapCenter} icon={userIcon}>
+                    <Popup>Your location</Popup>
+                  </Marker>
+              )}
+
+              {/* Task circles */}
+              {tasks.map((task) => (
+                  <Circle
+                      key={task._id}
+                      center={[task.location.lat, task.location.lng]}
+                      radius={100} // 100 meters
+                      pathOptions={{ color: 'blue', fillColor: 'blue', fillOpacity: 0.5 }}
+                  >
+                    <Popup>{task.name}</Popup>
+                  </Circle>
+              ))}
+            </MapContainer>
+            {/* Recenter button */}
+            <button className={styles.recenter_button} onClick={handleRecenter}>
+              <div className={ styles.locationIcon } ></div>
+            </button>
+          </>
       )}
     </div>
   );

@@ -17,15 +17,19 @@ exports.createTask = async (req, res) => {
 };
 
 exports.getTasks = async (req, res) => {
-  const lang = req.query.lang || "pl";
-
   try {
     const tasks = await Task.find();
 
     const localized = tasks.map(task => ({
       _id: task._id,
-      name: task.name?.get(lang) || task.name?.get("pl") || "Brak nazwy",
-      description: task.description?.get(lang) || task.description?.get("pl") || "Brak opisu",
+      name: {
+        pl: task.name?.get("pl") || "Brak nazwy",
+        en: task.name?.get("en") || "No name"
+      },
+      description: {
+        pl: task.description?.get("pl") || "Brak opisu",
+        en: task.description?.get("en") || "No description"
+      },
       location: task.location,
       score: task.score,
       type: task.type
@@ -36,6 +40,28 @@ exports.getTasks = async (req, res) => {
     res.status(500).json({ error: "Błąd pobierania tasków" });
   }
 };
+
+exports.updateTask = async (req, res) => {
+  const { id } = req.params;
+  const { name, description, location, score, type } = req.body;
+
+  try {
+    const updatedTask = await Task.findByIdAndUpdate(
+        id,
+        { name, description, location, score, type },
+        { new: true, runValidators: true }
+    );
+
+    if (!updatedTask) {
+      return res.status(404).json({ error: "Nie znaleziono taska" });
+    }
+
+    res.status(200).json(updatedTask);
+  } catch (err) {
+    res.status(400).json({ error: "Błąd podczas aktualizacji taska", details: err });
+  }
+};
+
 
 exports.deleteTask = async (req, res) => {
   const { id } = req.params;

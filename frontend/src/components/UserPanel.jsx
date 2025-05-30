@@ -38,7 +38,8 @@ function UserPanel() {
   const [keySequence, setKeySequence] = useState([]);
   const [showSlots, setShowSlots] = useState(false);
   const [activeViewMap, setActiveViewMap] = useState(true);
-  const [badWords, setBadWords] = useState([]);  
+  const [badWords, setBadWords] = useState([]);
+  const [position, setPosition] = useState(null);
   const { language,toggleLanguage } = useLanguage();
 
 
@@ -57,6 +58,12 @@ function UserPanel() {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const inviteCode = params.get("code");
+
+  useEffect(() => {
+    if (position !== null) {
+      setActiveViewMap(true);
+    }
+  }, [position]);
 
   useEffect(() => {
     const storedNickname = localStorage.getItem("nickname");
@@ -198,7 +205,7 @@ function UserPanel() {
 
   const handleLogin = async () => {
     if (containsBannedWords(nickname)) {
-      alert("Nick zawiera niedozwolone słowa!");
+      showAlert("Nick zawiera niedozwolone słowa!");
       return;
     }
 
@@ -246,7 +253,7 @@ function UserPanel() {
       containsBannedWords(newGroupName) ||
       containsBannedWords(ownerNickname)
     ) {
-      alert("Nick lub nazwa grupy zawiera niedozwolone słowa!");
+      showAlert("Nick lub nazwa grupy zawiera niedozwolone słowa!");
       return;
     }
 
@@ -285,6 +292,10 @@ function UserPanel() {
         );
       }
     }
+  };
+
+  const handleClearPosition = () => {
+    setPosition(null);
   };
 
   return (
@@ -374,12 +385,14 @@ function UserPanel() {
                   onTouchStart={() => setActiveViewMap(true)}
                   style={{
                       height: activeViewMap ? '250px' : '75px',
-                      borderRadius: '1.5rem',
+                      borderRadius: '12px',
                       overflow: 'hidden',
                       transition: 'height 0.3s ease-in-out',
                   }}>
                   <MapElement
                       tasks={tasks}
+                      position={position ? [position.lat, position.lng] : undefined}
+                      onClearPosition={handleClearPosition}
                   />
               </div>
               <div onTouchStart={() => setActiveViewMap(false)}>
@@ -389,6 +402,7 @@ function UserPanel() {
                       groupCode={groupCode}
                       isLoading={isLoading}
                       fetchSubmissions={() => fetchSubmissions(groupCode)}
+                      setPosition={setPosition}
                   />
               </div>
               {showSlots && (

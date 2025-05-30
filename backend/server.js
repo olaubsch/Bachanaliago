@@ -48,7 +48,7 @@ app.use("/api/submissions", submissionRoutes);
 app.use("/api/bannedWords", bannedWordsRoutes);
 
 io.on("connection", (socket) => {
-  console.log("New client connected");
+  console.log("New client connected ID:", socket.id);
 
   socket.on("joinGroup", (groupCode) => {
     socket.join(groupCode); // join socket room
