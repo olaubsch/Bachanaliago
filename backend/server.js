@@ -54,7 +54,7 @@ app.use((req, res, next) => {
 });
 
 io.on("connection", (socket) => {
-  console.log("New client connected");
+  console.log("New client connected ID:", socket.id);
 
   socket.on("joinGroup", (groupCode) => {
     socket.join(groupCode); // join socket room

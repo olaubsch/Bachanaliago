@@ -15,7 +15,7 @@
   outline: none;
   box-shadow: none !important;
   scale: 1.4;
-  color: var(--icon-fill, #f39c12);
+  color: var(--text-color);
 }
 
 .sunAndMoon :global(.moon),
@@ -26,21 +26,21 @@
 
 .sunAndMoon :global(.moon),
 .sunAndMoon :global(.sun) {
-  fill: var(--icon-fill, currentColor);
+  fill: var(--text-color);
 }
 
 .themeToggle:hover .sunAndMoon :global(.moon),
 .themeToggle:hover .sunAndMoon :global(.sun) {
-  fill: var(--icon-fill-hover, #f39c12);
+  fill: var(--text-color);
 }
 
 .sunAndMoon :global(.sun-beams) {
-  stroke: var(--icon-fill, currentColor);
+  stroke: var(--text-color);
   stroke-width: 2px;
 }
 
 .themeToggle:hover .sunAndMoon :global(.sun-beams) {
-  stroke: var(--icon-fill-hover, #f39c12);
+  stroke: var(--text-color);
 }
 
 :global([data-theme="dark"]) .sunAndMoon :global(.sun) {

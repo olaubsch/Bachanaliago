@@ -1,7 +1,7 @@
 import styles from "../modules/Header.module.css";
 import React, {useEffect, useState} from "react";
 import CustomButton from "../ui/CustomButton.jsx";
-
+import { useLanguage } from "../../utils/LanguageContext.jsx";
 const FriendListPopup = ({
                              groupUsers,
                              isOwner,
@@ -15,6 +15,7 @@ const FriendListPopup = ({
 }) => {
     const [storedOwnerId, setStoredOwnerId] = useState(null);
     const [currentUser, setCurrentUser] = useState(null);
+    const { language, toggleLanguage } = useLanguage();
 
     useEffect(() => {
         const id = localStorage.getItem("ownerId");
@@ -74,7 +75,7 @@ const FriendListPopup = ({
                     </button>
                 </div>
 
-                <CustomButton onClick={() => setShowPopup(false)}>Zamknij</CustomButton>
+                <CustomButton onClick={() => setShowPopup(false)}>{language === "pl" ? "Zamknij" : "Close"}</CustomButton>
             </div>
         </>
     )

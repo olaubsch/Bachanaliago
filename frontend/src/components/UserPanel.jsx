@@ -13,6 +13,7 @@ import { showAlert } from "./ui/alert.jsx";
 import CustomInput from "./ui/CustomInput.jsx";
 import TaskList from "./TaskList.jsx";
 import Slots from "./Slots";
+import { useLanguage } from "../utils/LanguageContext";
 
 const socket = io("/", {
   transports: ["websocket", "polling"],
@@ -42,6 +43,10 @@ function UserPanel() {
   const [showSlots, setShowSlots] = useState(false);
   const [activeViewMap, setActiveViewMap] = useState(true);
   const [badWords, setBadWords] = useState([]);
+  const [position, setPosition] = useState(null);
+  const { language,toggleLanguage } = useLanguage();
+
+
 
   const { logout } = useAuth({
     setIsLoggedIn,
@@ -57,6 +62,12 @@ function UserPanel() {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const inviteCode = params.get("code");
+
+  useEffect(() => {
+    if (position !== null) {
+      setActiveViewMap(true);
+    }
+  }, [position]);
 
   useEffect(() => {
     const storedNickname = localStorage.getItem("nickname");
@@ -140,7 +151,7 @@ function UserPanel() {
 
   const fetchTasks = async () => {
     try {
-      const res = await axios.get("/api/tasks");
+      const res = await axios.get(`/api/tasks?lang=${language}`);
       setTasks(res.data);
     } catch (err) {
       console.error(err);
@@ -198,7 +209,7 @@ function UserPanel() {
 
   const handleLogin = async () => {
     if (containsBannedWords(nickname)) {
-      alert("Nick zawiera niedozwolone słowa!");
+      showAlert("Nick zawiera niedozwolone słowa!");
       return;
     }
 
@@ -246,7 +257,7 @@ function UserPanel() {
       containsBannedWords(newGroupName) ||
       containsBannedWords(ownerNickname)
     ) {
-      alert("Nick lub nazwa grupy zawiera niedozwolone słowa!");
+      showAlert("Nick lub nazwa grupy zawiera niedozwolone słowa!");
       return;
     }
 
@@ -287,12 +298,18 @@ function UserPanel() {
     }
   };
 
+  const handleClearPosition = () => {
+    setPosition(null);
+  };
+
   return (
     <div className={styles.UserPanelContainer}>
       {!isLoggedIn ? (
         <div className={styles.loginContainer}>
           <div className={styles.themeAndLanguage}>
-            <span className={styles.lang}>PL</span>
+            <button onClick={toggleLanguage} className={styles.langToggle}>
+              {language.toUpperCase()}
+            </button>
             <div className={styles.themeIconWrapper}>
               <ThemeToggle />
             </div>
@@ -372,12 +389,14 @@ function UserPanel() {
                   onTouchStart={() => setActiveViewMap(true)}
                   style={{
                       height: activeViewMap ? '250px' : '75px',
-                      borderRadius: '1.5rem',
+                      borderRadius: '12px',
                       overflow: 'hidden',
                       transition: 'height 0.3s ease-in-out',
                   }}>
                   <MapElement
                       tasks={tasks}
+                      position={position ? [position.lat, position.lng] : undefined}
+                      onClearPosition={handleClearPosition}
                   />
               </div>
               <div onTouchStart={() => setActiveViewMap(false)}>
@@ -387,6 +406,7 @@ function UserPanel() {
                       groupCode={groupCode}
                       isLoading={isLoading}
                       fetchSubmissions={() => fetchSubmissions(groupCode)}
+                      setPosition={setPosition}
                   />
               </div>
               {showSlots && (

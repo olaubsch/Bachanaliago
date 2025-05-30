@@ -11,6 +11,7 @@
   --text-color: #796e65;
   --text-color-rgb: 121, 110, 101;
   --dark-text: #796e65;
+  --dark-text-rgb: 121, 110, 101;
   --button-bg: #796e65;
   --accent: #acd8aa;
   --red: #ff686b;
@@ -23,6 +24,7 @@
   --text-color: #fff;
   --text-color-rgb: 256, 256, 256;
   --dark-text: #2f3a39;
+  --dark-text-rgb: 47, 58, 57;
   --button-bg: #ede6d5;
   --accent: #acd8aa;
   --red: #ff686b;

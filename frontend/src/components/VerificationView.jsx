@@ -4,6 +4,7 @@ import styles from "./modules/AdminPanel.module.css";
 import CustomButton from "./ui/CustomButton.jsx";
 import { io } from "socket.io-client";
 import { showAlert } from "./ui/alert.jsx";
+import { useLanguage } from "../utils/LanguageContext.jsx";
 
 const socket = io("/", {
   transports: ["websocket", "polling"],
@@ -15,6 +16,7 @@ function VerificationView() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [submissions, setSubmissions] = useState([]);
   const [imageData, setImageData] = useState({}); // State to store media data URLs
+  const { language } = useLanguage();
 
   const fetchPendingSubmissions = async () => {
     try {
@@ -94,7 +96,7 @@ function VerificationView() {
               <div key={sub._id} className={styles.adminTaskCard}>
                 <div className={styles.taskHeader}>
                   <strong>
-                    {sub.task?.name} - {sub.group?.name}
+                    {sub.task?.name[language]} - {sub.group?.name}
                   </strong>
                 </div>
                 <div className={styles.taskDetails}>

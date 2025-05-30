@@ -7,6 +7,7 @@ export default function CustomInput({
                                   onChange,
                                   placeholder = '',
                                   required = false,
+                                  width,
                                   className = '',
                                   ...props
                               }) {
@@ -18,6 +19,7 @@ export default function CustomInput({
             onChange={onChange}
             placeholder={placeholder}
             required={required}
+            style={{ width: width }}
             className={`${inputClass} ${className}`}
             {...props}
         />

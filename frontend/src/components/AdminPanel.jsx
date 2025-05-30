@@ -7,12 +7,15 @@ import VerificationView from "./VerificationView.jsx";
 import ThemeToggle from "../utils/ThemeToggle.jsx";
 import { showAlert } from "./ui/alert.jsx";
 import CustomInput from "./ui/CustomInput.jsx";
+import {useLanguage} from "../utils/LanguageContext.jsx";
 
 function AdminPanel() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [password, setPassword] = useState("");
   const [tasks, setTasks] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
+  const { language } = useLanguage();
   const formRef = useRef();
 
   const fetchTasks = async () => {
@@ -45,11 +48,17 @@ function AdminPanel() {
     }
   };
 
+  const handleEdit = (task) => {
+    setEditingTask(task);
+    setShowForm(true);
+  };
+
   const handleExternalSubmit = async () => {
     if (formRef.current) {
-      const success = await formRef.current.submit();
+      const success = await formRef.current.submit(editingTask);
       if (success) {
         setShowForm(false);
+        setEditingTask(null); // Reset editing state
       }
     }
   };
@@ -91,17 +100,26 @@ function AdminPanel() {
                 <h2 className={styles.taskHeader}>Panel Admina</h2>
                 <div className={styles.contentContainer}>
                   <div className={styles.headerControls}>
-                    <h2>{showForm ? "Dodaj Taska" : "Lista Tasków"}</h2>
+                    <h2>{showForm ? editingTask ? "Edytowanie Taska" : "Dodaj Taska" : "Lista Tasków"}</h2>
                   <div style={{ display: "flex", gap: "0.5rem" }}>
                     <CustomButton
-                      variant={showForm ? "outline" : "default"}
-                      onClick={() => setShowForm((prev) => !prev)}
+                        variant={showForm ? "outline" : "default"}
+                        onClick={() => {
+                          setShowForm((prev) => {
+                            const newState = !prev;
+                            if (!newState) {
+                              setEditingTask(null);
+                            }
+                            return newState;
+                          });
+                        }}
                     >
                       {showForm ? "Anuluj" : "Dodaj"}
                     </CustomButton>
+
                     {showForm && (
                       <CustomButton onClick={handleExternalSubmit}>
-                        Dodaj
+                        {editingTask ? "Zapisz" : "Dodaj"}
                       </CustomButton>
                     )}
                   </div>
@@ -112,7 +130,11 @@ function AdminPanel() {
                       showForm ? styles.show : styles.hide
                     }`}
                   >
-                    <TaskForm ref={formRef} onTaskAdded={fetchTasks} />
+                    <TaskForm
+                        ref={formRef}
+                        onTaskAdded={fetchTasks}
+                        task={editingTask}
+                    />
                   </div>
                 ) : (
                   <div
@@ -123,10 +145,10 @@ function AdminPanel() {
                     {tasks.map((task) => (
                       <div key={task._id} className={styles.adminTaskCard}>
                         <div className={styles.taskHeader}>
-                          <strong>{task.name}</strong>
+                          <strong>{task.name[language]}</strong>
                         </div>
                         <div className={styles.taskDetails}>
-                          <p>{task.description}</p>
+                          <p>{task.description[language]}</p>
                           <p>
                             {task.location.lat}, {task.location.lng}
                           </p>
@@ -139,13 +161,21 @@ function AdminPanel() {
                               justifyContent: "flex-end",
                             }}
                           >
-                            <CustomButton
-                              width={"fit-content"}
-                              className={styles.button}
-                              onClick={() => handleDelete(task._id)}
-                            >
-                              Usuń
-                            </CustomButton>
+                            <div style={{ display: "flex", gap: "0.5rem" }}>
+                              <CustomButton
+                                  width={"fit-content"}
+                                  variant={"outline"}
+                                  onClick={() => handleDelete(task._id)}
+                              >
+                                Usuń
+                              </CustomButton>
+                              <CustomButton
+                                  width={"fit-content"}
+                                  onClick={() => handleEdit(task)}
+                              >
+                                Edytuj
+                              </CustomButton>
+                            </div>
                           </div>
                         </div>
                       </div>
