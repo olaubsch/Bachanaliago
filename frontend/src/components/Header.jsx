@@ -10,7 +10,12 @@ import FriendListPopup from "./headerComponents/FriendListPopup.jsx";
 import UserSettingsPopup from "./headerComponents/UserSettingsPopup.jsx";
 import { showAlert } from "./ui/alert.jsx";
 
-const socket = io("http://localhost:5000");
+const socket = io("/", {
+  path: "/socket.io",
+  transports: ["websocket", "polling"],
+  secure: true,
+  withCredentials: false,
+});
 
 function Header({
   groupUsers,

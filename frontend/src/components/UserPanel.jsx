@@ -16,6 +16,7 @@ import Slots from "./Slots";
 import { useLanguage } from "../utils/LanguageContext";
 
 const socket = io("/", {
+  path: "/socket.io",
   transports: ["websocket", "polling"],
   secure: true,
   withCredentials: false,
@@ -44,9 +45,7 @@ function UserPanel() {
   const [activeViewMap, setActiveViewMap] = useState(true);
   const [badWords, setBadWords] = useState([]);
   const [position, setPosition] = useState(null);
-  const { language,toggleLanguage } = useLanguage();
-
-
+  const { language, toggleLanguage } = useLanguage();
 
   const { logout } = useAuth({
     setIsLoggedIn,
@@ -370,70 +369,71 @@ function UserPanel() {
           </div>
         </div>
       ) : (
-          <div className={styles.appContainer}>
-            <Header
-                groupUsers={groupUsers}
-                setGroupUsers={setGroupUsers}
-                currentUser={currentUser}
-                isOwner={isOwner}
-                setIsOwner={setIsOwner}
-                ownerId={ownerId}
-                nickname={nickname}
-                groupName={groupName}
-                groupCode={groupCode}
-                logout={logout}
-                groupScore={groupScore}
-                onUserUpdate={() => fetchData(groupCode)}
+        <div className={styles.appContainer}>
+          <Header
+            groupUsers={groupUsers}
+            setGroupUsers={setGroupUsers}
+            currentUser={currentUser}
+            isOwner={isOwner}
+            setIsOwner={setIsOwner}
+            ownerId={ownerId}
+            nickname={nickname}
+            groupName={groupName}
+            groupCode={groupCode}
+            logout={logout}
+            groupScore={groupScore}
+            onUserUpdate={() => fetchData(groupCode)}
+          />
+          <div
+            onTouchStart={() => setActiveViewMap(true)}
+            style={{
+              height: activeViewMap ? "250px" : "75px",
+              borderRadius: "12px",
+              overflow: "hidden",
+              transition: "height 0.3s ease-in-out",
+            }}
+          >
+            <MapElement
+              tasks={tasks}
+              position={position ? [position.lat, position.lng] : undefined}
+              onClearPosition={handleClearPosition}
             />
-              <div
-                  onTouchStart={() => setActiveViewMap(true)}
-                  style={{
-                      height: activeViewMap ? '250px' : '75px',
-                      borderRadius: '12px',
-                      overflow: 'hidden',
-                      transition: 'height 0.3s ease-in-out',
-                  }}>
-                  <MapElement
-                      tasks={tasks}
-                      position={position ? [position.lat, position.lng] : undefined}
-                      onClearPosition={handleClearPosition}
-                  />
-              </div>
-              <div onTouchStart={() => setActiveViewMap(false)}>
-                  <TaskList
-                      tasks={tasks}
-                      submissions={submissions}
-                      groupCode={groupCode}
-                      isLoading={isLoading}
-                      fetchSubmissions={() => fetchSubmissions(groupCode)}
-                      setPosition={setPosition}
-                  />
-              </div>
-              {showSlots && (
-                  <div
-                      style={{
-                          position: "fixed",
-                          top: 0,
-                          left: 0,
-                          width: "100%",
-                          height: "100%",
-                          backgroundColor: "white",
-                          zIndex: 1000,
-                          overflow: "auto",
-                      }}
-                  >
-                      <button onClick={() => setShowSlots(false)}>Close</button>
-                      <Slots
-                          groupScore={groupScore}
-                          groupCode={groupCode}
-                          onSpinComplete={(newScore) => {
-                              setGroupScore(newScore);
-                              setShowSlots(false);
-                          }}
-                      />
-                  </div>
-              )}
           </div>
+          <div onTouchStart={() => setActiveViewMap(false)}>
+            <TaskList
+              tasks={tasks}
+              submissions={submissions}
+              groupCode={groupCode}
+              isLoading={isLoading}
+              fetchSubmissions={() => fetchSubmissions(groupCode)}
+              setPosition={setPosition}
+            />
+          </div>
+          {showSlots && (
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor: "white",
+                zIndex: 1000,
+                overflow: "auto",
+              }}
+            >
+              <button onClick={() => setShowSlots(false)}>Close</button>
+              <Slots
+                groupScore={groupScore}
+                groupCode={groupCode}
+                onSpinComplete={(newScore) => {
+                  setGroupScore(newScore);
+                  setShowSlots(false);
+                }}
+              />
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

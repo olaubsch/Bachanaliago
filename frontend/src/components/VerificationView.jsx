@@ -7,6 +7,7 @@ import { showAlert } from "./ui/alert.jsx";
 import { useLanguage } from "../utils/LanguageContext.jsx";
 
 const socket = io("/", {
+  path: "/socket.io",
   transports: ["websocket", "polling"],
   secure: true,
   withCredentials: false,
