@@ -44,14 +44,13 @@ const UserSettingsPopup = ({
                   <div className={styles.iconWrapper}>
                       <ThemeToggle variant="button"/>
                   </div>
-                  <div className={styles.iconWrapper}>
-                      <button
-                          onClick={() => {
-                              toggleLanguage()
-                          }}
-                      >
-                          {language.toUpperCase()}
-                      </button>
+                  <div
+                      onClick={() => {
+                          toggleLanguage()
+                      }}
+                      className={styles.iconWrapper}
+                  >
+                      {language === 'en' ? <div className={styles.languageIconPL} /> : <div className={styles.languageIconUK} />}
                   </div>
               </div>
           </div>
