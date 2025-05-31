@@ -15,6 +15,7 @@ function AdminPanel() {
   const [tasks, setTasks] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [groupCreationEnabled, setGroupCreationEnabled] = useState(true);
   const { language } = useLanguage();
   const formRef = useRef();
 
@@ -33,6 +34,12 @@ function AdminPanel() {
       if (res.status === 200) {
         setIsLoggedIn(true);
         fetchTasks();
+        try {
+          const settingRes = await axios.get("/api/groups/settings/groupCreationEnabled");
+          setGroupCreationEnabled(settingRes.data.enabled);
+        } catch (err) {
+          console.error("Error fetching group creation setting", err);
+        }
       }
     } catch (err) {
       showAlert("Złe hasło");
@@ -60,6 +67,26 @@ function AdminPanel() {
         setShowForm(false);
         setEditingTask(null); // Reset editing state
       }
+    }
+  };
+
+  const handleEnableGroupCreation = async () => {
+    try {
+      await axios.post("/api/groups/settings/enableGroupCreation");
+      setGroupCreationEnabled(true);
+      showAlert("Group creation enabled");
+    } catch (err) {
+      showAlert("Error enabling group creation");
+    }
+  };
+
+  const handleDisableGroupCreation = async () => {
+    try {
+      await axios.post("/api/groups/settings/disableGroupCreation");
+      setGroupCreationEnabled(false);
+      showAlert("Group creation disabled");
+    } catch (err) {
+      showAlert("Error disabling group creation");
     }
   };
 
@@ -182,6 +209,14 @@ function AdminPanel() {
                     ))}
                   </div>
                 )}
+                <div className={styles.settingsSection}>
+                  <h3>Group Creation Settings</h3>
+                  <p>Current status: {groupCreationEnabled ? "Enabled" : "Disabled"}</p>
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <CustomButton onClick={handleEnableGroupCreation}>Enable</CustomButton>
+                    <CustomButton onClick={handleDisableGroupCreation}>Disable</CustomButton>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
