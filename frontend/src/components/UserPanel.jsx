@@ -14,6 +14,8 @@ import CustomInput from "./ui/CustomInput.jsx";
 import TaskList from "./TaskList.jsx";
 import Slots from "./Slots";
 import { useLanguage } from "../utils/LanguageContext";
+import { useTranslation } from 'react-i18next';
+
 
 const socket = io("http://localhost:5000");
 
@@ -41,6 +43,7 @@ function UserPanel() {
   const [badWords, setBadWords] = useState([]);
   const [position, setPosition] = useState(null);
   const { language,toggleLanguage } = useLanguage();
+  const { t } = useTranslation();
 
 
 
@@ -314,44 +317,44 @@ function UserPanel() {
           <div className={styles.loginForm}>
             <div className={styles.personLoginForm}>
               <div className={styles.textStack}>
-                <h1 className={styles.textStroke}>Dołącz do Gry</h1>
-                <h1 className={styles.textFill}>Dołącz do Gry</h1>
+                <h1 className={styles.textStroke}>{t('joinGame')}</h1>
+                <h1 className={styles.textFill}>{t('joinGame')}</h1>
               </div>
               <CustomInput
                 className={styles.input}
                 type="text"
-                placeholder="Kod Grupy"
+                placeholder={t('groupCode')}
                 value={groupCode || ""}
                 onChange={(e) => setGroupCode(e.target.value)}
               />
               <CustomInput
                 className={styles.input}
                 type="text"
-                placeholder="Twój Nick"
+                placeholder={t('yourNickname')}
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
               />
               <CustomButton className={styles.button} onClick={handleLogin}>
-                Dołącz
+                {t('join')}
               </CustomButton>
             </div>
             {!inviteCode && (
               <div className={styles.groupLoginForm}>
                 <div className={styles.textStack}>
-                  <h1 className={styles.textStroke}>Lub stwórz nową grupę</h1>
-                  <h1 className={styles.textFill}>Lub stwórz nową grupę</h1>
+                  <h1 className={styles.textStroke}>{t('orCreateNewGroup')}</h1>
+                  <h1 className={styles.textFill}>{t('orCreateNewGroup')}</h1>
                 </div>
                 <CustomInput
                   className={styles.input}
                   type="text"
-                  placeholder="Nazwa Grupy"
+                  placeholder={t('groupName')}
                   value={newGroupName}
                   onChange={(e) => setNewGroupName(e.target.value)}
                 />
                 <CustomInput
                   className={styles.input}
                   type="text"
-                  placeholder="Twój Nick (Lider)"
+                  placeholder={t('yourNicknameLeader')}
                   value={ownerNickname}
                   onChange={(e) => setOwnerNickname(e.target.value)}
                 />
@@ -359,7 +362,7 @@ function UserPanel() {
                   className={styles.button}
                   onClick={handleCreateGroup}
                 >
-                  Stwórz Grupę
+                  {t('createGroup')}
                 </CustomButton>
               </div>
             )}
@@ -418,7 +421,7 @@ function UserPanel() {
                           overflow: "auto",
                       }}
                   >
-                      <button onClick={() => setShowSlots(false)}>Close</button>
+                      <button onClick={() => setShowSlots(false)}>{t('close')}</button>
                       <Slots
                           groupScore={groupScore}
                           groupCode={groupCode}

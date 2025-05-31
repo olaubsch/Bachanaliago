@@ -9,6 +9,8 @@ import UserIcons from "./headerComponents/UserIcons.jsx";
 import FriendListPopup from "./headerComponents/FriendListPopup.jsx";
 import UserSettingsPopup from "./headerComponents/UserSettingsPopup.jsx";
 import {showAlert} from "./ui/alert.jsx";
+import { useTranslation } from 'react-i18next';
+
 
 const socket = io('http://localhost:5000');
 
@@ -34,6 +36,7 @@ function Header({
     const userColors = useMemo(() => assignUserColors(groupUsers), [groupUsers]);
     const otherUsers = groupUsers.filter((user) => user.nickname !== nickname);
     const handleLogout = logout;
+    const { t } = useTranslation();
 
     const handleRemoveUser = async (userId) => {
         if (window.confirm("Are you sure you want to remove this user?")) {
@@ -247,7 +250,7 @@ function Header({
                         <Leaderboard/>
                     </div>
                     <button className={styles.button} onClick={() => setShowLeaderBoardPopup(false)}>
-                        {language === "pl" ? "Zamknij" : "Close"}
+                        {t('Close')} 
                     </button>
                 </div>
             </div>

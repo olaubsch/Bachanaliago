@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import styles from "./modules/QrScanner.module.css";
 import {Html5QrcodeScanner, Html5QrcodeScanType} from 'html5-qrcode';
+import { useTranslation } from 'react-i18next';
 
 function QrScanner({ taskId, onScanSuccess }) {
     const [isScanning, setIsScanning] = useState(false);
     const [scanResult, setScanResult] = useState(null); // Opcjonalnie: do wyświetlenia ostatniego wyniku
-
+    const { t } = useTranslation();
     const qrScannerId = "qr-reader"; // ID dla kontenera skanera
 
     useEffect(() => {
@@ -75,7 +76,7 @@ function QrScanner({ taskId, onScanSuccess }) {
                 className={styles.qrButton}
                 style={{ borderRadius: !isScanning ? '0.5rem' : '0.5rem 0.5rem 0 0' }}
             >
-                {isScanning ? 'Zatrzymaj Skanowanie' : 'Rozpocznij Skanowanie'}
+                {isScanning ? t('stopScanning') : t('startScanning')}
             </button>
 
             {/* Kontener, w którym biblioteka wyrenderuje podgląd kamery */}
@@ -89,7 +90,7 @@ function QrScanner({ taskId, onScanSuccess }) {
             {/* Opcjonalnie: Wyświetlanie ostatniego zeskanowanego wyniku */}
             {scanResult && !isScanning && (
                 <div style={{ marginTop: '20px' }}>
-                    <h3>Ostatni zeskanowany kod:</h3>
+                    <h3>{t('lastScannedCode')}:</h3>
                     <p style={{ wordBreak: 'break-all' }}>{scanResult}</p>
                 </div>
             )}

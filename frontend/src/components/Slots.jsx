@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import styles from "./modules/Slots.module.css";
+import { useTranslation } from 'react-i18next';
+
+
 
 const Reel = ({
   basicSymbols,
@@ -12,6 +15,7 @@ const Reel = ({
 }) => {
   const [position, setPosition] = useState(0);
   const [transition, setTransition] = useState("none");
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (isSpinning) {
@@ -144,10 +148,10 @@ const Slots = ({ groupScore, groupCode, onSpinComplete }) => {
     <>
       <div className={styles["slots-container"]}>
         <div className={styles["points-display"]}>
-          Group Score: {groupScore}
+          {t('groupScore')}: {groupScore}
         </div>
         <div>
-          <label>Bet Amount: </label>
+          <label>{t('betAmount')}: </label>
           <input
             className={styles["point-input"]}
             type="number"
@@ -196,8 +200,8 @@ const Slots = ({ groupScore, groupCode, onSpinComplete }) => {
         </button>
         <div className={styles.message}>{message}</div>
         <div className={styles.paytable}>
-          <h3>Paytable</h3>
-          <p>Bet amount: 1 to {groupScore} points</p>
+          <h3>{t('paytable')}</h3>
+          <p>{t('betAmount')}: 1 to {groupScore} points</p>
           <p>Three 🍒: x1.5 (win {Math.floor(betAmount * 1.5)} points)</p>
           <p>Three 🍋: x1.75 (win {Math.floor(betAmount * 1.75)} points)</p>
           <p>Three 🔔: x2 (win {Math.floor(betAmount * 2)} points)</p>

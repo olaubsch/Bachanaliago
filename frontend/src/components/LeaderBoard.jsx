@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
 import styles from "./modules/LeaderBoard.module.css";
 import axios from "axios";
+import { useTranslation } from 'react-i18next';
+
 
 const Leaderboard = () => {
   const [groups, setGroups] = useState([]);
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetchLeaderboard();
@@ -37,12 +40,12 @@ const Leaderboard = () => {
 
   return (
       <div>
-        <h1>Tabela wyników</h1>
+        <h1>{t('leaderboard')}</h1>
         {groups.length > 0 ? (
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", padding: "0.25rem 0.75rem" }}>
-                <h2>Grupa</h2>
-                <h2>Punkty</h2>
+                <h2>{t('groupName')}</h2>
+                <h2>{t('points')}</h2>
               </div>
               <div style={{maxHeight: "45vh", overflowY: "auto"}}>
                 {groups
