@@ -133,6 +133,11 @@ function UserPanel() {
     setIsLoading(true);
     try {
       await Promise.all([fetchTasks(), fetchSubmissions(code)]);
+    } catch (err) {
+      console.error("Error fetching tasks or submissions:", err);
+      showAlert("Failed to fetch tasks or submissions");
+    }
+    try {
       const groupRes = await axios.get(`/api/groups/${code.toUpperCase()}`);
       setGroupName(groupRes.data.name);
       setGroupUsers(groupRes.data.users);
@@ -141,8 +146,9 @@ function UserPanel() {
       setGroupScore(groupRes.data.score);
       localStorage.setItem("ownerId", groupRes.data.owner._id);
     } catch (err) {
-      console.error(err);
-      showAlert("Failed to fetch data");
+      console.error("Error fetching group:", err);
+      showAlert("Error fetching group data. Logging out.");
+      logout();
     } finally {
       setIsLoading(false);
     }
