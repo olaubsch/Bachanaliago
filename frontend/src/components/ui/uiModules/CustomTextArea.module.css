@@ -1,0 +1,38 @@
+.inputTextArea {
+    backdrop-filter: blur(50px);
+    -webkit-backdrop-filter: blur(50px);
+    width: 100%;
+    font-family: inherit;
+    box-sizing: border-box;
+    resize: vertical;
+    background-color: transparent;
+    font-size: 1rem;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+.default {
+    border: 1px solid var(--text-color);
+    color: var(--text-color);
+}
+
+.default::placeholder {
+    color: var(--text-color);
+    opacity: 0.5;
+}
+
+.dark {
+    border: 1px solid rgba(var(--dark-text-rgb), 0.2);
+    color: var(--dark-text);
+}
+
+.dark::placeholder {
+    color: var(--dark-text);
+    opacity: 0.5;
+}
+
+
+
+.inputTextArea:focus {
+    outline: 2px solid var(--dark-text);
+}

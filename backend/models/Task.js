@@ -17,6 +17,7 @@ const taskSchema = new mongoose.Schema({
   },
   score: { type: Number, default: 10 },
   type: { type: String, enum: ['qr', 'text', 'photo', 'video'], required: true },
+  image: { type: String },
 });
 
 module.exports = mongoose.model("Task", taskSchema);

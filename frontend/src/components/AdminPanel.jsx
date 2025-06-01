@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import TaskForm from "./TaskForm";
 import axios from "axios";
 import styles from "./modules/AdminPanel.module.css";
@@ -8,6 +8,10 @@ import ThemeToggle from "../utils/ThemeToggle.jsx";
 import { showAlert } from "./ui/alert.jsx";
 import CustomInput from "./ui/CustomInput.jsx";
 import { useLanguage } from "../utils/LanguageContext.jsx";
+import ToggleSwitch from "./ui/ToggleSwitch.jsx";
+import GearIcon from "../utils/icons/GearIcon.jsx";
+import CloseIcon from "../utils/icons/closeIcon.jsx";
+import LanguageToggle from "./ui/LanguageToggle.jsx";
 
 function AdminPanel() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -16,6 +20,8 @@ function AdminPanel() {
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [groupCreationEnabled, setGroupCreationEnabled] = useState(true);
+  const [appEnabled, setAppEnabled] = useState(true);
+  const [showPopup, setShowPopup] = useState(false);
   const { language } = useLanguage();
   const formRef = useRef();
 
@@ -125,11 +131,27 @@ function AdminPanel() {
     }
   };
 
+  const handleToggleApp = (enable) => {
+    if (enable) {
+      handleEnableApp();
+    } else {
+      handleDisableApp();
+    }
+  };
+
+
   return (
     <div className={styles.adminContainer}>
       <div className={styles.zigzagContainer}></div>
       <div className={styles.themeAndLanguage}>
-        <ThemeToggle variant={"emoji"} />
+        <ThemeToggle />
+        <LanguageToggle />
+        {isLoggedIn && (
+            <div onClick={() => setShowPopup(true)}
+                 style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <GearIcon className={ styles.icon } />
+            </div>
+        )}
       </div>
       {!isLoggedIn ? (
           <div className={styles.adminForm}>
@@ -199,82 +221,122 @@ function AdminPanel() {
                     />
                   </div>
                 ) : (
-                  <div
-                    className={`${styles.adminTaskList} ${
-                      !showForm ? styles.show : styles.hide
-                    }`}
-                  >
-                    {tasks.map((task) => (
-                      <div key={task._id} className={styles.adminTaskCard}>
-                        <div className={styles.taskHeader}>
-                          <strong>{task.name[language]}</strong>
-                        </div>
-                        <div className={styles.taskDetails}>
-                          <p>{task.description[language]}</p>
-                          <p>
-                            {task.location.lat}, {task.location.lng}
-                          </p>
-                          <p>Punkty: {task.score}</p>
-                          <p>Typ: {task.type}</p>
-                          {task.type === "qr" && <p>QR ID: {task._id}</p>}
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "flex-end",
-                            }}
-                          >
-                            <div style={{ display: "flex", gap: "0.5rem" }}>
-                              <CustomButton
-                                  width={"fit-content"}
-                                  variant={"outline"}
-                                  onClick={() => handleDelete(task._id)}
+                    <div
+                        className={`${styles.adminTaskList} ${
+                            !showForm ? styles.show : styles.hide
+                        }`}
+                    >
+                      {tasks.map((task) => (
+                          <div key={task._id} className={styles.adminTaskCard}>
+                            <div className={styles.taskHeader}>
+                              <h2>{task.name[language]}</h2>
+                              <div className={styles.subTitleText}>
+                                <p style={{fontWeight: "lighter"}}>Punkty: <span
+                                    style={{fontWeight: "bold"}}>{task.score}</span></p>|
+                                <p style={{fontWeight: "lighter"}}>Typ: <span
+                                    style={{fontWeight: "bold"}}>{task.type}</span></p>
+                              </div>
+                            </div>
+                            <div className={styles.taskDetails}>
+                              <p>{task.description[language]}</p>
+                              {task.location && task.location.lat != null && task.location.lng != null && (
+                                  <p>
+                                    {task.location.lat}, {task.location.lng}
+                                  </p>
+                              )}
+                              {task.type === "qr" && <p>QR ID: {task._id}</p>}
+                              <div
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "flex-end",
+                                  }}
                               >
-                                Usuń
-                              </CustomButton>
-                              <CustomButton
-                                  width={"fit-content"}
-                                  onClick={() => handleEdit(task)}
-                              >
-                                Edytuj
-                              </CustomButton>
+                                <div style={{display: "flex", gap: "0.5rem"}}>
+                                  <CustomButton
+                                      width={"fit-content"}
+                                      variant={"outline"}
+                                      onClick={() => handleDelete(task._id)}
+                                  >
+                                    Usuń
+                                  </CustomButton>
+                                  <CustomButton
+                                      width={"fit-content"}
+                                      onClick={() => handleEdit(task)}
+                                  >
+                                    Edytuj
+                                  </CustomButton>
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+
+                    </div>
                 )}
-                <div className={styles.settingsSection}>
-                  <h3>Group Creation Settings</h3>
-                  <p>Current status: {groupCreationEnabled ? "Enabled" : "Disabled"}</p>
-                  <div style={{ display: "flex", gap: "0.5rem" }}>
-                    <CustomButton onClick={handleEnableGroupCreation}>Enable</CustomButton>
-                    <CustomButton onClick={handleDisableGroupCreation}>Disable</CustomButton>
-                  </div>
-                </div>
-                <div className={styles.settingsSection}>
-                  <h3>App Control</h3>
-                  <CustomButton onClick={handleEnableApp}>
-                    Enable App
-                  </CustomButton>
-                  <CustomButton onClick={handleDisableApp}>
-                    Disable App
-                  </CustomButton>
-                </div>
-                <div className={styles.settingsSection}>
-                  <h3>Killswitch</h3>
-                  <p>Warning: This will delete the entire database and disable the app.</p>
-                  <CustomButton onClick={handleKillswitchClick}>
-                    Delete Database and Disable App
-                  </CustomButton>
                 </div>
               </div>
             </div>
-          </div>
-          <div className={styles.rightColumn}>
+            <div className={styles.rightColumn}>
             <VerificationView />
           </div>
-        </div>
+
+            {/* Friend List Pop-up */}
+            {showPopup && (
+                <div className={styles.popupOverlay} onClick={() => setShowPopup(false)}>
+                  <div className={styles.popupContent} onClick={(e) => e.stopPropagation()}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <h1>App Settings</h1>
+                      <div
+                          style={{ display: "flex", alignItems: "center" }}
+                          onClick={() => setShowPopup(false)}>
+                        <CloseIcon className={styles.closeIcon} />
+                      </div>
+                    </div>
+
+                    <div className={styles.settingsSection}>
+                      <div className={styles.settInfo}>
+                        <h2>Group Creation</h2>
+                        <p>Control whether users can create new groups in the application</p>
+                      </div>
+                      <ToggleSwitch
+                          leftLabel="Enable"
+                          rightLabel="Disable"
+                          isLeftActive={groupCreationEnabled}
+                          onToggle={(enabled) => {
+                            setGroupCreationEnabled(enabled);
+                            enabled ? handleEnableGroupCreation() : handleDisableGroupCreation();
+                          }}
+                      />
+                    </div>
+
+                    <div className={styles.settingsSection}>
+                      <div className={styles.settInfo}>
+                        <h2>App Control</h2>
+                        <p>Enable or disable the entire application functionality</p>
+                      </div>
+
+                      <ToggleSwitch
+                          leftLabel="Enable"
+                          rightLabel="Disable"
+                          isLeftActive={appEnabled}
+                          onToggle={handleToggleApp}
+                      />
+                    </div>
+
+                    <div>
+                      <div className={styles.settInfo} style={{ marginTop: "1rem" }}>
+                        <h2>Killswitch</h2>
+                        <p>This action will permanently delete all data and disable the application. This cannot be
+                          undone.</p>
+                      </div>
+                      <CustomButton width={"100%"} variant={"warning"} onClick={handleKillswitchClick}>
+                        Delete Database & Disable App
+                      </CustomButton>
+                    </div>
+                  </div>
+                </div>
+            )}
+          </div>
       )}
     </div>
   );
