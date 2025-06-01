@@ -14,6 +14,8 @@ import CustomInput from "./ui/CustomInput.jsx";
 import TaskList from "./TaskList.jsx";
 import Slots from "./Slots";
 import { useLanguage } from "../utils/LanguageContext";
+import { useTranslation } from 'react-i18next';
+
 
 const socket = io("/", {
   path: "/socket.io",
@@ -45,7 +47,10 @@ function UserPanel() {
   const [activeViewMap, setActiveViewMap] = useState(true);
   const [badWords, setBadWords] = useState([]);
   const [position, setPosition] = useState(null);
-  const { language, toggleLanguage } = useLanguage();
+  const { language,toggleLanguage } = useLanguage();
+  const { t } = useTranslation();
+
+
 
   const { logout } = useAuth({
     setIsLoggedIn,
@@ -133,6 +138,11 @@ function UserPanel() {
     setIsLoading(true);
     try {
       await Promise.all([fetchTasks(), fetchSubmissions(code)]);
+    } catch (err) {
+      console.error("Error fetching tasks or submissions:", err);
+      showAlert("Failed to fetch tasks or submissions");
+    }
+    try {
       const groupRes = await axios.get(`/api/groups/${code.toUpperCase()}`);
       setGroupName(groupRes.data.name);
       setGroupUsers(groupRes.data.users);
@@ -141,8 +151,9 @@ function UserPanel() {
       setGroupScore(groupRes.data.score);
       localStorage.setItem("ownerId", groupRes.data.owner._id);
     } catch (err) {
-      console.error(err);
-      showAlert("Failed to fetch data");
+      console.error("Error fetching group:", err);
+      showAlert("Error fetching group data. Logging out.");
+      logout();
     } finally {
       setIsLoading(false);
     }
@@ -317,44 +328,44 @@ function UserPanel() {
           <div className={styles.loginForm}>
             <div className={styles.personLoginForm}>
               <div className={styles.textStack}>
-                <h1 className={styles.textStroke}>Dołącz do Gry</h1>
-                <h1 className={styles.textFill}>Dołącz do Gry</h1>
+                <h1 className={styles.textStroke}>{t('joinGame')}</h1>
+                <h1 className={styles.textFill}>{t('joinGame')}</h1>
               </div>
               <CustomInput
                 className={styles.input}
                 type="text"
-                placeholder="Kod Grupy"
+                placeholder={t('groupCode')}
                 value={groupCode || ""}
                 onChange={(e) => setGroupCode(e.target.value)}
               />
               <CustomInput
                 className={styles.input}
                 type="text"
-                placeholder="Twój Nick"
+                placeholder={t('yourNickname')}
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
               />
               <CustomButton className={styles.button} onClick={handleLogin}>
-                Dołącz
+                {t('join')}
               </CustomButton>
             </div>
             {!inviteCode && (
               <div className={styles.groupLoginForm}>
                 <div className={styles.textStack}>
-                  <h1 className={styles.textStroke}>Lub stwórz nową grupę</h1>
-                  <h1 className={styles.textFill}>Lub stwórz nową grupę</h1>
+                  <h1 className={styles.textStroke}>{t('orCreateNewGroup')}</h1>
+                  <h1 className={styles.textFill}>{t('orCreateNewGroup')}</h1>
                 </div>
                 <CustomInput
                   className={styles.input}
                   type="text"
-                  placeholder="Nazwa Grupy"
+                  placeholder={t('groupName')}
                   value={newGroupName}
                   onChange={(e) => setNewGroupName(e.target.value)}
                 />
                 <CustomInput
                   className={styles.input}
                   type="text"
-                  placeholder="Twój Nick (Lider)"
+                  placeholder={t('yourNicknameLeader')}
                   value={ownerNickname}
                   onChange={(e) => setOwnerNickname(e.target.value)}
                 />
@@ -362,7 +373,7 @@ function UserPanel() {
                   className={styles.button}
                   onClick={handleCreateGroup}
                 >
-                  Stwórz Grupę
+                  {t('createGroup')}
                 </CustomButton>
               </div>
             )}
@@ -371,72 +382,71 @@ function UserPanel() {
       ) : (
         <div className={styles.appContainer}>
           <Header
-            groupUsers={groupUsers}
-            setGroupUsers={setGroupUsers}
-            currentUser={currentUser}
-            isOwner={isOwner}
-            setIsOwner={setIsOwner}
-            ownerId={ownerId}
-            nickname={nickname}
-            groupName={groupName}
-            groupCode={groupCode}
-            logout={logout}
-            groupScore={groupScore}
-            onUserUpdate={() => fetchData(groupCode)}
-          />
-          <div
-            onTouchStart={() => setActiveViewMap(true)}
-            style={{
-              height: activeViewMap ? "250px" : "75px",
-              borderRadius: "12px",
-              overflow: "hidden",
-              transition: "height 0.3s ease-in-out",
-            }}
-          >
-            <MapElement
-              tasks={tasks}
-              position={position ? [position.lat, position.lng] : undefined}
-              onClearPosition={handleClearPosition}
-            />
-          </div>
-          <div onTouchStart={() => setActiveViewMap(false)}>
-            <TaskList
-              tasks={tasks}
-              submissions={submissions}
+              groupUsers={groupUsers}
+              setGroupUsers={setGroupUsers}
+              currentUser={currentUser}
+              isOwner={isOwner}
+              setIsOwner={setIsOwner}
+              ownerId={ownerId}
+              nickname={nickname}
+              groupName={groupName}
               groupCode={groupCode}
-              isLoading={isLoading}
-              fetchSubmissions={() => fetchSubmissions(groupCode)}
-              setPosition={setPosition}
-            />
-          </div>
-          {showSlots && (
+              logout={logout}
+              groupScore={groupScore}
+              onUserUpdate={() => fetchData(groupCode)}
+          />
             <div
-              style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                width: "100%",
-                height: "100%",
-                backgroundColor: "white",
-                zIndex: 1000,
-                overflow: "auto",
-              }}
-            >
-              <button onClick={() => setShowSlots(false)}>Close</button>
-              <Slots
-                groupScore={groupScore}
-                groupCode={groupCode}
-                onSpinComplete={(newScore) => {
-                  setGroupScore(newScore);
-                  setShowSlots(false);
-                }}
-              />
+                onTouchStart={() => setActiveViewMap(true)}
+                style={{
+                    height: activeViewMap ? '250px' : '75px',
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    transition: 'height 0.3s ease-in-out',
+                }}>
+                <MapElement
+                    tasks={tasks}
+                    position={position ? [position.lat, position.lng] : undefined}
+                    onClearPosition={handleClearPosition}
+                />
             </div>
-          )}
+            <div onTouchStart={() => setActiveViewMap(false)}>
+                <TaskList
+                    tasks={tasks}
+                    submissions={submissions}
+                    groupCode={groupCode}
+                    isLoading={isLoading}
+                    fetchSubmissions={() => fetchSubmissions(groupCode)}
+                    setPosition={setPosition}
+                />
+            </div>
+            {showSlots && (
+                <div
+                    style={{
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        height: "100%",
+                        backgroundColor: "white",
+                        zIndex: 1000,
+                        overflow: "auto",
+                    }}
+                >
+                    <button onClick={() => setShowSlots(false)}>{t('close')}</button>
+                    <Slots
+                        groupScore={groupScore}
+                        groupCode={groupCode}
+                        onSpinComplete={(newScore) => {
+                            setGroupScore(newScore);
+                            setShowSlots(false);
+                        }}
+                    />
+                </div>
+            )}
         </div>
-      )}
-    </div>
-  );
+    )}
+  </div>
+);
 }
 
 export default UserPanel;

@@ -9,6 +9,8 @@ import CustomInput from "./ui/CustomInput.jsx";
 import CustomSelect from "./ui/CustomSelect.jsx";
 import LocationIcon from "../utils/LocationPin.jsx";
 import {useLanguage} from "../utils/LanguageContext.jsx";
+import { useTranslation } from 'react-i18next';
+
 
 const LIST_CONTAINER_HEIGHT_VH = 61;
 const FADE_ZONE_HEIGHT_PERCENT = 25;
@@ -21,7 +23,7 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition
     const [maxScrollTop, setMaxScrollTop] = useState(0);
     const [expandedCardIndex, setExpandedCardIndex] = useState(null);
     const { language } = useLanguage();
-
+    const { t } = useTranslation();
     const itemHeight = 86; // Fixed height for each task item in pixels (collapsed)
     const itemMargin = 4; // Margin applied to each item (m-1 in Tailwind is 4px on all sides)
     const itemHeightWithMargin = itemHeight + (itemMargin * 2); // Total vertical space each collapsed item occupies
@@ -32,11 +34,11 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition
     const [text, setText] = useState("");
 
     const FILTER_OPTIONS = [
-        { label: "All", value: "all" },
-        { label: "Approved", value: "approved" },
-        { label: "Rejected", value: "rejected" },
-        { label: "Not Started", value: "not started" },
-        { label: "Pending", value: "pending" },
+        { label: t('all'), value: "all" },
+        { label: t('approved'), value: "approved" },
+        { label: t('reject'), value: "rejected" },
+        { label: t('notStarted'), value: "not started" },
+        { label: t('pending'), value: "pending" },
     ];
 
     const statusColorMap = {
@@ -149,7 +151,7 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition
     return (
         <>
             <div className={styles.filter}>
-                <h2>{"Taski"}</h2>
+                <h2>{t('tasks')}</h2>
                 <CustomSelect
                     options={FILTER_OPTIONS}
                     variant={"small"}
@@ -260,7 +262,7 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition
                                         >
                                             <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', alignItems: 'center' }}>
                                                 <LocationIcon className={styles.icon} />
-                                                <div>Pokaż lokacje</div>
+                                                <div>{t('showLocation')}</div>
                                             </div>
                                         </CustomButton>
                                     </div>
@@ -296,8 +298,8 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition
                                             )}
                                         </>
                                     )}
-                                    {status === "approved" && <div>Completed!</div>}
-                                    {status === "rejected" && <div>Rejected. Please try again.</div>}
+                                    {status === "approved" && <div>{t('completed')}</div>}
+                                    {status === "rejected" && <div>{t('rejected')}</div>}
                                 </div>
                             </div>
                         );

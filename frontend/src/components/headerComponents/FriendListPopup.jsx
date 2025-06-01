@@ -2,6 +2,8 @@ import styles from "../modules/Header.module.css";
 import React, {useEffect, useState} from "react";
 import CustomButton from "../ui/CustomButton.jsx";
 import { useLanguage } from "../../utils/LanguageContext.jsx";
+import { useTranslation } from 'react-i18next';
+
 const FriendListPopup = ({
                              groupUsers,
                              isOwner,
@@ -16,6 +18,7 @@ const FriendListPopup = ({
     const [storedOwnerId, setStoredOwnerId] = useState(null);
     const [currentUser, setCurrentUser] = useState(null);
     const { language, toggleLanguage } = useLanguage();
+    const { t } = useTranslation();
 
     useEffect(() => {
         const id = localStorage.getItem("ownerId");
@@ -29,7 +32,7 @@ const FriendListPopup = ({
     return (
         <>
             <div>
-                <h1>Członkowie</h1>
+                <h1>{t('members')}</h1>
                 <div className={styles.userList}>
                     {groupUsers
                         .filter(user => user && user._id && user.nickname) // Ensure user is valid

@@ -8,6 +8,7 @@ import {showAlert} from "./ui/alert.jsx";
 import CustomInput from "./ui/CustomInput.jsx";
 import CustomButton from "./ui/CustomButton.jsx";
 import CustomTextArea from "./ui/CustomTextArea.jsx";
+import { useTranslation } from 'react-i18next';
 
 export default function TaskCard({
   task,
@@ -74,7 +75,7 @@ export default function TaskCard({
         >
           <div>{task.description}</div>
           <div>
-            Location: ({task.location.lat}, {task.location.lng})
+            {t('location')}: ({task.location.lat}, {task.location.lng})
           </div>
           {status === "pending" ? (
             <div>Awaiting verification. Further submissions are disabled.</div>
@@ -90,7 +91,7 @@ export default function TaskCard({
                     onChange={(e) => setText(e.target.value)}
                     placeholder="Enter your answer"
                   />
-                  <CustomButton width={"100%"} onClick={handleTextSubmit}>Submit</CustomButton>
+                  <CustomButton width={"100%"} onClick={handleTextSubmit}>{t('submit')}</CustomButton>
                 </div>
               )}
               {task.type === "photo" && status !== "approved" && (
@@ -105,8 +106,8 @@ export default function TaskCard({
               )}
             </>
           )}
-          {status === "approved" && <div>Completed!</div>}
-          {status === "rejected" && <div>Rejected. Please try again.</div>}
+          {status === "approved" && <div>{t('completed')}</div>}
+          {status === "rejected" && <div>{t('rejected')}</div>}
         </div>
       )}
     </div>

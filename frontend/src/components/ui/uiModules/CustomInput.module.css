@@ -48,9 +48,10 @@
     padding: 1rem;
     font-family: inherit;
     font-size: 1rem;
-    color: var(--dark-text);
-    border: 1px solid var(--dark-text);
+    color: var(--text-color);
+    border: 1px solid var(--text-color);
     border-radius: 0.5rem;
+    backdrop-filter: blur(50px);
     background-color: transparent;
 }
 

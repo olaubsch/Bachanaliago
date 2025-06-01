@@ -202,3 +202,21 @@
   flex-wrap: wrap;
   margin-bottom: 3rem;
 }
+
+.languageIconPL {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 32px;
+  height: 32px;
+  background-image: url("../../assets/uk.svg");
+}
+
+.languageIconUK {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 32px;
+  height: 32px;
+  background-image: url("../../assets/poland.svg");
+}

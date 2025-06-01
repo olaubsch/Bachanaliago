@@ -3,6 +3,7 @@ import ThemeToggle from "../../utils/ThemeToggle.jsx";
 import React, { useEffect, useState } from "react";
 import CustomButton from "../ui/CustomButton.jsx";
 import { useLanguage } from "../../utils/LanguageContext.jsx";
+import { useTranslation } from "react-i18next";
 
 const UserSettingsPopup = ({
   handleLogout,
@@ -14,6 +15,7 @@ const UserSettingsPopup = ({
   const [storedOwnerId, setStoredOwnerId] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
   const { language, toggleLanguage } = useLanguage();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const id = localStorage.getItem("ownerId");
@@ -36,34 +38,33 @@ const UserSettingsPopup = ({
           }}
         >
           <div className={styles.wrapper}>
-            <h1 className={styles.title}>{language === "pl" ? "Ustawienia" : "Settings"}</h1>
+            <h1 className={styles.title}>{t('settings')}</h1>
 
               <div style={{display: "flex", gap: "0.5rem"}}>
                   <div className={styles.iconWrapper}>
                       <ThemeToggle variant="button"/>
                   </div>
-                  <div className={styles.iconWrapper}>
-                      <button
-                          onClick={() => {
-                              toggleLanguage()
-                          }}
-                      >
-                          {language.toUpperCase()}
-                      </button>
+                  <div
+                      onClick={() => {
+                          toggleLanguage()
+                      }}
+                      className={styles.iconWrapper}
+                  >
+                      {language === 'en' ? <div className={styles.languageIconPL} /> : <div className={styles.languageIconUK} />}
                   </div>
               </div>
           </div>
-            <CustomButton onClick={handleLogout}>Wyloguj</CustomButton>
-            <CustomButton onClick={handleQuitGroup}>Quit Group</CustomButton>
+            <CustomButton onClick={handleLogout}>{t('logout')}</CustomButton>
+            <CustomButton onClick={handleQuitGroup}>{t('quitGroup')}</CustomButton>
             {isLocalOwner && (
                 <CustomButton variant={"warning"} onClick={handleDeleteGroup}>
-                    Delete Group
+                    {t('deleteGroup')}
                 </CustomButton>
             )}
         </div>
       </div>
         <CustomButton onClick={() => setShowMainUserPopup(false)}>
-            Zamknij
+            {t('close')}
         </CustomButton>
     </>
   );

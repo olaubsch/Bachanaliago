@@ -1,5 +1,6 @@
 const Group = require("../models/Group");
 const User = require("../models/User");
+const Setting = require("../models/Setting");
 
 exports.createGroup = async (req, res) => {
   console.log("Odebrano POST /api/groups:", req.body);
@@ -9,15 +10,20 @@ exports.createGroup = async (req, res) => {
     return res.status(400).json({ error: "Brak nazwy grupy lub nicku właściciela" });
   }
 
-  let code;
-  let existing;
-
-  do {
-    code = Math.random().toString(36).substring(2, 8).toUpperCase();
-    existing = await Group.findOne({ code });
-  } while (existing);
-
   try {
+    const setting = await Setting.findOne({ key: "groupCreationEnabled" });
+    if (setting && setting.value === false) {
+      return res.status(403).json({ error: "Group creation is disabled" });
+    }
+
+    let code;
+    let existing;
+
+    do {
+      code = Math.random().toString(36).substring(2, 8).toUpperCase();
+      existing = await Group.findOne({ code });
+    } while (existing);
+
     const owner = await User.create({ nickname: ownerNickname, groupCode: code });
     const group = await Group.create({ name, code, owner: owner._id, users: [owner._id], score: 0 });
     res.status(201).json({ group, user: owner });
@@ -247,5 +253,31 @@ exports.updateGroupScore = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Błąd aktualizacji punktów" });
+  }
+};
+
+exports.enableGroupCreation = async (req, res) => {
+  try {
+    await Setting.updateOne(
+      { key: "groupCreationEnabled" },
+      { value: true },
+      { upsert: true }
+    );
+    res.json({ message: "Group creation enabled" });
+  } catch (err) {
+    res.status(500).json({ error: "Error enabling group creation" });
+  }
+};
+
+exports.disableGroupCreation = async (req, res) => {
+  try {
+    await Setting.updateOne(
+      { key: "groupCreationEnabled" },
+      { value: false },
+      { upsert: true }
+    );
+    res.json({ message: "Group creation disabled" });
+  } catch (err) {
+    res.status(500).json({ error: "Error disabling group creation" });
   }
 };

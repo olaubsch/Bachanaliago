@@ -7,7 +7,7 @@ import VerificationView from "./VerificationView.jsx";
 import ThemeToggle from "../utils/ThemeToggle.jsx";
 import { showAlert } from "./ui/alert.jsx";
 import CustomInput from "./ui/CustomInput.jsx";
-import {useLanguage} from "../utils/LanguageContext.jsx";
+import { useLanguage } from "../utils/LanguageContext.jsx";
 
 function AdminPanel() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -15,6 +15,7 @@ function AdminPanel() {
   const [tasks, setTasks] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
+  const [groupCreationEnabled, setGroupCreationEnabled] = useState(true);
   const { language } = useLanguage();
   const formRef = useRef();
 
@@ -33,6 +34,12 @@ function AdminPanel() {
       if (res.status === 200) {
         setIsLoggedIn(true);
         fetchTasks();
+        try {
+          const settingRes = await axios.get("/api/groups/settings/groupCreationEnabled");
+          setGroupCreationEnabled(settingRes.data.enabled);
+        } catch (err) {
+          console.error("Error fetching settings", err);
+        }
       }
     } catch (err) {
       showAlert("Złe hasło");
@@ -58,7 +65,62 @@ function AdminPanel() {
       const success = await formRef.current.submit(editingTask);
       if (success) {
         setShowForm(false);
-        setEditingTask(null); // Reset editing state
+        setEditingTask(null);
+      }
+    }
+  };
+
+  const handleEnableGroupCreation = async () => {
+    try {
+      await axios.post("/api/groups/settings/enableGroupCreation");
+      setGroupCreationEnabled(true);
+      showAlert("Group creation enabled");
+    } catch (err) {
+      showAlert("Error enabling group creation");
+    }
+  };
+
+  const handleDisableGroupCreation = async () => {
+    try {
+      await axios.post("/api/groups/settings/disableGroupCreation");
+      setGroupCreationEnabled(false);
+      showAlert("Group creation disabled");
+    } catch (err) {
+      showAlert("Error disabling group creation");
+    }
+  };
+
+  const handleKillswitchClick = () => {
+    if (window.confirm("Are you sure you want to delete the entire database and disable the app?")) {
+      if (window.confirm("This action cannot be undone. Confirm?")) {
+        const password = prompt("Enter admin password:");
+        if (password) {
+          axios.post("/api/admin/killswitch", { password })
+            .then(() => showAlert("Database deleted and app disabled"))
+            .catch(() => showAlert("Error performing killswitch"));
+        }
+      }
+    }
+  };
+
+  const handleEnableApp = () => {
+    if (window.confirm("Are you sure you want to enable the app?")) {
+      const password = prompt("Enter admin password:");
+      if (password) {
+        axios.post("/api/admin/enableApp", { password })
+          .then(() => showAlert("App enabled"))
+          .catch(() => showAlert("Error enabling app"));
+      }
+    }
+  };
+
+  const handleDisableApp = () => {
+    if (window.confirm("Are you sure you want to disable the app?")) {
+      const password = prompt("Enter admin password:");
+      if (password) {
+        axios.post("/api/admin/disableApp", { password })
+          .then(() => showAlert("App disabled"))
+          .catch(() => showAlert("Error disabling app"));
       }
     }
   };
@@ -74,7 +136,7 @@ function AdminPanel() {
             <h2>Admin Login</h2>
             <form
                 onSubmit={(e) => {
-                  e.preventDefault(); // Prevents page reload
+                  e.preventDefault();
                   handleLogin();
                 }}
                 style={{display: "flex", gap: 10}}
@@ -182,6 +244,30 @@ function AdminPanel() {
                     ))}
                   </div>
                 )}
+                <div className={styles.settingsSection}>
+                  <h3>Group Creation Settings</h3>
+                  <p>Current status: {groupCreationEnabled ? "Enabled" : "Disabled"}</p>
+                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                    <CustomButton onClick={handleEnableGroupCreation}>Enable</CustomButton>
+                    <CustomButton onClick={handleDisableGroupCreation}>Disable</CustomButton>
+                  </div>
+                </div>
+                <div className={styles.settingsSection}>
+                  <h3>App Control</h3>
+                  <CustomButton onClick={handleEnableApp}>
+                    Enable App
+                  </CustomButton>
+                  <CustomButton onClick={handleDisableApp}>
+                    Disable App
+                  </CustomButton>
+                </div>
+                <div className={styles.settingsSection}>
+                  <h3>Killswitch</h3>
+                  <p>Warning: This will delete the entire database and disable the app.</p>
+                  <CustomButton onClick={handleKillswitchClick}>
+                    Delete Database and Disable App
+                  </CustomButton>
+                </div>
               </div>
             </div>
           </div>
