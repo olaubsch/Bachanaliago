@@ -259,7 +259,7 @@ function Header({
                         <Leaderboard/>
                     </div>
                     <button className={styles.button} onClick={() => setShowLeaderBoardPopup(false)}>
-                        {t('Close')} 
+                        {t('Close')}
                     </button>
                 </div>
             </div>

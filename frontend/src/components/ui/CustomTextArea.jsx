@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import styles from './uiModules/CustomInput.module.css';
+import styles from './uiModules/CustomTextArea.module.css';
 
 export default function CustomTextArea({
                                            value,
@@ -7,7 +7,7 @@ export default function CustomTextArea({
                                            placeholder = '',
                                            required = false,
                                            rows = 4,
-                                           textColor = 'var(--dark-text)',
+                                           variant = 'default',
                                            className = '',
                                            minHeight = '80px',
                                            maxHeight = '300px',
@@ -33,8 +33,8 @@ export default function CustomTextArea({
             placeholder={placeholder}
             required={required}
             rows={rows}
-            className={`${styles.inputTextArea} ${className}`}
-            style={{ minHeight, maxHeight, resize: 'none', overflow: 'hidden', color: textColor }}
+            className={`${styles.inputTextArea} ${styles[variant]}`}
+            style={{ minHeight, maxHeight, resize: 'none', overflow: 'auto' }}
             {...props}
         />
     );

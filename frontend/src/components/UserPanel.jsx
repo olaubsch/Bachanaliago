@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import MapElement from "./MapElement";
 import styles from "./modules/UserPanel.module.css";
@@ -15,6 +15,7 @@ import TaskList from "./TaskList.jsx";
 import Slots from "./Slots";
 import { useLanguage } from "../utils/LanguageContext";
 import { useTranslation } from 'react-i18next';
+import LanguageToggle from "./ui/LanguageToggle.jsx";
 
 
 const socket = io("/", {
@@ -163,6 +164,7 @@ function UserPanel() {
     try {
       const res = await axios.get(`/api/tasks?lang=${language}`);
       setTasks(res.data);
+      console.log("res: ", res.data);
     } catch (err) {
       console.error(err);
     }
@@ -317,9 +319,7 @@ function UserPanel() {
       {!isLoggedIn ? (
         <div className={styles.loginContainer}>
           <div className={styles.themeAndLanguage}>
-            <button onClick={toggleLanguage} className={styles.langToggle}>
-              {language.toUpperCase()}
-            </button>
+            <LanguageToggle/>
             <div className={styles.themeIconWrapper}>
               <ThemeToggle />
             </div>

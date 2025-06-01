@@ -14,7 +14,6 @@ const socket = io("/", {
 });
 
 function VerificationView() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [submissions, setSubmissions] = useState([]);
   const [imageData, setImageData] = useState({}); // State to store media data URLs
   const { language } = useLanguage();

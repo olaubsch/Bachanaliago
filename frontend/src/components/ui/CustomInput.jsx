@@ -9,9 +9,16 @@ export default function CustomInput({
                                   required = false,
                                   width,
                                   className = '',
+                                  fileVariant = 'desktop',
                                   ...props
                               }) {
-    const inputClass = type === 'file' ? styles.inputFile : styles.input;
+    let inputClass;
+
+    if (type === 'file') {
+        inputClass = fileVariant === 'mobile' ? styles.inputMobile : styles.inputDesktop;
+    } else {
+        inputClass = styles.input;
+    }
     return (
         <input
             type={type}

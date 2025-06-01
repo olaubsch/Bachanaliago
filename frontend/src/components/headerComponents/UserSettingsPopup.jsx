@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import CustomButton from "../ui/CustomButton.jsx";
 import { useLanguage } from "../../utils/LanguageContext.jsx";
 import { useTranslation } from "react-i18next";
+import LanguageToggle from "../ui/LanguageToggle.jsx";
 
 const UserSettingsPopup = ({
   handleLogout,
@@ -44,13 +45,8 @@ const UserSettingsPopup = ({
                   <div className={styles.iconWrapper}>
                       <ThemeToggle variant="button"/>
                   </div>
-                  <div
-                      onClick={() => {
-                          toggleLanguage()
-                      }}
-                      className={styles.iconWrapper}
-                  >
-                      {language === 'en' ? <div className={styles.languageIconPL} /> : <div className={styles.languageIconUK} />}
+                  <div className={styles.iconWrapper}>
+                      <LanguageToggle/>
                   </div>
               </div>
           </div>

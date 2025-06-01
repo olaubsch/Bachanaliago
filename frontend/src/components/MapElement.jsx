@@ -99,16 +99,21 @@ function MapElement({ tasks, position: externalPosition, onClearPosition }) {
               )}
 
               {/* Task circles */}
-              {tasks.map((task) => (
-                  <Circle
-                      key={task._id}
-                      center={[task.location.lat, task.location.lng]}
-                      radius={100} // 100 meters
-                      pathOptions={{ color: 'blue', fillColor: 'blue', fillOpacity: 0.5 }}
-                  >
-                    <Popup>{task.name}</Popup>
-                  </Circle>
-              ))}
+              {tasks.map((task) => {
+                if (!task.location || task.location.lat == null || task.location.lng == null) return null;
+
+                return (
+                    <Circle
+                        key={task._id}
+                        center={[task.location.lat, task.location.lng]}
+                        radius={100}
+                        pathOptions={{ color: 'blue', fillColor: 'blue', fillOpacity: 0.5 }}
+                    >
+                      <Popup>{task.name}</Popup>
+                    </Circle>
+                );
+              })}
+
             </MapContainer>
             {/* Recenter button */}
             <button className={styles.recenter_button} onClick={handleRecenter}>

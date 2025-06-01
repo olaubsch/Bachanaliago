@@ -84,7 +84,7 @@
 .icon {
     width: 2rem;
     height: 2rem;
-    color: var(--text-header-color); /* React uses "currentColor" to inherit this */
+    color: var(--text-header-color);
 }
 
 .statusInfo {
@@ -113,10 +113,11 @@
 }
 
 .partner {
-    width: 40px;
-    height: 40px;
+    width: 59px;
+    height: 59px;
     background: #ff4444;
     border-radius: 8px;
+    overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;

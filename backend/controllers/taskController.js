@@ -1,14 +1,20 @@
 const Task = require("../models/Task");
 
 exports.createTask = async (req, res) => {
-  const { name, description, location, score, type } = req.body;
+  let { name, description, location, score, type } = req.body;
+  const image = req.file ? req.file.path : null;
   try {
+    if (typeof name === 'string') name = JSON.parse(name);
+    if (typeof description === 'string') description = JSON.parse(description);
+    if (typeof location === 'string') location = JSON.parse(location);
+
     const task = await Task.create({
       name,
       description,
       location,
       score,
       type,
+      image,
     });
     res.status(201).json(task);
   } catch (err) {
@@ -32,7 +38,8 @@ exports.getTasks = async (req, res) => {
       },
       location: task.location,
       score: task.score,
-      type: task.type
+      type: task.type,
+      image: task.image || null,
     }));
 
     res.json(localized);
@@ -43,12 +50,20 @@ exports.getTasks = async (req, res) => {
 
 exports.updateTask = async (req, res) => {
   const { id } = req.params;
-  const { name, description, location, score, type } = req.body;
+  let { name, description, location, score, type } = req.body;
+  const image = req.file ? req.file.path : undefined;
 
   try {
+    if (typeof name === 'string') name = JSON.parse(name);
+    if (typeof description === 'string') description = JSON.parse(description);
+    if (typeof location === 'string') location = JSON.parse(location);
+
+    const updateData = { name, description, location, score, type };
+    if (image) updateData.image = image;
+
     const updatedTask = await Task.findByIdAndUpdate(
         id,
-        { name, description, location, score, type },
+        updateData,
         { new: true, runValidators: true }
     );
 

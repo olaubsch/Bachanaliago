@@ -1,0 +1,27 @@
+.languageIconPL {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 32px;
+    height: 32px;
+    background-image: url("../../../assets/uk.svg");
+}
+
+.languageIconUK {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 32px;
+    height: 32px;
+    background-image: url("../../../assets/poland.svg");
+}
+
+.iconWrapper {
+    background-color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    cursor: pointer;
+}
