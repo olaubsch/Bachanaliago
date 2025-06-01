@@ -7,14 +7,18 @@ import CustomTextArea from "./ui/CustomTextArea.jsx";
 import CustomButton from "./ui/CustomButton.jsx";
 import CustomInput from "./ui/CustomInput.jsx";
 import CustomSelect from "./ui/CustomSelect.jsx";
-import LocationIcon from "../utils/LocationPin.jsx";
+import LocationIcon from "../utils/icons/LocationPin.jsx";
 import {useLanguage} from "../utils/LanguageContext.jsx";
 import { useTranslation } from 'react-i18next';
+import DragDropFileInput from "./ui/FileInput.jsx";
+import FileInput from "./ui/FileInput.jsx";
 
 
 const LIST_CONTAINER_HEIGHT_VH = 61;
 const FADE_ZONE_HEIGHT_PERCENT = 25;
 const FADE_ZONE_START_PERCENT = 100 - FADE_ZONE_HEIGHT_PERCENT;
+
+const URL = "http://localhost:5000";
 
 function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition }) {
     const containerRef = useRef(null);
@@ -22,6 +26,7 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition
     const [containerClientHeight, setContainerClientHeight] = useState(0);
     const [maxScrollTop, setMaxScrollTop] = useState(0);
     const [expandedCardIndex, setExpandedCardIndex] = useState(null);
+    const [imageData, setImageData] = useState({});
     const { language } = useLanguage();
     const { t } = useTranslation();
     const itemHeight = 86; // Fixed height for each task item in pixels (collapsed)
@@ -86,8 +91,6 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition
         };
     }, [containerClientHeight]);
 
-    const mockTasks = useMemo(() => Array.from({ length: 30 }, (_, i) => `Task ${i + 1}`), []);
-
     const scrollEndBuffer = 50;
 
     const handleTaskClick = (index) => {
@@ -108,9 +111,7 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition
         }
     };
 
-    const handleFileSubmit = async (e, acceptType, taskId) => {
-        e.preventDefault();
-        const file = e.target.files[0];
+    const handleFileSubmit = async (file, acceptType, taskId) => {
         if (!file) return;
         const formData = new FormData();
         formData.append("file", file);
@@ -146,7 +147,7 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition
 
     let cumulativeHeight = 0;
 
-    const len = mockTasks.length;
+    let len = tasks.length;
 
     return (
         <>
@@ -199,7 +200,6 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition
                             opacity = 1;
                             scale = 1;
                             translateY = 0;
-                            zIndex = mockTasks.length + 10;
                         } else if (isAtScrollEnd) {
                             opacity = 1;
                             scale = 1;
@@ -245,27 +245,47 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition
                             >
                                 <div key={index}
                                      onClick={() => handleTaskClick(index)}
-                                     className={ styles.statusInfo }>
+                                     className={styles.statusInfo}>
                                     <div>
                                         <h3>{task.name[language]}</h3>
                                         <p>{status}</p>
                                     </div>
-                                    <div className={ styles.partner }></div>
+                                    {task.image && (
+                                        <img
+                                            src={`${URL}/${task.image}`}
+                                            alt="Partner"
+                                            style={{
+                                                width: '59px',
+                                                height: '59px',
+                                                objectFit: 'cover',
+                                                borderRadius: '8px',
+                                            }}
+                                        />
+                                    )}
                                 </div>
                                 <div className={`${styles.descContainer} ${isExpanded ? styles.expanded : ''}`}>
                                     <div>{task.description[language]}</div>
-                                    <div style={{marginTop: '1rem'}}>
-                                        <CustomButton
-                                            onClick={() => setPosition(task.location)}
-                                            width={"100%"}
-                                            style={{marginTop: '0.5rem'}}
-                                        >
-                                            <div style={{ display: 'flex', justifyContent: 'center', gap: '0.5rem', alignItems: 'center' }}>
-                                                <LocationIcon className={styles.icon} />
-                                                <div>{t('showLocation')}</div>
-                                            </div>
-                                        </CustomButton>
-                                    </div>
+                                    {task.location && task.location.lat != null && task.location.lng != null && (
+                                        <div style={{marginTop: '1rem' }}>
+                                            <CustomButton
+                                                onClick={() => setPosition(task.location)}
+                                                width={"100%"}
+                                                style={{ marginTop: '0.5rem' }}
+                                            >
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        gap: '0.5rem',
+                                                        alignItems: 'center',
+                                                    }}
+                                                >
+                                                    <LocationIcon className={styles.icon} />
+                                                    <div>{t('showLocation')}</div>
+                                                </div>
+                                            </CustomButton>
+                                        </div>
+                                    )}
                                     {status === "pending" ? (
                                         <div style={{ fontSize: "14px", marginTop: "1rem"}}>Awaiting verification. Further submissions are disabled.</div>
                                     ) : (
@@ -277,6 +297,7 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition
                                                 <div style={{marginTop: '1rem'}}>
                                                     <CustomTextArea
                                                         value={text}
+                                                        variant={"dark"}
                                                         onChange={(e) => setText(e.target.value)}
                                                         placeholder="Enter your answer"
                                                     />
@@ -286,20 +307,28 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition
                                             )}
                                             {task.type === "photo" && status !== "approved" && (
                                                 <div style={{marginTop: '1rem', width: '100%'}}>
-                                                    <CustomInput type="file" name="file" accept="image/*"
-                                                                 onChange={(e) => handleFileSubmit(e, "image/*", task._id)}/>
+                                                    <FileInput
+                                                        fileType={'image'}
+                                                        accept="image/*"
+                                                        onSubmit={(file) => handleFileSubmit(file, "image/*", task._id)}
+                                                    />
                                                 </div>
                                             )}
                                             {task.type === "video" && status !== "approved" && (
                                                 <div style={{marginTop: '1rem', width: '100%'}}>
-                                                    <CustomInput type="file" name="file" accept="video/*"
-                                                                 onChange={(e) => handleFileSubmit(e, "video/*", task._id)}/>
+                                                    <FileInput
+                                                        fileType={'video'}
+                                                        accept="video/mp4,video/webm"
+                                                        onSubmit={(file) => handleFileSubmit(file, "video/*", task._id)}
+                                                    />
                                                 </div>
                                             )}
                                         </>
                                     )}
-                                    {status === "approved" && <div>{t('completed')}</div>}
-                                    {status === "rejected" && <div>{t('rejected')}</div>}
+                                    <div style={{ marginTop: '0.75rem' }}>
+                                        {status === "approved" && <div>{t('completed')}</div>}
+                                        {status === "rejected" && <div>{t('rejected')}</div>}
+                                    </div>
                                 </div>
                             </div>
                         );

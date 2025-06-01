@@ -47,6 +47,7 @@
 }
 
 .contentContainer {
+  border: 1px solid rgba(var(--text-color-rgb), 0.2);
   backdrop-filter: blur(100px);
   -webkit-backdrop-filter: blur(100px);
   height: 80vh;
@@ -93,7 +94,6 @@
   border-bottom: 1px solid var(--bg-color);
 }
 
-/* Lista tasków – musi mieć flex-grow i 100% wysokości */
 .adminTaskList {
   flex: 1;
   overflow-y: auto;
@@ -102,6 +102,8 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%, transparent);
+  -webkit-mask-composite: source-in;
 }
 
 .pendingTaskList {
@@ -149,7 +151,8 @@
   background: var(--text-header-color);
   border-radius: 20px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
+  border: 1px solid rgba(var(--text-color-rgb), 0.2);
+  padding: 0.75rem 1.5rem 1.5rem;
   transition: all 0.3s ease;
 }
 
@@ -162,6 +165,14 @@
   font-size: 1.25rem;
   font-weight: 600;
   margin-bottom: 0.5rem;
+}
+
+.subTitleText {
+  opacity: 0.8;
+  font-size: 1rem;
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
 .taskDetails {
@@ -233,6 +244,68 @@
   column-gap: 1rem;
 }
 
+.popupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.popupContent {
+  background: rgba(var(--bg-rgb), 0.5);
+  backdrop-filter: blur(50px);
+  -webkit-backdrop-filter: blur(50px);
+  padding: 1.5rem;
+  margin: 1rem;
+  border-radius: 1rem;
+  max-width: 400px;
+  min-height: 60vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1px solid rgba(var(--text-color-rgb), 0.4);
+  contain: paint;
+}
+
+.settInfo {
+  margin-bottom: 1rem;
+}
+
+.settInfo p {
+  opacity: 0.8;
+}
+
+.settingsSection {
+  border-bottom: 1px solid rgba(var(--text-color-rgb), 0.2);
+  padding: 1rem 0;
+}
+
+.icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--text-color);
+  cursor: pointer;
+}
+
+.closeIcon {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--text-color);
+  border-radius: 2rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.closeIcon:hover {
+  background-color: rgba(var(--text-color-rgb), 0.2);
+}
+
 @media only screen and (max-device-width: 768px) {
   .adminContainer {
     width: 100%;
@@ -262,3 +335,4 @@
     width: 100%;
   }
 }
+

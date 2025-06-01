@@ -6,7 +6,7 @@
 :root {
   --bg-color: #ede6d5;
   --bg-rgb: 237, 230, 213;
-  --bg-rgb-admin: 256, 256, 256;
+  --bg-rgb-admin: 255, 255, 255;
   --text-header-color: #fff;
   --text-color: #796e65;
   --text-color-rgb: 121, 110, 101;
@@ -22,7 +22,7 @@
   --bg-rgb-admin: 36, 42, 36;
   --text-header-color: #2f3a39;
   --text-color: #fff;
-  --text-color-rgb: 256, 256, 256;
+  --text-color-rgb: 255, 255, 255;
   --dark-text: #2f3a39;
   --dark-text-rgb: 47, 58, 57;
   --button-bg: #ede6d5;

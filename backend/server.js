@@ -4,20 +4,38 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const http = require("http");
 const socketIo = require("socket.io");
-const fs = require("fs"); // Add this line to require the fs module
+const fs = require("fs");
 const fsPromises = fs.promises;
 const path = require("path");
 const TaskSubmission = require("./models/TaskSubmission");
 const bannedWordsRoutes = require("./routes/bannedWordsRoutes");
-
 const userRoutes = require("./routes/userRoutes");
 const groupRoutes = require("./routes/groupRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const submissionRoutes = require("./routes/submissionRoutes");
+const User = require("./models/User");
+const Group = require("./models/Group");
+const Task = require("./models/Task");
+const Setting = require("./models/Setting");
 
 const app = express();
 const server = http.createServer(app);
 app.use(express.json());
+
+// Middleware to check if the app is enabled
+const checkAppEnabled = async (req, res, next) => {
+  const appEnabled = await Setting.findOne({ key: "appEnabled" });
+  if (appEnabled && appEnabled.value === false) {
+    return res.status(403).json({ error: "App is disabled" });
+  }
+  next();
+};
+
+// Apply middleware to user-facing routes
+app.use("/api/users", checkAppEnabled, userRoutes);
+app.use("/api/groups", checkAppEnabled, groupRoutes);
+app.use("/api/tasks", checkAppEnabled, taskRoutes);
+app.use("/api/submissions", checkAppEnabled, submissionRoutes);
 
 app.post("/api/admin/login", (req, res) => {
   const { password } = req.body;
@@ -27,7 +45,73 @@ app.post("/api/admin/login", (req, res) => {
   return res.sendStatus(401);
 });
 
-// --- SOCKET.IO SETUP ---
+// Killswitch endpoint
+app.post("/api/admin/killswitch", async (req, res) => {
+  const { password } = req.body;
+  if (password !== process.env.ADMIN_PASSWORD) {
+    return res.status(401).json({ error: "Invalid password" });
+  }
+  try {
+    await User.deleteMany({});
+    await Group.deleteMany({});
+    await Task.deleteMany({});
+    await TaskSubmission.deleteMany({});
+    await Setting.updateOne(
+      { key: "appEnabled" },
+      { value: false },
+      { upsert: true }
+    );
+    res.json({ message: "Database deleted and app disabled" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error performing killswitch" });
+  }
+});
+
+// Enable app endpoint
+app.post("/api/admin/enableApp", async (req, res) => {
+  const { password } = req.body;
+  if (password !== process.env.ADMIN_PASSWORD) {
+    return res.status(401).json({ error: "Invalid password" });
+  }
+  try {
+    await Setting.updateOne(
+      { key: "appEnabled" },
+      { value: true },
+      { upsert: true }
+    );
+    res.json({ message: "App enabled" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error enabling app" });
+  }
+});
+
+// Disable app endpoint
+app.post("/api/admin/disableApp", async (req, res) => {
+  const { password } = req.body;
+  if (password !== process.env.ADMIN_PASSWORD) {
+    return res.status(401).json({ error: "Invalid password" });
+  }
+  try {
+    await Setting.updateOne(
+      { key: "appEnabled" },
+      { value: false },
+      { upsert: true }
+    );
+    res.json({ message: "App disabled" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error disabling app" });
+  }
+});
+
+app.use(cors());
+app.use(express.json());
+app.use("/uploads", express.static("uploads"));
+
+app.use("/api/bannedWords", bannedWordsRoutes);
+
 const io = socketIo(server, {
   cors: {
     origin: "*",
@@ -36,16 +120,6 @@ const io = socketIo(server, {
 });
 
 app.set("io", io);
-
-app.use(cors());
-app.use(express.json());
-app.use("/uploads", express.static("uploads"));
-
-app.use("/api/users", userRoutes);
-app.use("/api/groups", groupRoutes);
-app.use("/api/tasks", taskRoutes);
-app.use("/api/submissions", submissionRoutes);
-app.use("/api/bannedWords", bannedWordsRoutes);
 
 io.on("connection", (socket) => {
   console.log("New client connected ID:", socket.id);

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import MapElement from "./MapElement";
 import styles from "./modules/UserPanel.module.css";
@@ -15,6 +15,7 @@ import TaskList from "./TaskList.jsx";
 import Slots from "./Slots";
 import { useLanguage } from "../utils/LanguageContext";
 import { useTranslation } from 'react-i18next';
+import LanguageToggle from "./ui/LanguageToggle.jsx";
 
 
 const socket = io("http://localhost:5000");
@@ -133,6 +134,11 @@ function UserPanel() {
     setIsLoading(true);
     try {
       await Promise.all([fetchTasks(), fetchSubmissions(code)]);
+    } catch (err) {
+      console.error("Error fetching tasks or submissions:", err);
+      showAlert("Failed to fetch tasks or submissions");
+    }
+    try {
       const groupRes = await axios.get(`/api/groups/${code.toUpperCase()}`);
       setGroupName(groupRes.data.name);
       setGroupUsers(groupRes.data.users);
@@ -141,8 +147,9 @@ function UserPanel() {
       setGroupScore(groupRes.data.score);
       localStorage.setItem("ownerId", groupRes.data.owner._id);
     } catch (err) {
-      console.error(err);
-      showAlert("Failed to fetch data");
+      console.error("Error fetching group:", err);
+      showAlert("Error fetching group data. Logging out.");
+      logout();
     } finally {
       setIsLoading(false);
     }
@@ -152,6 +159,7 @@ function UserPanel() {
     try {
       const res = await axios.get(`/api/tasks?lang=${language}`);
       setTasks(res.data);
+      console.log("res: ", res.data);
     } catch (err) {
       console.error(err);
     }
@@ -306,9 +314,7 @@ function UserPanel() {
       {!isLoggedIn ? (
         <div className={styles.loginContainer}>
           <div className={styles.themeAndLanguage}>
-            <button onClick={toggleLanguage} className={styles.langToggle}>
-              {language.toUpperCase()}
-            </button>
+            <LanguageToggle/>
             <div className={styles.themeIconWrapper}>
               <ThemeToggle />
             </div>

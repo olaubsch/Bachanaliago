@@ -17,22 +17,27 @@
 
 .outline {
     background-color: transparent;
-    outline: 1px solid var(--text-color);
-    outline-offset: -1px;
+    border: 1px solid var(--text-color);
     color: var(--text-color);
-    border: none;
+}
+
+.outline-dark {
+    background-color: transparent;
+    border: 1px solid rgba(var(--dark-text-rgb), 0.2);
+    outline-offset: -1px;
+    color: var(--dark-text);
 }
 
 .warning {
     background-color: var(--red);
+    border: 1px solid var(--red);
     color: #fff;
-    border: none;
 }
 
 .green {
     background-color: var(--accent);
+    border: 1px solid var(--accent);
     color: #fff;
-    border: none;
 }
 
 .small {
