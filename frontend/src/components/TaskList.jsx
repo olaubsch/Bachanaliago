@@ -45,7 +45,7 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition
         approved: "#acd8aa",      // green
         rejected: "#ff686b",      // red
         pending: "#f9dc5c",       // orange
-        "not started": "#fff", // blue
+        "notStarted": "#fff", // blue
     };
 
     const [filter, setFilter] = useState("all");
@@ -168,12 +168,12 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition
                 {tasks
                     .filter((task) => {
                         const submission = submissions.find((sub) => sub.task?._id === task._id);
-                        const status = submission ? submission.status : "not started";
+                        const status = submission ? submission.status : "notStarted";
                         return filter === "all" || status === filter;
                     })
                     .map((task, index) => {
                         const submission = submissions.find((sub) => sub.task?._id === task._id);
-                        const status = submission ? submission.status : "not started";
+                        const status = submission ? submission.status : "notStarted";
                         const isExpanded = index === expandedCardIndex;
                         const currentItemHeightWithMargin = isExpanded ? EXPANDED_ITEM_HEIGHT_WITH_MARGIN : itemHeightWithMargin;
 
@@ -243,7 +243,7 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition
                                      className={styles.statusInfo}>
                                     <div>
                                         <h3>{task.name[language]}</h3>
-                                        <p>{status}</p>
+                                        <p>{t(status)}</p>
                                     </div>
                                     {task.image && (
                                         <img
