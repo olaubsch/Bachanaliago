@@ -1,4 +1,6 @@
 const Task = require("../models/Task");
+const fs = require('fs');
+const path = require('path');
 
 exports.createTask = async (req, res) => {
   let { name, description, location, score, type } = req.body;
@@ -26,27 +28,54 @@ exports.getTasks = async (req, res) => {
   try {
     const tasks = await Task.find();
 
-    const localized = tasks.map(task => ({
-      _id: task._id,
-      name: {
-        pl: task.name?.get("pl") || "Brak nazwy",
-        en: task.name?.get("en") || "No name"
-      },
-      description: {
-        pl: task.description?.get("pl") || "Brak opisu",
-        en: task.description?.get("en") || "No description"
-      },
-      location: task.location,
-      score: task.score,
-      type: task.type,
-      image: task.image || null,
-    }));
+    const localized = tasks.map(task => {
+      let base64Image = null;
+
+      if (task.image) {
+        const relativePath = task.image.replace(/\\/g, '/'); // Normalize slashes
+        const imagePath = path.join(__dirname, '..', relativePath); // Adjust if needed
+
+        if (fs.existsSync(imagePath)) {
+          const imageBuffer = fs.readFileSync(imagePath);
+          const mimeType = getMimeType(imagePath); // Optional, see below
+          base64Image = `data:${mimeType};base64,${imageBuffer.toString('base64')}`;
+        }
+      }
+
+      return {
+        _id: task._id,
+        name: {
+          pl: task.name?.get("pl") || "Brak nazwy",
+          en: task.name?.get("en") || "No name"
+        },
+        description: {
+          pl: task.description?.get("pl") || "Brak opisu",
+          en: task.description?.get("en") || "No description"
+        },
+        location: task.location,
+        score: task.score,
+        type: task.type,
+        image: base64Image,
+      };
+    });
 
     res.json(localized);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Błąd pobierania tasków" });
   }
 };
+
+function getMimeType(filename) {
+  const ext = path.extname(filename).toLowerCase();
+  switch (ext) {
+    case '.png': return 'image/png';
+    case '.jpg':
+    case '.jpeg': return 'image/jpeg';
+    case '.gif': return 'image/gif';
+    default: return 'application/octet-stream';
+  }
+}
 
 exports.updateTask = async (req, res) => {
   const { id } = req.params;
