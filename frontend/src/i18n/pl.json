@@ -54,7 +54,7 @@
   "enable": "Włącz",
   "disable": "Wyłącz",
   "appControl": "Sterowanie Aplikacją",
-  "appControlDesc": "Włącz lub wyłącz całą funkcjonalność aplikacji.",
+  "appControlDesc": "Włącz lub wyłącz całą funkcjonalność aplikacji. Ponowne włączenie powoduje odświeżenie aplikacji.",
   "killswitchDesc": "Ta akcja spowoduje trwałe usunięcie wszystkich danych i wyłączenie aplikacji. Operacji tej nie można cofnąć.",
   "deleteDatabaseDisableApp": "Usuń Bazę Danych i Wyłącz Aplikację",
   "pendingSubmissions": "Oczekujące Zgłoszenia",
@@ -69,5 +69,6 @@
   "videoUpload": "Wideo",
   "name": "Nazwa",
   "description": "Opis",
-  "taskPoints": "Punkty za zadanie"
+  "taskPoints": "Punkty za zadanie",
+  "User denied Geolocation": "Użytkownik odmówił dostępu do geolokalizacji."
 }

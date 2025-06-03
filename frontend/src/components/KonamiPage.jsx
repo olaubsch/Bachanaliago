@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import CustomButton from "./ui/CustomButton.jsx";
+import styles from "./modules/Konami.module.css";
 
 const KonamiPage = ({ onCodeEntered, onClose }) => {
   const [sequence, setSequence] = useState([]);
@@ -88,64 +90,31 @@ const KonamiPage = ({ onCodeEntered, onClose }) => {
   }, [sequence, onCodeEntered]);
 
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        backgroundColor: "white",
-        position: "relative",
-      }}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
-      <button
-        style={{
-          position: "absolute",
-          top: "10px",
-          left: "10px",
-        }}
-        onClick={onClose}
-      >
-        Close
-      </button>
       <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-        }}
+          className={styles.containerKonami}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
       >
-        <button
-          style={{
-            fontSize: "24px",
-            padding: "10px 20px",
-            margin: "0 10px",
-            backgroundColor: "red",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-          }}
-          onClick={() => setSequence((prev) => [...prev, "a"].slice(-10))}
-        >
-          A
-        </button>
-        <button
-          style={{
-            fontSize: "24px",
-            padding: "10px 20px",
-            margin: "0 10px",
-            backgroundColor: "blue",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-          }}
-          onClick={() => setSequence((prev) => [...prev, "b"].slice(-10))}
-        >
-          B
-        </button>
+          <div className={styles.buttons}>
+              <button
+                  className={styles.redButton}
+                  onClick={() => setSequence((prev) => [...prev, "a"].slice(-10))}
+              >
+                  A
+              </button>
+              <button
+                  className={styles.blueButton}
+                  onClick={() => setSequence((prev) => [...prev, "b"].slice(-10))}
+              >
+                  B
+              </button>
+          </div>
+          <CustomButton
+              onClick={onClose}
+          >
+              Close
+          </CustomButton>
       </div>
-    </div>
   );
 };
 

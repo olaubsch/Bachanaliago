@@ -54,7 +54,7 @@
   "enable": "Enable",
   "disable": "Disable",
   "appControl": "App Control",
-  "appControlDesc": "Enable or disable the entire application functionality.",
+  "appControlDesc": "Enable or disable the entire application functionality. Re-enabling will refresh the application.",
   "killswitchDesc": "This action will permanently delete all data and disable the application. This cannot be undone.",
   "deleteDatabaseDisableApp": "Delete Database & Disable App",
   "pendingSubmissions": "Pending Submissions",
@@ -69,5 +69,6 @@
   "videoUpload": "Video Upload",
   "name": "Name",
   "description": "Description",
-  "taskPoints": "Task Points"
+  "taskPoints": "Task Points",
+  "User denied Geolocation": "User denied Geolocation"
 }

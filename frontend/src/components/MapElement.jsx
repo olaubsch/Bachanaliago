@@ -4,6 +4,7 @@ import L from 'leaflet';
 import styles from "./modules/MapElement.module.css";
 import 'leaflet/dist/leaflet.css';
 import {useLanguage} from "../utils/LanguageContext.jsx";
+import {useTranslation} from "react-i18next";
 
 
 function SetViewOnPosition({ position }) {
@@ -22,6 +23,7 @@ function MapElement({ tasks, position: externalPosition, onClearPosition }) {
   const [error, setError] = useState(null);
   const [centerSource, setCenterSource] = useState(null);
   const { language } = useLanguage();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -61,7 +63,7 @@ function MapElement({ tasks, position: externalPosition, onClearPosition }) {
   };
 
   if (error) {
-    return <div className={styles.load_wrapper}>Error: {error}</div>;
+    return <div className={styles.load_wrapper}>{t(error)}</div>;
   }
 
   return (
