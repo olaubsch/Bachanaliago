@@ -29,6 +29,7 @@ function Header({
                     groupScore,
                     onUserUpdate,
                     setShowKonamiPage, // Add new prop
+                    hasPlayedSlots, // Added hasPlayedSlots prop
                 }) {
     const [showPopup, setShowPopup] = useState(false);
     const [showLeaderBoardPopup, setShowLeaderBoardPopup] = useState(false);
@@ -267,6 +268,7 @@ function Header({
                         handleDeleteGroup={handleDeleteGroup}
                         setShowMainUserPopup={setShowMainUserPopup}
                         setShowKonamiPage={setShowKonamiPage} // Pass setShowKonamiPage to UserSettingsPopup
+                        hasPlayedSlots={hasPlayedSlots} // Pass hasPlayedSlots to UserSettingsPopup
                     />
                 </div>
             </div>

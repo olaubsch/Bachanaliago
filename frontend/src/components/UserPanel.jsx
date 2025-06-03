@@ -37,6 +37,7 @@ function UserPanel() {
   const [groupUsers, setGroupUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [groupScore, setGroupScore] = useState(0);
+  const [hasPlayedSlots, setHasPlayedSlots] = useState(false); // Added state for hasPlayedSlots
   const taskListRef = useRef();
   const [showSlots, setShowSlots] = useState(false);
   const [showKonamiPage, setShowKonamiPage] = useState(false); // New state for Konami page
@@ -100,6 +101,7 @@ function UserPanel() {
       setIsOwner(groupRes.data.owner.nickname === nickname);
       setOwnerId(groupRes.data.owner._id);
       setGroupScore(groupRes.data.score);
+      setHasPlayedSlots(groupRes.data.hasPlayedSlots); // Set hasPlayedSlots from group data
       localStorage.setItem("ownerId", groupRes.data.owner._id);
     } catch (err) {
       console.error("Error fetching group:", err);
@@ -345,6 +347,7 @@ function UserPanel() {
                 groupScore={groupScore}
                 onUserUpdate={() => fetchData(groupCode)}
                 setShowKonamiPage={setShowKonamiPage} // Pass setShowKonamiPage to Header
+                hasPlayedSlots={hasPlayedSlots} // Pass hasPlayedSlots to Header
             />
               <div
                   onTouchStart={() => setActiveViewMap(true)}
@@ -371,51 +374,58 @@ function UserPanel() {
                   />
               </div>
               {showKonamiPage && (
-                <div
-                  style={{
-                    position: "fixed",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    backgroundColor: "white",
-                    zIndex: 1000,
-                    overflow: "auto",
-                  }}
-                >
-                  <KonamiPage
-                    onCodeEntered={() => {
-                      setShowSlots(true);
-                      setShowKonamiPage(false);
-                    }}
-                    onClose={() => setShowKonamiPage(false)}
-                  />
-                </div>
-              )}
-              {showSlots && (
-                  <div
-                      style={{
-                          position: "fixed",
-                          top: 0,
-                          left: 0,
-                          width: "100%",
-                          height: "100%",
-                          backgroundColor: "white",
-                          zIndex: 1000,
-                          overflow: "auto",
-                      }}
-                  >
-                      <button onClick={() => setShowSlots(false)}>{t('close')}</button>
-                      <Slots
-                          groupScore={groupScore}
-                          groupCode={groupCode}
-                          onSpinComplete={(newScore) => {
-                              setGroupScore(newScore);
-                              setShowSlots(false);
-                          }}
-                      />
-                  </div>
-              )}
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor: "white",
+                zIndex: 1000,
+                overflow: "auto",
+              }}
+            >
+              <KonamiPage
+                onCodeEntered={() => {
+                  if (!hasPlayedSlots) { // Check hasPlayedSlots before showing slots
+                    setShowSlots(true);
+                    setShowKonamiPage(false);
+                  } else {
+                    showAlert("Your group has already played the slots.");
+                    setShowKonamiPage(false);
+                  }
+                }}
+                onClose={() => setShowKonamiPage(false)}
+              />
+            </div>
+          )}
+          {showSlots && (
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor: "white",
+                zIndex: 1000,
+                overflow: "auto",
+              }}
+            >
+              <button onClick={() => setShowSlots(false)}>{t('close')}</button>
+              <Slots
+                groupScore={groupScore}
+                groupCode={groupCode}
+                onSpinComplete={(newScore) => {
+                  setGroupScore(newScore);
+                  setShowSlots(false);
+                  fetchData(groupCode); // Refresh data after spin
+                }}
+                hasPlayedSlots={hasPlayedSlots} // Pass hasPlayedSlots to Slots
+              />
+            </div>
+          )}
           </div>
       )}
     </div>

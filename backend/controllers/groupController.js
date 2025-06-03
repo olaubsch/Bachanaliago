@@ -243,6 +243,9 @@ exports.updateGroupScore = async (req, res) => {
     if (!group) {
       return res.status(404).json({ error: "Grupa nie znaleziona" });
     }
+    if (fromSlots && group.hasPlayedSlots) { // Prevent update if hasPlayedSlots is true
+      return res.status(403).json({ error: "Group has already played the slots" });
+    }
     group.score = newScore;
     if (fromSlots) {
       group.hasPlayedSlots = true;

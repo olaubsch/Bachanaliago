@@ -13,6 +13,7 @@ const UserSettingsPopup = ({
   isOwner,
   setShowMainUserPopup,
   setShowKonamiPage, // Add new prop
+  hasPlayedSlots, // Added hasPlayedSlots prop
 }) => {
   const [storedOwnerId, setStoredOwnerId] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
@@ -61,12 +62,14 @@ const UserSettingsPopup = ({
         </div>
         {/* Hidden button for Konami code page */}
         <button
-        style={{ opacity: 0, height: 100, padding: 0, margin: 0, border: "none" }}
-            onClick={() => {
-              setShowKonamiPage(true);    // Show the Konami page
-              setShowMainUserPopup(false); // Hide the user pop-up
-            }}
-          >
+          style={{ opacity: 0, height: 100, padding: 0, margin: 0, border: "none" }}
+          onClick={() => {
+            if (!hasPlayedSlots) { // Check hasPlayedSlots before showing Konami page
+              setShowKonamiPage(true);
+              setShowMainUserPopup(false);
+            }
+          }}
+        >
           Konami
         </button>
       </div>
