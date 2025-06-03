@@ -16,7 +16,7 @@ import Slots from "./Slots";
 import { useLanguage } from "../utils/LanguageContext";
 import { useTranslation } from 'react-i18next';
 import LanguageToggle from "./ui/LanguageToggle.jsx";
-
+import KonamiPage from "./KonamiPage.jsx"; // Import the new KonamiPage component
 
 const socket = io("http://localhost:5000");
 
@@ -38,15 +38,13 @@ function UserPanel() {
   const [currentUser, setCurrentUser] = useState(null);
   const [groupScore, setGroupScore] = useState(0);
   const taskListRef = useRef();
-  const [keySequence, setKeySequence] = useState([]);
   const [showSlots, setShowSlots] = useState(false);
+  const [showKonamiPage, setShowKonamiPage] = useState(false); // New state for Konami page
   const [activeViewMap, setActiveViewMap] = useState(true);
   const [badWords, setBadWords] = useState([]);
   const [position, setPosition] = useState(null);
-  const { language,toggleLanguage } = useLanguage();
+  const { language, toggleLanguage } = useLanguage();
   const { t } = useTranslation();
-
-
 
   const { logout } = useAuth({
     setIsLoggedIn,
@@ -86,49 +84,6 @@ function UserPanel() {
       setIsLoading(false);
     }
   }, [inviteCode]);
-
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      setKeySequence((prev) => [...prev, event.key].slice(-10));
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
-
-  useEffect(() => {
-    const konamiCode = [
-      "ArrowUp",
-      "ArrowUp",
-      "ArrowDown",
-      "ArrowDown",
-      "ArrowLeft",
-      "ArrowRight",
-      "ArrowLeft",
-      "ArrowRight",
-      "b",
-      "a",
-    ];
-    if (
-      keySequence.length === 10 &&
-      keySequence.every((key, index) => key === konamiCode[index])
-    ) {
-      axios
-        .post(`/api/groups/${groupCode}/play-slots`)
-        .then((response) => {
-          setShowSlots(true);
-        })
-        .catch((error) => {
-          if (error.response && error.response.status === 403) {
-            showAlert("Your group has already played the slots.");
-          } else {
-            showAlert("Error starting slots game.");
-          }
-        });
-      setKeySequence([]);
-    }
-  }, [keySequence, groupCode]);
 
   const fetchData = async (code) => {
     setIsLoading(true);
@@ -389,6 +344,7 @@ function UserPanel() {
                 logout={logout}
                 groupScore={groupScore}
                 onUserUpdate={() => fetchData(groupCode)}
+                setShowKonamiPage={setShowKonamiPage} // Pass setShowKonamiPage to Header
             />
               <div
                   onTouchStart={() => setActiveViewMap(true)}
@@ -414,6 +370,28 @@ function UserPanel() {
                       setPosition={setPosition}
                   />
               </div>
+              {showKonamiPage && (
+                <div
+                  style={{
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    backgroundColor: "white",
+                    zIndex: 1000,
+                    overflow: "auto",
+                  }}
+                >
+                  <KonamiPage
+                    onCodeEntered={() => {
+                      setShowSlots(true);
+                      setShowKonamiPage(false);
+                    }}
+                    onClose={() => setShowKonamiPage(false)}
+                  />
+                </div>
+              )}
               {showSlots && (
                   <div
                       style={{

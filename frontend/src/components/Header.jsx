@@ -27,7 +27,8 @@ function Header({
                     groupCode,
                     logout,
                     groupScore,
-                    onUserUpdate
+                    onUserUpdate,
+                    setShowKonamiPage, // Add new prop
                 }) {
     const [showPopup, setShowPopup] = useState(false);
     const [showLeaderBoardPopup, setShowLeaderBoardPopup] = useState(false);
@@ -265,6 +266,7 @@ function Header({
                         handleQuitGroup={handleQuitGroup}
                         handleDeleteGroup={handleDeleteGroup}
                         setShowMainUserPopup={setShowMainUserPopup}
+                        setShowKonamiPage={setShowKonamiPage} // Pass setShowKonamiPage to UserSettingsPopup
                     />
                 </div>
             </div>

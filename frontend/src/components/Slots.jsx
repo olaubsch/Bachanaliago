@@ -15,7 +15,6 @@ const Reel = ({
 }) => {
   const [position, setPosition] = useState(0);
   const [transition, setTransition] = useState("none");
-  const { t } = useTranslation();
 
   useEffect(() => {
     if (isSpinning) {
@@ -77,6 +76,7 @@ const Slots = ({ groupScore, groupCode, onSpinComplete }) => {
   const [message, setMessage] = useState("");
   const [hasSpun, setHasSpun] = useState(false);
   const [betAmount, setBetAmount] = useState(1);
+  const { t } = useTranslation();
 
   const multipliers = {
     "🍒": 1.5,
