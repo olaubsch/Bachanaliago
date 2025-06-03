@@ -5,6 +5,7 @@ import CustomButton from "./ui/CustomButton.jsx";
 import { io } from "socket.io-client";
 import { showAlert } from "./ui/alert.jsx";
 import { useLanguage } from "../utils/LanguageContext.jsx";
+import { useTranslation } from "react-i18next";
 
 const socket = io("/", {
   path: "/socket.io",
@@ -17,6 +18,7 @@ function VerificationView() {
   const [submissions, setSubmissions] = useState([]);
   const [imageData, setImageData] = useState({}); // State to store media data URLs
   const { language } = useLanguage();
+  const { t } = useTranslation();
 
   const fetchPendingSubmissions = async () => {
     try {
@@ -83,26 +85,26 @@ function VerificationView() {
 
   return (
     <div className={styles.adminForm}>
-      <h2 className={styles.taskHeader}>Verification Panel</h2>
+      <h2 className={styles.taskHeader}>{t("verificationPanel")}</h2>
       <div className={styles.contentContainer}>
         <div className={styles.headerControls} style={{ height: "3rem" }}>
-          <h2>Pending Submissions</h2>
+          <h2>{t("pendingSubmissions")}</h2>
         </div>
         <div className={styles.pendingTaskList}>
           {submissions.length === 0 ? (
-            <p>No pending submissions</p>
+            <p>{t("noPendingSubmissions")}</p>
           ) : (
             submissions.map((sub) => (
               <div key={sub._id} className={styles.adminTaskCard}>
                 <div className={styles.taskHeader}>
-                  <strong>
+                  <h2>
                     {sub.task?.name[language]} - {sub.group?.name}
-                  </strong>
+                  </h2>
                 </div>
                 <div className={styles.taskDetails}>
-                  {sub.type === "text" && (
-                    <p>Submission: {sub.submissionData}</p>
-                  )}
+                  <div className={styles.settInfo}>
+                    {sub.type === "text" && <p>{sub.submissionData}</p>}
+                  </div>
                   {sub.type === "photo" &&
                     (imageData[sub._id] ? (
                       <img
@@ -123,26 +125,26 @@ function VerificationView() {
                     ) : (
                       <p>Loading video...</p>
                     ))}
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "0.5rem",
-                      justifyContent: "flex-end",
-                    }}
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "0.5rem",
+                    justifyContent: "flex-end",
+                  }}
+                >
+                  <CustomButton
+                    variant={"outline"}
+                    onClick={() => handleVerify(sub._id, "approved")}
                   >
-                    <CustomButton
-                      variant={"outline"}
-                      onClick={() => handleVerify(sub._id, "approved")}
-                    >
-                      Approve
-                    </CustomButton>
-                    <CustomButton
-                      variant={"warning"}
-                      onClick={() => handleVerify(sub._id, "rejected")}
-                    >
-                      Reject
-                    </CustomButton>
-                  </div>
+                    {t("approve")}
+                  </CustomButton>
+                  <CustomButton
+                    variant={"warning"}
+                    onClick={() => handleVerify(sub._id, "rejected")}
+                  >
+                    {t("reject2")}
+                  </CustomButton>
                 </div>
               </div>
             ))

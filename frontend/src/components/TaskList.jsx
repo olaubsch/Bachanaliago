@@ -5,12 +5,10 @@ import {showAlert} from "./ui/alert.jsx";
 import QrScanner from "./QrScanner.jsx";
 import CustomTextArea from "./ui/CustomTextArea.jsx";
 import CustomButton from "./ui/CustomButton.jsx";
-import CustomInput from "./ui/CustomInput.jsx";
 import CustomSelect from "./ui/CustomSelect.jsx";
 import LocationIcon from "../utils/icons/LocationPin.jsx";
 import {useLanguage} from "../utils/LanguageContext.jsx";
 import { useTranslation } from 'react-i18next';
-import DragDropFileInput from "./ui/FileInput.jsx";
 import FileInput from "./ui/FileInput.jsx";
 
 
@@ -18,15 +16,12 @@ const LIST_CONTAINER_HEIGHT_VH = 61;
 const FADE_ZONE_HEIGHT_PERCENT = 25;
 const FADE_ZONE_START_PERCENT = 100 - FADE_ZONE_HEIGHT_PERCENT;
 
-const URL = "http://localhost:5000";
-
 function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition }) {
     const containerRef = useRef(null);
     const [scrollTop, setScrollTop] = useState(0);
     const [containerClientHeight, setContainerClientHeight] = useState(0);
     const [maxScrollTop, setMaxScrollTop] = useState(0);
     const [expandedCardIndex, setExpandedCardIndex] = useState(null);
-    const [imageData, setImageData] = useState({});
     const { language } = useLanguage();
     const { t } = useTranslation();
     const itemHeight = 86; // Fixed height for each task item in pixels (collapsed)
@@ -50,7 +45,7 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition
         approved: "#acd8aa",      // green
         rejected: "#ff686b",      // red
         pending: "#f9dc5c",       // orange
-        "not started": "#fff", // blue
+        "notStarted": "#fff", // blue
     };
 
     const [filter, setFilter] = useState("all");
@@ -173,12 +168,12 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition
                 {tasks
                     .filter((task) => {
                         const submission = submissions.find((sub) => sub.task?._id === task._id);
-                        const status = submission ? submission.status : "not started";
+                        const status = submission ? submission.status : "notStarted";
                         return filter === "all" || status === filter;
                     })
                     .map((task, index) => {
                         const submission = submissions.find((sub) => sub.task?._id === task._id);
-                        const status = submission ? submission.status : "not started";
+                        const status = submission ? submission.status : "notStarted";
                         const isExpanded = index === expandedCardIndex;
                         const currentItemHeightWithMargin = isExpanded ? EXPANDED_ITEM_HEIGHT_WITH_MARGIN : itemHeightWithMargin;
 
@@ -248,11 +243,11 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition
                                      className={styles.statusInfo}>
                                     <div>
                                         <h3>{task.name[language]}</h3>
-                                        <p>{status}</p>
+                                        <p>{t(status)}</p>
                                     </div>
                                     {task.image && (
                                         <img
-                                            src={`${URL}/${task.image}`}
+                                            src={task.image}
                                             alt="Partner"
                                             style={{
                                                 width: '59px',

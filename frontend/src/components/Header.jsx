@@ -8,9 +8,8 @@ import { assignUserColors } from "../utils/colorUtils.jsx";
 import UserIcons from "./headerComponents/UserIcons.jsx";
 import FriendListPopup from "./headerComponents/FriendListPopup.jsx";
 import UserSettingsPopup from "./headerComponents/UserSettingsPopup.jsx";
-import {showAlert} from "./ui/alert.jsx";
-import { useTranslation } from 'react-i18next';
-
+import { showAlert } from "./ui/alert.jsx";
+import { useTranslation } from "react-i18next";
 
 const socket = io("/", {
   path: "/socket.io",
@@ -33,15 +32,17 @@ function Header({
   logout,
   groupScore,
   onUserUpdate,
+  setShowKonamiPage, // Add new prop
+  hasPlayedSlots, // Added hasPlayedSlots prop
 }) {
   const [showPopup, setShowPopup] = useState(false);
   const [showLeaderBoardPopup, setShowLeaderBoardPopup] = useState(false);
   const [showMainUserPopup, setShowMainUserPopup] = useState(false);
 
-    const userColors = useMemo(() => assignUserColors(groupUsers), [groupUsers]);
-    const otherUsers = groupUsers.filter((user) => user.nickname !== nickname);
-    const handleLogout = logout;
-    const { t } = useTranslation();
+  const userColors = useMemo(() => assignUserColors(groupUsers), [groupUsers]);
+  const otherUsers = groupUsers.filter((user) => user.nickname !== nickname);
+  const handleLogout = logout;
+  const { t } = useTranslation();
 
   const handleRemoveUser = async (userId) => {
     if (window.confirm("Are you sure you want to remove this user?")) {
@@ -251,35 +252,52 @@ function Header({
         </div>
       )}
 
-        {/* Leader Board Pop-up */}
-        {showLeaderBoardPopup && (
-            <div className={styles.popup_overlay} onClick={() => setShowLeaderBoardPopup(false)}>
-                <div className={styles.popup_content} onClick={(e) => e.stopPropagation()}>
-                    <div className={styles.actions_user}>
-                        <Leaderboard/>
-                    </div>
-                    <button className={styles.button} onClick={() => setShowLeaderBoardPopup(false)}>
-                        {t('Close')}
-                    </button>
-                </div>
+      {/* Leader Board Pop-up */}
+      {showLeaderBoardPopup && (
+        <div
+          className={styles.popup_overlay}
+          onClick={() => setShowLeaderBoardPopup(false)}
+        >
+          <div
+            className={styles.popup_content}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className={styles.actions_user}>
+              <Leaderboard />
             </div>
-        )}
-        {/* Current User Pop-up */}
-        {showMainUserPopup && (
-            <div className={styles.popup_overlay} onClick={() => setShowMainUserPopup(false)}>
-                <div className={styles.popup_content} onClick={(e) => e.stopPropagation()}>
-                    <UserSettingsPopup
-                        isOwner={isOwner}
-                        handleLogout={handleLogout}
-                        handleQuitGroup={handleQuitGroup}
-                        handleDeleteGroup={handleDeleteGroup}
-                        setShowMainUserPopup={setShowMainUserPopup}
-                    />
-                </div>
-            </div>
-        )}
+            <button
+              className={styles.button}
+              onClick={() => setShowLeaderBoardPopup(false)}
+            >
+              {t("Close")}
+            </button>
+          </div>
         </div>
-    )
+      )}
+      {/* Current User Pop-up */}
+      {showMainUserPopup && (
+        <div
+          className={styles.popup_overlay}
+          onClick={() => setShowMainUserPopup(false)}
+        >
+          <div
+            className={styles.popup_content}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <UserSettingsPopup
+              isOwner={isOwner}
+              handleLogout={handleLogout}
+              handleQuitGroup={handleQuitGroup}
+              handleDeleteGroup={handleDeleteGroup}
+              setShowMainUserPopup={setShowMainUserPopup}
+              setShowKonamiPage={setShowKonamiPage} // Pass setShowKonamiPage to UserSettingsPopup
+              hasPlayedSlots={hasPlayedSlots} // Pass hasPlayedSlots to UserSettingsPopup
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default Header;

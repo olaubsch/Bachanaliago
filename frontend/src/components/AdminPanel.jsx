@@ -12,6 +12,8 @@ import ToggleSwitch from "./ui/ToggleSwitch.jsx";
 import GearIcon from "../utils/icons/GearIcon.jsx";
 import CloseIcon from "../utils/icons/closeIcon.jsx";
 import LanguageToggle from "./ui/LanguageToggle.jsx";
+import {useTranslation} from "react-i18next";
+import LocationIcon from "../utils/icons/LocationPin.jsx";
 
 function AdminPanel() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -22,6 +24,8 @@ function AdminPanel() {
   const [groupCreationEnabled, setGroupCreationEnabled] = useState(true);
   const [appEnabled, setAppEnabled] = useState(true);
   const [showPopup, setShowPopup] = useState(false);
+  const { t } = useTranslation();
+  const gMapURL = 'https://www.google.com/maps?q=';
   const { language } = useLanguage();
   const formRef = useRef();
 
@@ -155,7 +159,7 @@ function AdminPanel() {
       </div>
       {!isLoggedIn ? (
           <div className={styles.adminForm}>
-            <h2>Admin Login</h2>
+            <h2>{t('adminLogin')}</h2>
             <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -172,7 +176,7 @@ function AdminPanel() {
                     onChange={(e) => setPassword(e.target.value)}
                 />
                 <button className={styles.button} onClick={handleLogin}>
-                  Zaloguj
+                  {t('login')}
                 </button>
               </div>
             </form>
@@ -181,10 +185,10 @@ function AdminPanel() {
           <div className={styles.adminPanel}>
             <div className={styles.leftColumn}>
               <div className={styles.adminForm}>
-                <h2 className={styles.taskHeader}>Panel Admina</h2>
+                <h2 className={styles.taskHeader}>{t('adminPanel')}</h2>
                 <div className={styles.contentContainer}>
                   <div className={styles.headerControls}>
-                    <h2>{showForm ? editingTask ? "Edytowanie Taska" : "Dodaj Taska" : "Lista Tasków"}</h2>
+                    <h2>{showForm ? editingTask ? t('editTask') : t('addTask') : t('taskList')}</h2>
                   <div style={{ display: "flex", gap: "0.5rem" }}>
                     <CustomButton
                         variant={showForm ? "outline" : "default"}
@@ -198,12 +202,12 @@ function AdminPanel() {
                           });
                         }}
                     >
-                      {showForm ? "Anuluj" : "Dodaj"}
+                      {showForm ? t('cancel') : t('add')}
                     </CustomButton>
 
                     {showForm && (
                       <CustomButton onClick={handleExternalSubmit}>
-                        {editingTask ? "Zapisz" : "Dodaj"}
+                        {editingTask ? t('save') : t('add')}
                       </CustomButton>
                     )}
                   </div>
@@ -231,39 +235,62 @@ function AdminPanel() {
                             <div className={styles.taskHeader}>
                               <h2>{task.name[language]}</h2>
                               <div className={styles.subTitleText}>
-                                <p style={{fontWeight: "lighter"}}>Punkty: <span
+                                <p style={{fontWeight: "lighter"}}>{t('points')}: <span
                                     style={{fontWeight: "bold"}}>{task.score}</span></p>|
-                                <p style={{fontWeight: "lighter"}}>Typ: <span
+                                <p style={{fontWeight: "lighter"}}>{t('type')}: <span
                                     style={{fontWeight: "bold"}}>{task.type}</span></p>
                               </div>
                             </div>
                             <div className={styles.taskDetails}>
                               <p>{task.description[language]}</p>
-                              {task.location && task.location.lat != null && task.location.lng != null && (
-                                  <p>
-                                    {task.location.lat}, {task.location.lng}
-                                  </p>
-                              )}
                               {task.type === "qr" && <p>QR ID: {task._id}</p>}
                               <div
                                   style={{
                                     display: "flex",
-                                    justifyContent: "flex-end",
+                                    justifyContent: task.image || task.location.lat ? "space-between" : "flex-end"
                                   }}
                               >
+                                <div style={{display: "flex", gap: "0.5rem"}}>
+                                  {task.location.lat && (
+                                      <button
+                                          onClick={() =>
+                                              window.open(
+                                                  `${gMapURL}${task.location.lat},${task.location.lng}`,
+                                                  "_blank"
+                                              )
+                                          }
+                                          className={ styles.locationButton }
+                                      >
+                                        <LocationIcon size={28} />
+                                      </button>
+
+                                  )}
+                                  {task.image && (
+                                      <img
+                                          src={task.image}
+                                          alt="Partner"
+                                          style={{
+                                            width: '50px',
+                                            height: '50px',
+                                            objectFit: 'cover',
+                                            borderRadius: '8px',
+                                          }}
+                                      />
+                                  )}
+                                </div>
                                 <div style={{display: "flex", gap: "0.5rem"}}>
                                   <CustomButton
                                       width={"fit-content"}
                                       variant={"outline"}
                                       onClick={() => handleDelete(task._id)}
                                   >
-                                    Usuń
+                                    {t('delete')}
                                   </CustomButton>
                                   <CustomButton
                                       width={"fit-content"}
                                       onClick={() => handleEdit(task)}
                                   >
-                                    Edytuj
+                                    {t('edit')}
                                   </CustomButton>
                                 </div>
                               </div>
@@ -285,7 +312,7 @@ function AdminPanel() {
                 <div className={styles.popupOverlay} onClick={() => setShowPopup(false)}>
                   <div className={styles.popupContent} onClick={(e) => e.stopPropagation()}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <h1>App Settings</h1>
+                      <h1>{t('appSettings')}</h1>
                       <div
                           style={{ display: "flex", alignItems: "center" }}
                           onClick={() => setShowPopup(false)}>
@@ -295,12 +322,12 @@ function AdminPanel() {
 
                     <div className={styles.settingsSection}>
                       <div className={styles.settInfo}>
-                        <h2>Group Creation</h2>
-                        <p>Control whether users can create new groups in the application</p>
+                        <h2>{t('groupCreation')}</h2>
+                        <p>{t('groupCreationDesc')}</p>
                       </div>
                       <ToggleSwitch
-                          leftLabel="Enable"
-                          rightLabel="Disable"
+                          leftLabel={t('enable')}
+                          rightLabel={t('disable')}
                           isLeftActive={groupCreationEnabled}
                           onToggle={(enabled) => {
                             setGroupCreationEnabled(enabled);
@@ -311,13 +338,13 @@ function AdminPanel() {
 
                     <div className={styles.settingsSection}>
                       <div className={styles.settInfo}>
-                        <h2>App Control</h2>
-                        <p>Enable or disable the entire application functionality</p>
+                        <h2>{t('appControl')}</h2>
+                        <p>{t('appControlDesc')}</p>
                       </div>
 
                       <ToggleSwitch
-                          leftLabel="Enable"
-                          rightLabel="Disable"
+                          leftLabel={t('enable')}
+                          rightLabel={t('disable')}
                           isLeftActive={appEnabled}
                           onToggle={handleToggleApp}
                       />
@@ -326,11 +353,10 @@ function AdminPanel() {
                     <div>
                       <div className={styles.settInfo} style={{ marginTop: "1rem" }}>
                         <h2>Killswitch</h2>
-                        <p>This action will permanently delete all data and disable the application. This cannot be
-                          undone.</p>
+                        <p>{t('killswitchDesc')}</p>
                       </div>
                       <CustomButton width={"100%"} variant={"warning"} onClick={handleKillswitchClick}>
-                        Delete Database & Disable App
+                        {t('deleteDatabaseDisableApp')}
                       </CustomButton>
                     </div>
                   </div>

@@ -101,7 +101,7 @@
   padding: 1.5rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
   -webkit-mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%, transparent);
   -webkit-mask-composite: source-in;
 }
@@ -113,7 +113,7 @@
   padding: 1.5rem 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .taskForm {
@@ -149,7 +149,7 @@
 /* Karta taska */
 .adminTaskCard {
   background: var(--text-header-color);
-  border-radius: 20px;
+  border-radius: 1rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(var(--text-color-rgb), 0.2);
   padding: 0.75rem 1.5rem 1.5rem;
@@ -284,6 +284,23 @@
 .settingsSection {
   border-bottom: 1px solid rgba(var(--text-color-rgb), 0.2);
   padding: 1rem 0;
+}
+
+.locationButton {
+  background: transparent;
+  border-radius: 0.5rem;
+  padding: 0 0.6rem;
+  border: solid 1px var(--text-color);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.locationButton:hover {
+  border: solid 1px var(--text-color);
+  color: var(--bg-color);
+  background: var(--text-color);
+  opacity: 0.7;
 }
 
 .icon {

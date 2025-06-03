@@ -14,9 +14,9 @@ import CustomInput from "./ui/CustomInput.jsx";
 import TaskList from "./TaskList.jsx";
 import Slots from "./Slots";
 import { useLanguage } from "../utils/LanguageContext";
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 import LanguageToggle from "./ui/LanguageToggle.jsx";
-
+import KonamiPage from "./KonamiPage.jsx"; // Import the new KonamiPage component
 
 const socket = io("/", {
   path: "/socket.io",
@@ -42,16 +42,15 @@ function UserPanel() {
   const [groupUsers, setGroupUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [groupScore, setGroupScore] = useState(0);
+  const [hasPlayedSlots, setHasPlayedSlots] = useState(false); // Added state for hasPlayedSlots
   const taskListRef = useRef();
-  const [keySequence, setKeySequence] = useState([]);
   const [showSlots, setShowSlots] = useState(false);
+  const [showKonamiPage, setShowKonamiPage] = useState(false); // New state for Konami page
   const [activeViewMap, setActiveViewMap] = useState(true);
   const [badWords, setBadWords] = useState([]);
   const [position, setPosition] = useState(null);
-  const { language,toggleLanguage } = useLanguage();
+  const { language, toggleLanguage } = useLanguage();
   const { t } = useTranslation();
-
-
 
   const { logout } = useAuth({
     setIsLoggedIn,
@@ -92,49 +91,6 @@ function UserPanel() {
     }
   }, [inviteCode]);
 
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      setKeySequence((prev) => [...prev, event.key].slice(-10));
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
-
-  useEffect(() => {
-    const konamiCode = [
-      "ArrowUp",
-      "ArrowUp",
-      "ArrowDown",
-      "ArrowDown",
-      "ArrowLeft",
-      "ArrowRight",
-      "ArrowLeft",
-      "ArrowRight",
-      "b",
-      "a",
-    ];
-    if (
-      keySequence.length === 10 &&
-      keySequence.every((key, index) => key === konamiCode[index])
-    ) {
-      axios
-        .post(`/api/groups/${groupCode}/play-slots`)
-        .then((response) => {
-          setShowSlots(true);
-        })
-        .catch((error) => {
-          if (error.response && error.response.status === 403) {
-            showAlert("Your group has already played the slots.");
-          } else {
-            showAlert("Error starting slots game.");
-          }
-        });
-      setKeySequence([]);
-    }
-  }, [keySequence, groupCode]);
-
   const fetchData = async (code) => {
     setIsLoading(true);
     try {
@@ -150,6 +106,7 @@ function UserPanel() {
       setIsOwner(groupRes.data.owner.nickname === nickname);
       setOwnerId(groupRes.data.owner._id);
       setGroupScore(groupRes.data.score);
+      setHasPlayedSlots(groupRes.data.hasPlayedSlots); // Set hasPlayedSlots from group data
       localStorage.setItem("ownerId", groupRes.data.owner._id);
     } catch (err) {
       console.error("Error fetching group:", err);
@@ -319,7 +276,7 @@ function UserPanel() {
       {!isLoggedIn ? (
         <div className={styles.loginContainer}>
           <div className={styles.themeAndLanguage}>
-            <LanguageToggle/>
+            <LanguageToggle />
             <div className={styles.themeIconWrapper}>
               <ThemeToggle />
             </div>
@@ -328,44 +285,44 @@ function UserPanel() {
           <div className={styles.loginForm}>
             <div className={styles.personLoginForm}>
               <div className={styles.textStack}>
-                <h1 className={styles.textStroke}>{t('joinGame')}</h1>
-                <h1 className={styles.textFill}>{t('joinGame')}</h1>
+                <h1 className={styles.textStroke}>{t("joinGame")}</h1>
+                <h1 className={styles.textFill}>{t("joinGame")}</h1>
               </div>
               <CustomInput
                 className={styles.input}
                 type="text"
-                placeholder={t('groupCode')}
+                placeholder={t("groupCode")}
                 value={groupCode || ""}
                 onChange={(e) => setGroupCode(e.target.value)}
               />
               <CustomInput
                 className={styles.input}
                 type="text"
-                placeholder={t('yourNickname')}
+                placeholder={t("yourNickname")}
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
               />
               <CustomButton className={styles.button} onClick={handleLogin}>
-                {t('join')}
+                {t("join")}
               </CustomButton>
             </div>
             {!inviteCode && (
               <div className={styles.groupLoginForm}>
                 <div className={styles.textStack}>
-                  <h1 className={styles.textStroke}>{t('orCreateNewGroup')}</h1>
-                  <h1 className={styles.textFill}>{t('orCreateNewGroup')}</h1>
+                  <h1 className={styles.textStroke}>{t("orCreateNewGroup")}</h1>
+                  <h1 className={styles.textFill}>{t("orCreateNewGroup")}</h1>
                 </div>
                 <CustomInput
                   className={styles.input}
                   type="text"
-                  placeholder={t('groupName')}
+                  placeholder={t("groupName")}
                   value={newGroupName}
                   onChange={(e) => setNewGroupName(e.target.value)}
                 />
                 <CustomInput
                   className={styles.input}
                   type="text"
-                  placeholder={t('yourNicknameLeader')}
+                  placeholder={t("yourNicknameLeader")}
                   value={ownerNickname}
                   onChange={(e) => setOwnerNickname(e.target.value)}
                 />
@@ -373,7 +330,7 @@ function UserPanel() {
                   className={styles.button}
                   onClick={handleCreateGroup}
                 >
-                  {t('createGroup')}
+                  {t("createGroup")}
                 </CustomButton>
               </div>
             )}
@@ -382,71 +339,104 @@ function UserPanel() {
       ) : (
         <div className={styles.appContainer}>
           <Header
-              groupUsers={groupUsers}
-              setGroupUsers={setGroupUsers}
-              currentUser={currentUser}
-              isOwner={isOwner}
-              setIsOwner={setIsOwner}
-              ownerId={ownerId}
-              nickname={nickname}
-              groupName={groupName}
-              groupCode={groupCode}
-              logout={logout}
-              groupScore={groupScore}
-              onUserUpdate={() => fetchData(groupCode)}
+            groupUsers={groupUsers}
+            setGroupUsers={setGroupUsers}
+            currentUser={currentUser}
+            isOwner={isOwner}
+            setIsOwner={setIsOwner}
+            ownerId={ownerId}
+            nickname={nickname}
+            groupName={groupName}
+            groupCode={groupCode}
+            logout={logout}
+            groupScore={groupScore}
+            onUserUpdate={() => fetchData(groupCode)}
+            setShowKonamiPage={setShowKonamiPage} // Pass setShowKonamiPage to Header
+            hasPlayedSlots={hasPlayedSlots} // Pass hasPlayedSlots to Header
           />
+          <div
+            onTouchStart={() => setActiveViewMap(true)}
+            style={{
+              height: activeViewMap ? "250px" : "75px",
+              borderRadius: "12px",
+              overflow: "hidden",
+              transition: "height 0.3s ease-in-out",
+            }}
+          >
+            <MapElement
+              tasks={tasks}
+              position={position ? [position.lat, position.lng] : undefined}
+              onClearPosition={handleClearPosition}
+            />
+          </div>
+          <div onTouchStart={() => setActiveViewMap(false)}>
+            <TaskList
+              tasks={tasks}
+              submissions={submissions}
+              groupCode={groupCode}
+              isLoading={isLoading}
+              fetchSubmissions={() => fetchSubmissions(groupCode)}
+              setPosition={setPosition}
+            />
+          </div>
+          {showKonamiPage && (
             <div
-                onTouchStart={() => setActiveViewMap(true)}
-                style={{
-                    height: activeViewMap ? '250px' : '75px',
-                    borderRadius: '12px',
-                    overflow: 'hidden',
-                    transition: 'height 0.3s ease-in-out',
-                }}>
-                <MapElement
-                    tasks={tasks}
-                    position={position ? [position.lat, position.lng] : undefined}
-                    onClearPosition={handleClearPosition}
-                />
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor: "white",
+                zIndex: 1000,
+                overflow: "auto",
+              }}
+            >
+              <KonamiPage
+                onCodeEntered={() => {
+                  if (!hasPlayedSlots) {
+                    // Check hasPlayedSlots before showing slots
+                    setShowSlots(true);
+                    setShowKonamiPage(false);
+                  } else {
+                    showAlert("Your group has already played the slots.");
+                    setShowKonamiPage(false);
+                  }
+                }}
+                onClose={() => setShowKonamiPage(false)}
+              />
             </div>
-            <div onTouchStart={() => setActiveViewMap(false)}>
-                <TaskList
-                    tasks={tasks}
-                    submissions={submissions}
-                    groupCode={groupCode}
-                    isLoading={isLoading}
-                    fetchSubmissions={() => fetchSubmissions(groupCode)}
-                    setPosition={setPosition}
-                />
+          )}
+          {showSlots && (
+            <div
+              style={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor: "white",
+                zIndex: 1000,
+                overflow: "auto",
+              }}
+            >
+              <button onClick={() => setShowSlots(false)}>{t("close")}</button>
+              <Slots
+                groupScore={groupScore}
+                groupCode={groupCode}
+                onSpinComplete={(newScore) => {
+                  setGroupScore(newScore);
+                  setShowSlots(false);
+                  fetchData(groupCode); // Refresh data after spin
+                }}
+                hasPlayedSlots={hasPlayedSlots} // Pass hasPlayedSlots to Slots
+              />
             </div>
-            {showSlots && (
-                <div
-                    style={{
-                        position: "fixed",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        height: "100%",
-                        backgroundColor: "white",
-                        zIndex: 1000,
-                        overflow: "auto",
-                    }}
-                >
-                    <button onClick={() => setShowSlots(false)}>{t('close')}</button>
-                    <Slots
-                        groupScore={groupScore}
-                        groupCode={groupCode}
-                        onSpinComplete={(newScore) => {
-                            setGroupScore(newScore);
-                            setShowSlots(false);
-                        }}
-                    />
-                </div>
-            )}
+          )}
         </div>
-    )}
-  </div>
-);
+      )}
+    </div>
+  );
 }
 
 export default UserPanel;

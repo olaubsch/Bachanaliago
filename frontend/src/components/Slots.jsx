@@ -3,8 +3,6 @@ import axios from "axios";
 import styles from "./modules/Slots.module.css";
 import { useTranslation } from 'react-i18next';
 
-
-
 const Reel = ({
   basicSymbols,
   currentSymbol,
@@ -15,7 +13,6 @@ const Reel = ({
 }) => {
   const [position, setPosition] = useState(0);
   const [transition, setTransition] = useState("none");
-  const { t } = useTranslation();
 
   useEffect(() => {
     if (isSpinning) {
@@ -67,7 +64,7 @@ const Reel = ({
   );
 };
 
-const Slots = ({ groupScore, groupCode, onSpinComplete }) => {
+const Slots = ({ groupScore, groupCode, onSpinComplete, hasPlayedSlots }) => { // Added hasPlayedSlots prop
   const basicSymbols = ["🍒", "🍋", "🔔", "7️⃣", "🍫"];
   const [reel1Symbol, setReel1Symbol] = useState(basicSymbols[0]);
   const [reel2Symbol, setReel2Symbol] = useState(basicSymbols[0]);
@@ -77,13 +74,14 @@ const Slots = ({ groupScore, groupCode, onSpinComplete }) => {
   const [message, setMessage] = useState("");
   const [hasSpun, setHasSpun] = useState(false);
   const [betAmount, setBetAmount] = useState(1);
+  const { t } = useTranslation();
 
   const multipliers = {
-    "🍒": 1.5,
-    "🍋": 1.75,
-    "🔔": 2,
-    "7️⃣": 4,
-    "🍫": 3,
+    "🍒": 1.25,
+    "🍋": 1.5,
+    "🔔": 1.75,
+    "7️⃣": 2,
+    "🍫": 2.5,
   };
 
   const spin = () => {
@@ -97,21 +95,22 @@ const Slots = ({ groupScore, groupCode, onSpinComplete }) => {
 
     const r = Math.random();
     let final1, final2, final3;
-    if (r < 0.3) {
+    if (r < 0.2) {
       final1 = final2 = final3 = "🍒";
-    } else if (r < 0.4) {
+    } else if (r < 0.3) {
       final1 = final2 = final3 = "🍋";
-    } else if (r < 0.45) {
+    } else if (r < 0.35) {
       final1 = final2 = final3 = "🔔";
-    } else if (r < 0.47) {
+    } else if (r < 0.38) {
       final1 = final2 = final3 = "7️⃣";
-    } else if (r < 0.5) {
+    } else if (r < 0.4) {
       final1 = final2 = final3 = "🍫";
     } else {
-      const shuffled = [...basicSymbols].sort(() => 0.5 - Math.random());
-      final1 = shuffled[0];
-      final2 = shuffled[1];
-      final3 = shuffled[2];
+      do {
+        final1 = basicSymbols[Math.floor(Math.random() * basicSymbols.length)];
+        final2 = basicSymbols[Math.floor(Math.random() * basicSymbols.length)];
+        final3 = basicSymbols[Math.floor(Math.random() * basicSymbols.length)];
+      } while (final1 === final2 && final2 === final3);
     }
 
     setFinalSymbols([final1, final2, final3]);
@@ -139,7 +138,11 @@ const Slots = ({ groupScore, groupCode, onSpinComplete }) => {
         }, 2000);
       } catch (err) {
         console.error(err);
-        setMessage("Error updating score");
+        if (err.response && err.response.status === 403) { // Handle 403 error
+          setMessage("Your group has already played the slots.");
+        } else {
+          setMessage("Error updating score");
+        }
       }
     }, 3000);
   };
@@ -190,10 +193,10 @@ const Slots = ({ groupScore, groupCode, onSpinComplete }) => {
           />
         </div>
         <button
-            className={ styles.spinButton }
+          className={styles.spinButton}
           onClick={spin}
           disabled={
-            isSpinning || hasSpun || betAmount <= 0 || betAmount > groupScore
+            isSpinning || hasSpun || betAmount <= 0 || betAmount > groupScore || hasPlayedSlots // Disable if hasPlayedSlots is true
           }
         >
           Spin
@@ -202,11 +205,11 @@ const Slots = ({ groupScore, groupCode, onSpinComplete }) => {
         <div className={styles.paytable}>
           <h3>{t('paytable')}</h3>
           <p>{t('betAmount')}: 1 to {groupScore} points</p>
-          <p>Three 🍒: x1.5 (win {Math.floor(betAmount * 1.5)} points)</p>
-          <p>Three 🍋: x1.75 (win {Math.floor(betAmount * 1.75)} points)</p>
-          <p>Three 🔔: x2 (win {Math.floor(betAmount * 2)} points)</p>
-          <p>Three 7️⃣: x4 (win {Math.floor(betAmount * 4)} points)</p>
-          <p>Three 🍫: x3 (win {Math.floor(betAmount * 3)} points)</p>
+          <p>Three 🍒: x1.25 (win {Math.floor(betAmount * 1.25)} points)</p>
+          <p>Three 🍋: x1.5 (win {Math.floor(betAmount * 1.5)} points)</p>
+          <p>Three 🔔: x1.75 (win {Math.floor(betAmount * 1.75)} points)</p>
+          <p>Three 7️⃣: x2 (win {Math.floor(betAmount * 2)} points)</p>
+          <p>Three 🍫: x2.5 (win {Math.floor(betAmount * 2.5)} points)</p>
         </div>
       </div>
     </>

@@ -1,4 +1,4 @@
-import React, {forwardRef, useEffect, useImperativeHandle, useState} from "react";
+import React, {forwardRef, useImperativeHandle, useState} from "react";
 import axios from "axios";
 import TaskMapPicker from "./TaskMapPicker";
 import styles from "./modules/TaskForm.module.css";
@@ -8,22 +8,24 @@ import CustomInput from "./ui/CustomInput.jsx";
 import CustomTextArea from "./ui/CustomTextArea.jsx";
 import ToggleSwitch from "./ui/ToggleSwitch.jsx";
 import FileInput from "./ui/FileInput.jsx";
+import {useTranslation} from "react-i18next";
 
 const TaskForm = forwardRef(function TaskForm({ onTaskAdded, task = null }, ref) {
     const [name, setName] = useState(task?.name || { pl: "", en: "" });
     const [description, setDescription] = useState(task?.description || { pl: "", en: "" });
     const [lat, setLat] = useState(task?.location?.lat || "");
     const [lng, setLng] = useState(task?.location?.lng || "");
-    const [score, setScore] = useState(task?.score || 0);
+    const [score, setScore] = useState(task?.score || null);
     const [type, setType] = useState(task?.type || "text");
     const [imageFile, setImageFile] = useState(null);
     const [polish, setPolish] = useState(true);
+    const { t } = useTranslation();
 
     const options = [
-        {value: 'qr', label: 'QR Code'},
-        {value: 'text', label: 'Text Input'},
-        {value: 'photo', label: 'Photo Upload'},
-        {value: 'video', label: 'Video Upload'}
+        {value: 'qr', label: t('qrCode')},
+        {value: 'text', label: t('textInput')},
+        {value: 'photo', label: t('photoUpload')},
+        {value: 'video', label: t('videoUpload')}
     ];
 
     const handleSubmit = async (e) => {
@@ -84,10 +86,6 @@ const TaskForm = forwardRef(function TaskForm({ onTaskAdded, task = null }, ref)
         submit: handleSubmit,
     }));
 
-    const handleToggle = () => {
-        setPolish(!polish);
-    };
-
     return (
         <div className={styles.formContainer}>
             <div style={{ display: 'flex', gap: '1rem' }}>
@@ -102,7 +100,7 @@ const TaskForm = forwardRef(function TaskForm({ onTaskAdded, task = null }, ref)
                     <>
                         <CustomInput
                             type="text"
-                            placeholder="Nazwa (PL)"
+                            placeholder={`${t('name')} (PL)`}
                             value={name.pl}
                             onChange={(e) => setName({ ...name, pl: e.target.value })}
                             required
@@ -113,7 +111,7 @@ const TaskForm = forwardRef(function TaskForm({ onTaskAdded, task = null }, ref)
                     <>
                         <CustomInput
                             type="text"
-                            placeholder="Nazwa (EN)"
+                            placeholder={`${t('name')} (EN)`}
                             value={name.en}
                             onChange={(e) => setName({ ...name, en: e.target.value })}
                             required
@@ -127,8 +125,9 @@ const TaskForm = forwardRef(function TaskForm({ onTaskAdded, task = null }, ref)
                 <>
                     <CustomTextArea
                         type="text"
-                        placeholder="Opis (PL)"
+                        placeholder={`${t('description')} (PL)`}
                         value={description.pl}
+                        minHeight={'160px'}
                         onChange={(e) => setDescription({ ...description, pl: e.target.value })}
                         required
                         className={styles.input}
@@ -138,9 +137,10 @@ const TaskForm = forwardRef(function TaskForm({ onTaskAdded, task = null }, ref)
                 <>
                     <CustomTextArea
                         type="text"
-                        placeholder="Opis (EN)"
+                        placeholder={`${t('description')} (EN)`}
                         textColor={"var(--text-color)"}
                         value={description.en}
+                        minHeight={'160px'}
                         onChange={(e) => setDescription({ ...description, en: e.target.value })}
                         required
                         className={styles.input}
@@ -151,7 +151,7 @@ const TaskForm = forwardRef(function TaskForm({ onTaskAdded, task = null }, ref)
                 <div style={{ width: '33%'}}>
                     <CustomInput
                         type="number"
-                        placeholder="Punkty za zadanie"
+                        placeholder={t('taskPoints')}
                         value={score}
                         onChange={(e) => setScore(e.target.value)}
                         required
