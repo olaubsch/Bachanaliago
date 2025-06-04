@@ -70,5 +70,7 @@
   "name": "Nazwa",
   "description": "Opis",
   "taskPoints": "Punkty za zadanie",
-  "User denied Geolocation": "Użytkownik odmówił dostępu do geolokalizacji."
+  "User denied Geolocation": "Użytkownik odmówił dostępu do geolokalizacji.",
+  "awaitingVerification": "Oczekiwanie na weryfikację. Dalsze zgłoszenia są wyłączone.",
+  "noGroupsToDisplay": "Brak grup do wyświetlenia."
 }

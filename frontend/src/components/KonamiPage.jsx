@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import CustomButton from "./ui/CustomButton.jsx";
 import styles from "./modules/Konami.module.css";
+import { useTranslation } from 'react-i18next';
 
 const KonamiPage = ({ onCodeEntered, onClose }) => {
   const [sequence, setSequence] = useState([]);
   const [touchStart, setTouchStart] = useState(null);
 
   const minSwipeDistance = 30;
+  const { t } = useTranslation();
 
   // Disable pull-to-refresh on mobile
   useEffect(() => {
@@ -112,7 +114,7 @@ const KonamiPage = ({ onCodeEntered, onClose }) => {
           <CustomButton
               onClick={onClose}
           >
-              Close
+              {t('close')}
           </CustomButton>
       </div>
   );

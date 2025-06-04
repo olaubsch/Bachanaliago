@@ -70,5 +70,7 @@
   "name": "Name",
   "description": "Description",
   "taskPoints": "Task Points",
-  "User denied Geolocation": "User denied Geolocation"
+  "User denied Geolocation": "User denied Geolocation",
+  "awaitingVerification": "Awaiting verification. Further submissions are disabled.",
+  "noGroupsToDisplay": "No groups to display"
 }
