@@ -3,14 +3,9 @@ import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-le
 import L from 'leaflet';
 import styles from "./modules/MapElement.module.css";
 import 'leaflet/dist/leaflet.css';
+import {useLanguage} from "../utils/LanguageContext.jsx";
+import {useTranslation} from "react-i18next";
 
-// Custom icon for user marker
-const userIcon = new L.Icon({
-  iconUrl: 'https://cdn-icons-png.flaticon.com/512/1673/1673223.png', // Example user icon
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-});
 
 function SetViewOnPosition({ position }) {
   const map = useMap();
@@ -27,6 +22,8 @@ function MapElement({ tasks, position: externalPosition, onClearPosition }) {
   const [mapCenter, setMapCenter] = useState(null);
   const [error, setError] = useState(null);
   const [centerSource, setCenterSource] = useState(null);
+  const { language } = useLanguage();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -49,11 +46,11 @@ function MapElement({ tasks, position: externalPosition, onClearPosition }) {
   }, [mapCenter, externalPosition]);
 
   useEffect(() => {
-    if (externalPosition && centerSource !== "external") {
+    if (externalPosition) {
       setMapCenter(externalPosition);
       setCenterSource("external");
     }
-  }, [externalPosition]);
+  }, [externalPosition?.[0], externalPosition?.[1]]);
 
   const handleRecenter = () => {
     if (userLocation) {
@@ -66,7 +63,7 @@ function MapElement({ tasks, position: externalPosition, onClearPosition }) {
   };
 
   if (error) {
-    return <div className={styles.load_wrapper}>Error: {error}</div>;
+    return <div className={styles.load_wrapper}>{t(error)}</div>;
   }
 
   return (
@@ -93,8 +90,7 @@ function MapElement({ tasks, position: externalPosition, onClearPosition }) {
               />
               <SetViewOnPosition position={mapCenter} />
               {userLocation && (
-                  <Marker position={mapCenter} icon={userIcon}>
-                    <Popup>Your location</Popup>
+                  <Marker position={mapCenter}>
                   </Marker>
               )}
 
@@ -109,7 +105,7 @@ function MapElement({ tasks, position: externalPosition, onClearPosition }) {
                         radius={100}
                         pathOptions={{ color: 'blue', fillColor: 'blue', fillOpacity: 0.5 }}
                     >
-                      <Popup>{task.name}</Popup>
+                      <Popup>{task.name[language]}</Popup>
                     </Circle>
                 );
               })}

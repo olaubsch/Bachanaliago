@@ -2,7 +2,6 @@ import styles from "../modules/Header.module.css";
 import ThemeToggle from "../../utils/ThemeToggle.jsx";
 import React, { useEffect, useState } from "react";
 import CustomButton from "../ui/CustomButton.jsx";
-import { useLanguage } from "../../utils/LanguageContext.jsx";
 import { useTranslation } from "react-i18next";
 import LanguageToggle from "../ui/LanguageToggle.jsx";
 
@@ -10,14 +9,12 @@ const UserSettingsPopup = ({
   handleLogout,
   handleQuitGroup,
   handleDeleteGroup,
-  isOwner,
   setShowMainUserPopup,
   setShowKonamiPage, // Add new prop
   hasPlayedSlots, // Added hasPlayedSlots prop
 }) => {
   const [storedOwnerId, setStoredOwnerId] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
-  const { language, toggleLanguage } = useLanguage();
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -61,17 +58,16 @@ const UserSettingsPopup = ({
             )}
         </div>
         {/* Hidden button for Konami code page */}
-        <button
-          style={{ opacity: 0, height: 100, padding: 0, margin: 0, border: "none" }}
+        <div
+          style={{ height: 100, marginTop: "3.5rem" }}
           onClick={() => {
-            if (!hasPlayedSlots) { // Check hasPlayedSlots before showing Konami page
+            if (!hasPlayedSlots) {
               setShowKonamiPage(true);
               setShowMainUserPopup(false);
             }
           }}
         >
-          Konami
-        </button>
+        </div>
       </div>
         <CustomButton onClick={() => setShowMainUserPopup(false)}>
             {t('close')}

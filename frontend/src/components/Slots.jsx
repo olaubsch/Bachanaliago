@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import styles from "./modules/Slots.module.css";
 import { useTranslation } from 'react-i18next';
+import CustomButton from "./ui/CustomButton.jsx";
 
 const Reel = ({
   basicSymbols,
@@ -149,14 +150,14 @@ const Slots = ({ groupScore, groupCode, onSpinComplete, hasPlayedSlots }) => { /
 
   return (
     <>
-      <div className={styles["slots-container"]}>
-        <div className={styles["points-display"]}>
+      <div className={ styles.slotsContainer }>
+        <div className={ styles.pointsDisplay }>
           {t('groupScore')}: {groupScore}
         </div>
         <div>
           <label>{t('betAmount')}: </label>
           <input
-            className={styles["point-input"]}
+            className={ styles.pointInput }
             type="number"
             value={betAmount}
             onChange={(e) => setBetAmount(Math.floor(Number(e.target.value)))}
@@ -166,7 +167,7 @@ const Slots = ({ groupScore, groupCode, onSpinComplete, hasPlayedSlots }) => { /
             disabled={isSpinning || hasSpun}
           />
         </div>
-        <div className={styles.reels}>
+        <div className={ styles.reels }>
           <Reel
             basicSymbols={basicSymbols}
             currentSymbol={reel1Symbol}
@@ -193,7 +194,7 @@ const Slots = ({ groupScore, groupCode, onSpinComplete, hasPlayedSlots }) => { /
           />
         </div>
         <button
-          className={styles.spinButton}
+          className={ styles.spinButton }
           onClick={spin}
           disabled={
             isSpinning || hasSpun || betAmount <= 0 || betAmount > groupScore || hasPlayedSlots // Disable if hasPlayedSlots is true
@@ -201,8 +202,8 @@ const Slots = ({ groupScore, groupCode, onSpinComplete, hasPlayedSlots }) => { /
         >
           Spin
         </button>
-        <div className={styles.message}>{message}</div>
-        <div className={styles.paytable}>
+        <div className={ styles.message }>{message}</div>
+        <div className={ styles.paytable }>
           <h3>{t('paytable')}</h3>
           <p>{t('betAmount')}: 1 to {groupScore} points</p>
           <p>Three 🍒: x1.25 (win {Math.floor(betAmount * 1.25)} points)</p>

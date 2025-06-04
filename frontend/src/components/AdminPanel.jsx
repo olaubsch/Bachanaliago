@@ -120,6 +120,8 @@ function AdminPanel() {
         axios.post("/api/admin/enableApp", { password })
           .then(() => showAlert("App enabled"))
           .catch(() => showAlert("Error enabling app"));
+        setAppEnabled(true);
+        window.location.reload();
       }
     }
   };
@@ -131,6 +133,7 @@ function AdminPanel() {
         axios.post("/api/admin/disableApp", { password })
           .then(() => showAlert("App disabled"))
           .catch(() => showAlert("Error disabling app"));
+        setAppEnabled(false);
       }
     }
   };

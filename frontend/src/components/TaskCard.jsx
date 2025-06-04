@@ -78,7 +78,7 @@ export default function TaskCard({
             {t('location')}: ({task.location.lat}, {task.location.lng})
           </div>
           {status === "pending" ? (
-            <div>Awaiting verification. Further submissions are disabled.</div>
+            <div>{t('awaitingVerification')}</div>
           ) : (
             <>
               {task.type === "qr" && status !== "approved" && (

@@ -67,7 +67,7 @@ const Leaderboard = () => {
               </div>
             </div>
         ) : (
-            <p>Brak grup do wyświetlenia.</p>
+            <p>{t('noGroupsToDisplay')}</p>
         )}
       </div>
   );

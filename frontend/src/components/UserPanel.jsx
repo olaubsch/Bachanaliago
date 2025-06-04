@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import MapElement from "./MapElement";
 import styles from "./modules/UserPanel.module.css";
-import TaskCard from "./TaskCard";
 import Header from "./Header.jsx";
 import useAuth from "../utils/useLogout.jsx";
 import { useLocation } from "react-router-dom";
@@ -16,7 +15,7 @@ import Slots from "./Slots";
 import { useLanguage } from "../utils/LanguageContext";
 import { useTranslation } from "react-i18next";
 import LanguageToggle from "./ui/LanguageToggle.jsx";
-import KonamiPage from "./KonamiPage.jsx"; // Import the new KonamiPage component
+import KonamiPage from "./KonamiPage.jsx";
 
 const socket = io("/", {
   path: "/socket.io",
@@ -420,17 +419,27 @@ function UserPanel() {
                 overflow: "auto",
               }}
             >
-              <button onClick={() => setShowSlots(false)}>{t("close")}</button>
-              <Slots
-                groupScore={groupScore}
-                groupCode={groupCode}
-                onSpinComplete={(newScore) => {
-                  setGroupScore(newScore);
-                  setShowSlots(false);
-                  fetchData(groupCode); // Refresh data after spin
-                }}
-                hasPlayedSlots={hasPlayedSlots} // Pass hasPlayedSlots to Slots
-              />
+              <div className={styles.slotsWrapper}>
+                <Slots
+                  groupScore={groupScore}
+                  groupCode={groupCode}
+                  onSpinComplete={(newScore) => {
+                    setGroupScore(newScore);
+                    setShowSlots(false);
+                    fetchData(groupCode); // Refresh data after spin
+                  }}
+                  hasPlayedSlots={hasPlayedSlots} // Pass hasPlayedSlots to Slots
+                />
+                <div style={{ padding: "0.5rem" }}>
+                  <CustomButton
+                    zIndex={2}
+                    width={"100%"}
+                    onClick={() => setShowSlots(false)}
+                  >
+                    {t("close")}
+                  </CustomButton>
+                </div>
+              </div>
             </div>
           )}
         </div>

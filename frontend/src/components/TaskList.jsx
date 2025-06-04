@@ -282,7 +282,7 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition
                                         </div>
                                     )}
                                     {status === "pending" ? (
-                                        <div style={{ fontSize: "14px", marginTop: "1rem"}}>Awaiting verification. Further submissions are disabled.</div>
+                                        <div style={{ fontSize: "14px", marginTop: "1rem"}}>{t('awaitingVerification')}</div>
                                     ) : (
                                         <>
                                             {task.type === "qr" && status !== "approved" && (
@@ -297,7 +297,7 @@ function TaskList({ tasks, submissions, groupCode, fetchSubmissions, setPosition
                                                         placeholder="Enter your answer"
                                                     />
                                                     <CustomButton width={"100%"}
-                                                                  onClick={() => handleTextSubmit(task._id)}>Submit</CustomButton>
+                                                                  onClick={() => handleTextSubmit(task._id)}>{t('submit')}</CustomButton>
                                                 </div>
                                             )}
                                             {task.type === "photo" && status !== "approved" && (
