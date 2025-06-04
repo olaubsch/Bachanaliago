@@ -14,6 +14,7 @@ import CloseIcon from "../utils/icons/closeIcon.jsx";
 import LanguageToggle from "./ui/LanguageToggle.jsx";
 import {useTranslation} from "react-i18next";
 import LocationIcon from "../utils/icons/LocationPin.jsx";
+import Timer from "../utils/icons/Timer.jsx";
 
 function AdminPanel() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -24,6 +25,8 @@ function AdminPanel() {
   const [groupCreationEnabled, setGroupCreationEnabled] = useState(true);
   const [appEnabled, setAppEnabled] = useState(true);
   const [showPopup, setShowPopup] = useState(false);
+  const [showPopupTimer, setShowPopupTimer] = useState(false);
+  const [latestGroupSubmissions, setLatestGroupSubmissions] = useState([]);
   const { t } = useTranslation();
   const gMapURL = 'https://www.google.com/maps?q=';
   const { language } = useLanguage();
@@ -38,12 +41,23 @@ function AdminPanel() {
     }
   };
 
+  const fetchPendingSubmissions = async () => {
+    try {
+      const res = await axios.get("/api/submissions/pending");
+      setSubmissions(res.data);
+      console.log("Pending submissions:", res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleLogin = async () => {
     try {
       const res = await axios.post("/api/admin/login", { password });
       if (res.status === 200) {
         setIsLoggedIn(true);
         fetchTasks();
+        fetchLatestSubmissions();
         try {
           const settingRes = await axios.get("/api/groups/settings/groupCreationEnabled");
           setGroupCreationEnabled(settingRes.data.enabled);
@@ -146,6 +160,34 @@ function AdminPanel() {
     }
   };
 
+  const fetchLatestSubmissions = async () => {
+    try {
+      const res = await axios.get("/api/submissions/all");
+      const submissions = res.data;
+      console.log("Kurwa", res.data);
+
+      // Group and find latest per group
+      const latestByGroup = {};
+      submissions.forEach((sub) => {
+        const groupId = sub.group._id;
+        if (
+            !latestByGroup[groupId] ||
+            new Date(sub.createdAt) > new Date(latestByGroup[groupId].createdAt)
+        ) {
+          latestByGroup[groupId] = sub;
+        }
+      });
+
+      // Convert to array for rendering
+      const latestList = Object.values(latestByGroup);
+      setLatestGroupSubmissions(latestList);
+
+      console.log("Latest submissions by group:", latestList);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
 
   return (
     <div className={styles.adminContainer}>
@@ -154,9 +196,15 @@ function AdminPanel() {
         <ThemeToggle />
         <LanguageToggle />
         {isLoggedIn && (
-            <div onClick={() => setShowPopup(true)}
-                 style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-              <GearIcon className={ styles.icon } />
+            <div style={{ display: 'flex', gap: '0.5rem'}}>
+              <div onClick={() => setShowPopup(true)}
+                   style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+                <GearIcon className={styles.icon}/>
+              </div>
+              <div onClick={() => setShowPopupTimer(true)}
+                   style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+                <Timer className={styles.icon}/>
+              </div>
             </div>
         )}
       </div>
@@ -310,7 +358,6 @@ function AdminPanel() {
             <VerificationView />
           </div>
 
-            {/* Friend List Pop-up */}
             {showPopup && (
                 <div className={styles.popupOverlay} onClick={() => setShowPopup(false)}>
                   <div className={styles.popupContent} onClick={(e) => e.stopPropagation()}>
@@ -362,6 +409,45 @@ function AdminPanel() {
                         {t('deleteDatabaseDisableApp')}
                       </CustomButton>
                     </div>
+                  </div>
+                </div>
+            )}
+
+            {showPopupTimer && (
+                <div className={styles.popupOverlay} onClick={() => setShowPopupTimer(false)}>
+                  <div className={styles.popupContent} onClick={(e) => e.stopPropagation()}>
+                    <h2>{t('latestGroupSubmissions')}</h2>
+                    <div style={{maxHeight: '300px', overflowY: 'auto'}}>
+                      {latestGroupSubmissions.length === 0 ? (
+                          <p>{t('noSubmissionsYet')}</p>
+                      ) : (
+                          <table style={{width: '100%', borderCollapse: 'collapse'}}>
+                            <thead>
+                            <tr>
+                              <th style={{textAlign: 'left', padding: '8px'}}>{t('group')}</th>
+                              <th style={{textAlign: 'left', padding: '8px'}}>{t('time')}</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {latestGroupSubmissions.map((entry) => {
+                              const date = new Date(entry.createdAt);
+                              const timeString = date.toLocaleTimeString("pl-PL", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                second: "2-digit"
+                              });
+                              return (
+                                  <tr key={entry.groupId}>
+                                    <td style={{ padding: '8px' }}>{entry.group.name}</td>
+                                    <td style={{ padding: '8px' }}>{timeString}</td>
+                                  </tr>
+                              );
+                            })}
+                            </tbody>
+                          </table>
+                      )}
+                    </div>
+
                   </div>
                 </div>
             )}
