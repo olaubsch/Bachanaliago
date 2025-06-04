@@ -46,11 +46,11 @@ function MapElement({ tasks, position: externalPosition, onClearPosition }) {
   }, [mapCenter, externalPosition]);
 
   useEffect(() => {
-    if (externalPosition && centerSource !== "external") {
+    if (externalPosition) {
       setMapCenter(externalPosition);
       setCenterSource("external");
     }
-  }, [externalPosition]);
+  }, [externalPosition?.[0], externalPosition?.[1]]);
 
   const handleRecenter = () => {
     if (userLocation) {
