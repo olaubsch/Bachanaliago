@@ -12,11 +12,13 @@ const {
   getPendingSubmissions,
   verifySubmission,
   getGroupSubmissions,
+  getAllSubmissions
 } = require("../controllers/submissionController");
 
 router.post("/:taskId/submit", upload.single('file'), submitTask);
 router.get("/pending", getPendingSubmissions);
 router.post("/:submissionId/verify", verifySubmission);
 router.get("/group/:groupCode", getGroupSubmissions);
+router.get('/all', getAllSubmissions);
 
 module.exports = router;

@@ -23,6 +23,12 @@ export default function TermsModal({ onAccept }) {
             <br />
             5. Korzystanie z aplikacji oznacza pełną akceptację powyższych
             warunków.
+            <br />
+            6. Wygrywa drużyna, która zrobiła wszystkie lub najwięcej zadań (dobrze) w najkrótszym czasie.
+            <br />
+            7. Uczestnikami mogą być tylko studenci UZ.
+            <br />
+            8. Gra odbywa się na odpowiedzialność uczestników.
           </p>
 
           <CustomButton onClick={onAccept}>Akceptuję</CustomButton>

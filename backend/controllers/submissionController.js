@@ -105,3 +105,22 @@ exports.getGroupSubmissions = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+
+exports.getAllSubmissions = async (req, res) => {
+  try {
+    console.log("Fetching all submissions...");
+
+    const submissions = await TaskSubmission.find()
+        .populate({ path: 'task', select: 'name type' })
+        .populate({ path: 'group', select: 'name code score' }); // Optional: include more fields if needed
+
+    console.log("Submissions fetched:", submissions.length);
+    res.json(submissions);
+  } catch (err) {
+    console.error("Error in getAllSubmissions:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+
+
