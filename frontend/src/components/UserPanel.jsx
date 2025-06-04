@@ -412,7 +412,12 @@ function UserPanel() {
                 overflow: "auto",
               }}
             >
-              <div className={ styles.slotsWrapper }>
+              <div className={styles.slotsWrapper}>
+                <div style={{padding: "0.5rem"}}>
+                  <CustomButton zIndex={2} width={"100%"} onClick={() => setShowSlots(false)}>
+                    {t('close')}
+                  </CustomButton>
+                </div>
                 <Slots
                     groupScore={groupScore}
                     groupCode={groupCode}
@@ -423,11 +428,6 @@ function UserPanel() {
                     }}
                     hasPlayedSlots={hasPlayedSlots} // Pass hasPlayedSlots to Slots
                 />
-                <div style={{padding: "0.5rem"}}>
-                  <CustomButton zIndex={2} width={"100%"} onClick={() => setShowSlots(false)}>
-                    {t('close')}
-                  </CustomButton>
-                </div>
               </div>
             </div>
           )}

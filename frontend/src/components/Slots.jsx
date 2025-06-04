@@ -41,7 +41,6 @@ const Reel = ({
 
   return (
     <>
-      <div className={styles.zigzagContainer}></div>
       <div className={styles.reel} style={{ height: `${symbolHeight}px` }}>
         <div
           className={styles.symbols}
