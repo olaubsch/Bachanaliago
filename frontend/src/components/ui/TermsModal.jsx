@@ -11,24 +11,22 @@ export default function TermsModal({ onAccept }) {
           <h2 className={styles.modalTitle}>Regulamin aplikacji</h2>
 
           <p>
-            1. Korzystając z tej aplikacji, zgadzasz się na przetwarzanie danych
-            potrzebnych do jej działania.
+            1. Nie używaj aplikacji do celów niezgodnych z prawem.
             <br />
-            2. Nie używaj aplikacji do celów niezgodnych z prawem.
-            <br />
-            3. Twoje działania mogą być rejestrowane w celach bezpieczeństwa i
+            2. Twoje działania mogą być rejestrowane w celach bezpieczeństwa i
             analizy.
             <br />
-            4. Aplikacja nie ponosi odpowiedzialności za działania użytkowników.
+            3. Gra odbywa się na odpowiedzialność uczestników.
             <br />
-            5. Korzystanie z aplikacji oznacza pełną akceptację powyższych
+            4. Wygrywa drużyna, która zrobiła wszystkie lub najwięcej zadań (dobrze) w najkrótszym czasie.
+            <br />
+            5. Uczestnikami mogą być tylko studenci UZ.
+            <br />
+            6. Korzystając z tej aplikacji, zgadzasz się na przetwarzanie danych
+            potrzebnych do jej działania.
+            <br />
+            7. Korzystanie z aplikacji oznacza pełną akceptację powyższych
             warunków.
-            <br />
-            6. Wygrywa drużyna, która zrobiła wszystkie lub najwięcej zadań (dobrze) w najkrótszym czasie.
-            <br />
-            7. Uczestnikami mogą być tylko studenci UZ.
-            <br />
-            8. Gra odbywa się na odpowiedzialność uczestników.
           </p>
 
           <CustomButton onClick={onAccept}>Akceptuję</CustomButton>
