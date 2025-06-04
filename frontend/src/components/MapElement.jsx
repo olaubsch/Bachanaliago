@@ -6,6 +6,14 @@ import 'leaflet/dist/leaflet.css';
 import {useLanguage} from "../utils/LanguageContext.jsx";
 import {useTranslation} from "react-i18next";
 
+const customIcon = L.icon({
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+  shadowSize: [41, 41],
+});
+
 
 function SetViewOnPosition({ position }) {
   const map = useMap();
@@ -90,7 +98,7 @@ function MapElement({ tasks, position: externalPosition, onClearPosition }) {
               />
               <SetViewOnPosition position={mapCenter} />
               {userLocation && (
-                  <Marker position={mapCenter}>
+                  <Marker position={mapCenter} icon={customIcon}>
                   </Marker>
               )}
 
